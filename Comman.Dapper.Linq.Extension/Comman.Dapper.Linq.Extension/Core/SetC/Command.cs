@@ -17,18 +17,18 @@ namespace Comman.Dapper.Linq.Extension.Core.SetC
     /// <typeparam name="T"></typeparam>
     public abstract class Command<T> : AbstractSet, ICommand<T>
     {
-        private readonly IDbConnection dbCon;
+        private readonly IDbConnection _dbCon;
 
         protected Command(IDbConnection conn, SqlProvider sqlProvider)
         {
             SqlProvider = sqlProvider;
-            dbCon = conn;
+            _dbCon = conn;
         }
 
         protected Command(IDbConnection conn, SqlProvider sqlProvider, IDbTransaction dbTransaction)
         {
             SqlProvider = sqlProvider;
-            dbCon = conn;
+            _dbCon = conn;
             DbTransaction = dbTransaction;
         }
 
@@ -39,14 +39,14 @@ namespace Comman.Dapper.Linq.Extension.Core.SetC
         public int Update(T entity, string[] excludeFields = null, int timeout = 120)
         {
             SqlProvider.FormatUpdate(entity, excludeFields);
-            return dbCon.Execute(SqlProvider.SqlString, SqlProvider.Params, DbTransaction, timeout,
+            return _dbCon.Execute(SqlProvider.SqlString, SqlProvider.Params, DbTransaction, timeout,
                 isExcludeUnitOfWork: SqlProvider.IsExcludeUnitOfWork);
         }
 
         public int Update(Expression<Func<T, T>> updateExpression)
         {
             SqlProvider.FormatUpdate(updateExpression);
-            return dbCon.Execute(SqlProvider.SqlString, SqlProvider.Params, DbTransaction,
+            return _dbCon.Execute(SqlProvider.SqlString, SqlProvider.Params, DbTransaction,
                 isExcludeUnitOfWork: SqlProvider.IsExcludeUnitOfWork);
         }
 
@@ -55,21 +55,21 @@ namespace Comman.Dapper.Linq.Extension.Core.SetC
         {
             var enumerable = entities.ToList();
             SqlProvider.FormatUpdate(enumerable, excludeFields);
-            return dbCon.Update(SqlProvider.SqlString, SqlProvider.Params, adapter, enumerable, SqlProvider,
+            return _dbCon.Update(SqlProvider.SqlString, SqlProvider.Params, adapter, enumerable, SqlProvider,
                 DbTransaction, isExcludeUnitOfWork: SqlProvider.IsExcludeUnitOfWork);
         }
 
         public async Task<int> UpdateAsync(T entity, string[] excludeFields = null, int timeout = 120)
         {
             SqlProvider.FormatUpdate(entity, excludeFields);
-            return await dbCon.ExecuteAsync(SqlProvider.SqlString, SqlProvider.Params, DbTransaction,
+            return await _dbCon.ExecuteAsync(SqlProvider.SqlString, SqlProvider.Params, DbTransaction,
                 isExcludeUnitOfWork: SqlProvider.IsExcludeUnitOfWork);
         }
 
         public async Task<int> UpdateAsync(Expression<Func<T, T>> updateExpression)
         {
             SqlProvider.FormatUpdate(updateExpression);
-            return await dbCon.ExecuteAsync(SqlProvider.SqlString, SqlProvider.Params, DbTransaction,
+            return await _dbCon.ExecuteAsync(SqlProvider.SqlString, SqlProvider.Params, DbTransaction,
                 isExcludeUnitOfWork: SqlProvider.IsExcludeUnitOfWork);
         }
 
@@ -87,7 +87,7 @@ namespace Comman.Dapper.Linq.Extension.Core.SetC
         public int Delete()
         {
             SqlProvider.FormatDelete();
-            return dbCon.Execute(SqlProvider.SqlString, SqlProvider.Params, DbTransaction,
+            return _dbCon.Execute(SqlProvider.SqlString, SqlProvider.Params, DbTransaction,
                 isExcludeUnitOfWork: SqlProvider.IsExcludeUnitOfWork);
         }
 
@@ -97,13 +97,13 @@ namespace Comman.Dapper.Linq.Extension.Core.SetC
             //设置参数
             var param = new DynamicParameters();
             SqlProvider.SqlString = $"{SqlProvider.SqlString} {SqlProvider.GetIdentityWhere(model, param)}";
-            return dbCon.Execute(SqlProvider.SqlString, param, isExcludeUnitOfWork: SqlProvider.IsExcludeUnitOfWork);
+            return _dbCon.Execute(SqlProvider.SqlString, param, isExcludeUnitOfWork: SqlProvider.IsExcludeUnitOfWork);
         }
 
         public async Task<int> DeleteAsync()
         {
             SqlProvider.FormatDelete();
-            return await dbCon.ExecuteAsync(SqlProvider.SqlString, SqlProvider.Params, DbTransaction,
+            return await _dbCon.ExecuteAsync(SqlProvider.SqlString, SqlProvider.Params, DbTransaction,
                 isExcludeUnitOfWork: SqlProvider.IsExcludeUnitOfWork);
         }
 
@@ -113,21 +113,21 @@ namespace Comman.Dapper.Linq.Extension.Core.SetC
             //设置参数
             var param = new DynamicParameters();
             SqlProvider.SqlString = $"{SqlProvider.SqlString} {SqlProvider.GetIdentityWhere(model, param)}";
-            return await dbCon.ExecuteAsync(SqlProvider.SqlString, param,
+            return await _dbCon.ExecuteAsync(SqlProvider.SqlString, param,
                 isExcludeUnitOfWork: SqlProvider.IsExcludeUnitOfWork);
         }
 
         public int Insert(T entity, string[] excludeFields = null)
         {
             SqlProvider.FormatInsert(entity, excludeFields);
-            return dbCon.Execute(SqlProvider.SqlString, SqlProvider.Params, DbTransaction,
+            return _dbCon.Execute(SqlProvider.SqlString, SqlProvider.Params, DbTransaction,
                 isExcludeUnitOfWork: SqlProvider.IsExcludeUnitOfWork);
         }
 
         public long InsertIdentity(T entity, string[] excludeFields = null)
         {
             SqlProvider.FormatInsertIdentity(entity, excludeFields);
-            var result = dbCon.ExecuteScalar(SqlProvider.SqlString, SqlProvider.Params, DbTransaction,
+            var result = _dbCon.ExecuteScalar(SqlProvider.SqlString, SqlProvider.Params, DbTransaction,
                 isExcludeUnitOfWork: SqlProvider.IsExcludeUnitOfWork);
             return result != null ? Convert.ToInt64(result) : 0;
         }
@@ -135,21 +135,21 @@ namespace Comman.Dapper.Linq.Extension.Core.SetC
         public int Insert(IEnumerable<T> entities, string[] excludeFields = null, int timeout = 120)
         {
             SqlProvider.FormatInsert(entities, excludeFields);
-            return dbCon.Execute(SqlProvider.SqlString, SqlProvider.Params, DbTransaction, timeout,
+            return _dbCon.Execute(SqlProvider.SqlString, SqlProvider.Params, DbTransaction, timeout,
                 isExcludeUnitOfWork: SqlProvider.IsExcludeUnitOfWork);
         }
 
         public async Task<int> InsertAsync(T entity, string[] excludeFields = null)
         {
             SqlProvider.FormatInsert(entity, excludeFields);
-            return await dbCon.ExecuteAsync(SqlProvider.SqlString, SqlProvider.Params, DbTransaction,
+            return await _dbCon.ExecuteAsync(SqlProvider.SqlString, SqlProvider.Params, DbTransaction,
                 isExcludeUnitOfWork: SqlProvider.IsExcludeUnitOfWork);
         }
 
         public async Task<long> InsertIdentityAsync(T entity, string[] excludeFields = null)
         {
             SqlProvider.FormatInsertIdentity(entity, excludeFields);
-            var result = await dbCon.ExecuteScalarAsync(SqlProvider.SqlString, SqlProvider.Params, DbTransaction,
+            var result = await _dbCon.ExecuteScalarAsync(SqlProvider.SqlString, SqlProvider.Params, DbTransaction,
                 isExcludeUnitOfWork: SqlProvider.IsExcludeUnitOfWork);
             return result != null ? Convert.ToInt64(result) : 0;
         }
@@ -157,7 +157,7 @@ namespace Comman.Dapper.Linq.Extension.Core.SetC
         public async Task<int> InsertAsync(IEnumerable<T> entities, string[] excludeFields = null, int timeout = 120)
         {
             SqlProvider.FormatInsert(entities, excludeFields);
-            return await dbCon.ExecuteAsync(SqlProvider.SqlString, SqlProvider.Params, DbTransaction, timeout,
+            return await _dbCon.ExecuteAsync(SqlProvider.SqlString, SqlProvider.Params, DbTransaction, timeout,
                 isExcludeUnitOfWork: SqlProvider.IsExcludeUnitOfWork);
         }
     }

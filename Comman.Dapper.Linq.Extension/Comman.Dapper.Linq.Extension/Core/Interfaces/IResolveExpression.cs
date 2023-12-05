@@ -1,24 +1,21 @@
-using Kogel.Dapper.Extension;
-using Kogel.Dapper.Extension.Attributes;
-using Kogel.Dapper.Extension.Expressions;
-using Kogel.Dapper.Extension.Extension;
-using Kogel.Dapper.Extension.Helper;
-using Kogel.Dapper.Extension.Entites;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
-using System.Threading.Tasks;
+using Comman.Dapper.Linq.Extension.Dapper;
+using Comman.Dapper.Linq.Extension.Entites;
+using Comman.Dapper.Linq.Extension.Expressions;
+using Comman.Dapper.Linq.Extension.Extension;
+using Comman.Dapper.Linq.Extension.Helper.Cache;
 
-namespace Kogel.Dapper.Extension.Core.Interfaces
+namespace Comman.Dapper.Linq.Extension.Core.Interfaces
 {
     public abstract class IResolveExpression
     {
         protected SqlProvider provider;
-        protected IProviderOption providerOption;
+        protected ProviderOption providerOption;
         protected AbstractSet abstractSet => provider.Context.Set;
 
         public IResolveExpression(SqlProvider provider)

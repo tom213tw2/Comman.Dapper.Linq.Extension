@@ -265,10 +265,7 @@ namespace Comman.Dapper.Linq.Extension.Core.SetQ
         public Comman.Dapper.Linq.Extension.Core.Interfaces.IQuerySet<T> GroupByIf<TGroup>(bool where, Expression<Func<TGroup, object>> trueGroupByExp,
             Expression<Func<TGroup, object>> falseGroupByExp)
         {
-            if (where)
-                GroupExpressionList.Add(trueGroupByExp);
-            else
-                GroupExpressionList.Add(falseGroupByExp);
+            GroupExpressionList.Add(where ? trueGroupByExp : falseGroupByExp);
             return this;
         }
 
@@ -306,10 +303,7 @@ namespace Comman.Dapper.Linq.Extension.Core.SetQ
         public Comman.Dapper.Linq.Extension.Core.Interfaces.IQuerySet<T> HavingIf<THaving>(bool where, Expression<Func<THaving, object>> trueHavingExp,
             Expression<Func<THaving, object>> falseHavingExp)
         {
-            if (where)
-                HavingExpressionList.Add(trueHavingExp);
-            else
-                HavingExpressionList.Add(falseHavingExp);
+            HavingExpressionList.Add(where ? trueHavingExp : falseHavingExp);
             return this;
         }
 

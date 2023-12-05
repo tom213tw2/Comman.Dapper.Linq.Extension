@@ -56,10 +56,7 @@ namespace Comman.Dapper.Linq.Extension.Core.SetQ
         public TReturn Get<TReturn>(bool where, Expression<Func<T, TReturn>> trueSelect,
             Expression<Func<T, TReturn>> falseSelect)
         {
-            if (where)
-                SqlProvider.Context.Set.SelectExpression = trueSelect;
-            else
-                SqlProvider.Context.Set.SelectExpression = falseSelect;
+            SqlProvider.Context.Set.SelectExpression = where ? trueSelect : falseSelect;
             SqlProvider.FormatGet<T>();
             return DbCon.QueryFirst_1<TReturn>(SqlProvider, DbTransaction);
         }
@@ -86,10 +83,7 @@ namespace Comman.Dapper.Linq.Extension.Core.SetQ
         public async Task<TReturn> GetAsync<TReturn>(bool where, Expression<Func<T, TReturn>> trueSelect,
             Expression<Func<T, TReturn>> falseSelect)
         {
-            if (where)
-                SqlProvider.Context.Set.SelectExpression = trueSelect;
-            else
-                SqlProvider.Context.Set.SelectExpression = falseSelect;
+            SqlProvider.Context.Set.SelectExpression = where ? trueSelect : falseSelect;
             SqlProvider.FormatGet<T>();
             return await DbCon.QueryFirst_1Async<TReturn>(SqlProvider, DbTransaction);
         }
@@ -116,10 +110,7 @@ namespace Comman.Dapper.Linq.Extension.Core.SetQ
         public IEnumerable<TReturn> ToIEnumerable<TReturn>(bool where, Expression<Func<T, TReturn>> trueSelect,
             Expression<Func<T, TReturn>> falseSelect)
         {
-            if (where)
-                SqlProvider.Context.Set.SelectExpression = trueSelect;
-            else
-                SqlProvider.Context.Set.SelectExpression = falseSelect;
+            SqlProvider.Context.Set.SelectExpression = where ? trueSelect : falseSelect;
             SqlProvider.FormatToList<T>();
             return DbCon.Query_1<TReturn>(SqlProvider, DbTransaction);
         }
@@ -146,10 +137,7 @@ namespace Comman.Dapper.Linq.Extension.Core.SetQ
         public async Task<IEnumerable<TReturn>> ToIEnumerableAsync<TReturn>(bool where,
             Expression<Func<T, TReturn>> trueSelect, Expression<Func<T, TReturn>> falseSelect)
         {
-            if (where)
-                SqlProvider.Context.Set.SelectExpression = trueSelect;
-            else
-                SqlProvider.Context.Set.SelectExpression = falseSelect;
+            SqlProvider.Context.Set.SelectExpression = where ? trueSelect : falseSelect;
             SqlProvider.FormatToList<T>();
             return await DbCon.Query_1Async<TReturn>(SqlProvider, DbTransaction);
         }
@@ -176,10 +164,7 @@ namespace Comman.Dapper.Linq.Extension.Core.SetQ
         public List<TReturn> ToList<TReturn>(bool where, Expression<Func<T, TReturn>> trueSelect,
             Expression<Func<T, TReturn>> falseSelect)
         {
-            if (where)
-                SqlProvider.Context.Set.SelectExpression = trueSelect;
-            else
-                SqlProvider.Context.Set.SelectExpression = falseSelect;
+            SqlProvider.Context.Set.SelectExpression = where ? trueSelect : falseSelect;
             SqlProvider.FormatToList<T>();
             return DbCon.Query_1<TReturn>(SqlProvider, DbTransaction);
         }
@@ -206,10 +191,7 @@ namespace Comman.Dapper.Linq.Extension.Core.SetQ
         public async Task<List<TReturn>> ToListAsync<TReturn>(bool where, Expression<Func<T, TReturn>> trueSelect,
             Expression<Func<T, TReturn>> falseSelect)
         {
-            if (where)
-                SqlProvider.Context.Set.SelectExpression = trueSelect;
-            else
-                SqlProvider.Context.Set.SelectExpression = falseSelect;
+            SqlProvider.Context.Set.SelectExpression = where ? trueSelect : falseSelect;
             SqlProvider.FormatToList<T>();
             return await DbCon.Query_1Async<TReturn>(SqlProvider, DbTransaction);
         }
@@ -236,10 +218,7 @@ namespace Comman.Dapper.Linq.Extension.Core.SetQ
         public List<TReturn> Page<TReturn>(int pageIndex, int pageSize, bool where,
             Expression<Func<T, TReturn>> trueSelect, Expression<Func<T, TReturn>> falseSelect)
         {
-            if (where)
-                SqlProvider.Context.Set.SelectExpression = trueSelect;
-            else
-                SqlProvider.Context.Set.SelectExpression = falseSelect;
+            SqlProvider.Context.Set.SelectExpression = where ? trueSelect : falseSelect;
             SqlProvider.FormatToPageList<T>(pageIndex, pageSize);
             return DbCon.Query_1<TReturn>(SqlProvider, DbTransaction);
         }
@@ -267,10 +246,7 @@ namespace Comman.Dapper.Linq.Extension.Core.SetQ
         public async Task<List<TReturn>> PageAsync<TReturn>(int pageIndex, int pageSize, bool where,
             Expression<Func<T, TReturn>> trueSelect, Expression<Func<T, TReturn>> falseSelect)
         {
-            if (where)
-                SqlProvider.Context.Set.SelectExpression = trueSelect;
-            else
-                SqlProvider.Context.Set.SelectExpression = falseSelect;
+            SqlProvider.Context.Set.SelectExpression = where ? trueSelect : falseSelect;
             SqlProvider.FormatToPageList<T>(pageIndex, pageSize);
             return await DbCon.Query_1Async<TReturn>(SqlProvider, DbTransaction);
         }
@@ -342,10 +318,7 @@ namespace Comman.Dapper.Linq.Extension.Core.SetQ
         public PageList<TReturn> PageList<TReturn>(int pageIndex, int pageSize, bool where,
             Expression<Func<T, TReturn>> trueSelect, Expression<Func<T, TReturn>> falseSelect)
         {
-            if (where)
-                SqlProvider.Context.Set.SelectExpression = trueSelect;
-            else
-                SqlProvider.Context.Set.SelectExpression = falseSelect;
+            SqlProvider.Context.Set.SelectExpression = where ? trueSelect : falseSelect;
             //查询总行数
             SqlProvider.FormatCount();
             var pageTotal = DbCon.QuerySingles<int>(SqlProvider, DbTransaction);
@@ -433,10 +406,7 @@ namespace Comman.Dapper.Linq.Extension.Core.SetQ
         public async Task<PageList<TReturn>> PageListAsync<TReturn>(int pageIndex, int pageSize, bool where,
             Expression<Func<T, TReturn>> trueSelect, Expression<Func<T, TReturn>> falseSelect)
         {
-            if (where)
-                SqlProvider.Context.Set.SelectExpression = trueSelect;
-            else
-                SqlProvider.Context.Set.SelectExpression = falseSelect;
+            SqlProvider.Context.Set.SelectExpression = where ? trueSelect : falseSelect;
             //查询总行数
             SqlProvider.FormatCount();
             var pageTotal = await DbCon.QuerySinglesAsync<int>(SqlProvider, DbTransaction);
@@ -472,10 +442,7 @@ namespace Comman.Dapper.Linq.Extension.Core.SetQ
         public DataSet ToDataSet<TReturn>(bool where, Expression<Func<T, TReturn>> trueSelect,
             Expression<Func<T, TReturn>> falseSelect, IDbDataAdapter dataAdapter = null)
         {
-            if (where)
-                SqlProvider.Context.Set.SelectExpression = trueSelect;
-            else
-                SqlProvider.Context.Set.SelectExpression = falseSelect;
+            SqlProvider.Context.Set.SelectExpression = where ? trueSelect : falseSelect;
             SqlProvider.FormatToList<T>();
             return DbCon.QueryDataSets(SqlProvider, DbTransaction, dataAdapter);
         }
@@ -497,10 +464,7 @@ namespace Comman.Dapper.Linq.Extension.Core.SetQ
         public async Task<DataSet> ToDataSetAsync<TReturn>(bool where, Expression<Func<T, TReturn>> trueSelect,
             Expression<Func<T, TReturn>> falseSelect, IDbDataAdapter dataAdapter = null)
         {
-            if (where)
-                SqlProvider.Context.Set.SelectExpression = trueSelect;
-            else
-                SqlProvider.Context.Set.SelectExpression = falseSelect;
+            SqlProvider.Context.Set.SelectExpression = where ? trueSelect : falseSelect;
             SqlProvider.FormatToList<T>();
             return await DbCon.QueryDataSetsAsync(SqlProvider, DbTransaction, dataAdapter);
         }
