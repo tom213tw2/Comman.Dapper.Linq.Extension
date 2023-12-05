@@ -6,7 +6,6 @@ namespace Kogel.Dapper.Extension
     {
         public DapperExtensionException(string msg) : base(msg)
         {
-
         }
     }
 }

@@ -3,40 +3,41 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Kogel.Dapper.Extension;
-using Kogel.Dapper.Extension;
-using Kogel.Dapper.Extension.Expressions;
 using Kogel.Dapper.Extension.Entites;
+using Kogel.Dapper.Extension.Expressions;
 
 namespace Kogel.Dapper.Extension.Extension
 {
     public static class ExpressionExtension
     {
         #region 表达式类型字典
+
         /// <summary>
-        /// 表达式类型字典
+        ///     表达式类型字典
         /// </summary>
         public static readonly Dictionary<ExpressionType, string> NodeTypeDic = new Dictionary<ExpressionType, string>
         {
-            {ExpressionType.AndAlso," AND "},
-            {ExpressionType.OrElse," OR "},
-            {ExpressionType.Equal," = "},
-            {ExpressionType.NotEqual," != "},
-            {ExpressionType.LessThan," < "},
-            {ExpressionType.LessThanOrEqual," <= "},
-            {ExpressionType.GreaterThan," > "},
-            {ExpressionType.GreaterThanOrEqual," >= "},
-            {ExpressionType.Add," + " },
-            {ExpressionType.Subtract," - " },
-            {ExpressionType.Multiply," * " },
-            {ExpressionType.Divide," / "},
-            {ExpressionType.Modulo," % " }
+            { ExpressionType.AndAlso, " AND " },
+            { ExpressionType.OrElse, " OR " },
+            { ExpressionType.Equal, " = " },
+            { ExpressionType.NotEqual, " != " },
+            { ExpressionType.LessThan, " < " },
+            { ExpressionType.LessThanOrEqual, " <= " },
+            { ExpressionType.GreaterThan, " > " },
+            { ExpressionType.GreaterThanOrEqual, " >= " },
+            { ExpressionType.Add, " + " },
+            { ExpressionType.Subtract, " - " },
+            { ExpressionType.Multiply, " * " },
+            { ExpressionType.Divide, " / " },
+            { ExpressionType.Modulo, " % " }
         };
+
         #endregion
 
         #region 获取表达式类型转换结果
+
         /// <summary>
-        /// 获取表达式类型转换结果
+        ///     获取表达式类型转换结果
         /// </summary>
         /// <param name="node">二元表达式</param>
         /// <returns></returns>
@@ -46,7 +47,6 @@ namespace Kogel.Dapper.Extension.Extension
 
             string nodeType = null;
             if (node.Right.NodeType == ExpressionType.Constant && ((ConstantExpression)node.Right).Value == null)
-            {
                 switch (node.NodeType)
                 {
                     case ExpressionType.Equal:
@@ -56,15 +56,16 @@ namespace Kogel.Dapper.Extension.Extension
                         nodeType = " IS NOT ";
                         break;
                 }
-            }
 
             return !string.IsNullOrEmpty(nodeType) ? nodeType : nodeTypeDic;
         }
+
         #endregion
 
         #region 获取最底层成员表达式
+
         /// <summary>
-        /// 获取最底层成员表达式
+        ///     获取最底层成员表达式
         /// </summary>
         /// <param name="e"></param>
         /// <returns></returns>
@@ -77,11 +78,13 @@ namespace Kogel.Dapper.Extension.Extension
                 ? ((MemberExpression)e.Expression).GetRootMember()
                 : null;
         }
+
         #endregion
 
         #region 转换成一元表达式并取值
+
         /// <summary>
-        /// 转换成一元表达式并取值（同时会计算方法）
+        ///     转换成一元表达式并取值（同时会计算方法）
         /// </summary>
         /// <param name="expression"></param>
         /// <returns></returns>
@@ -93,6 +96,7 @@ namespace Kogel.Dapper.Extension.Extension
             var lambdaExpression = Expression.Lambda<Func<object>>(expression);
             return lambdaExpression.Compile().Invoke();
         }
+
         #endregion
 
         public static object MemberToValue(this MemberExpression memberExpression)
@@ -129,7 +133,8 @@ namespace Kogel.Dapper.Extension.Extension
             var localExpression = topMember.Update(castExpression);
             var replaceExpression = ExpressionModifier.Replace(e, topMember, localExpression);
             replaceExpression = Expression.Convert(replaceExpression, typeof(object));
-            var compileExpression = Expression.Lambda<Func<object, object[], object>>(replaceExpression, parameter, parameters);
+            var compileExpression =
+                Expression.Lambda<Func<object, object[], object>>(replaceExpression, parameter, parameters);
             return compileExpression.Compile();
         }
 
@@ -138,48 +143,42 @@ namespace Kogel.Dapper.Extension.Extension
             var parameter = Expression.Parameter(typeof(object), "local");
             var parameters = Expression.Parameter(typeof(object[]), "args");
             var convertExpression = Expression.Convert(e, typeof(object));
-            var compileExpression = Expression.Lambda<Func<object, object[], object>>(convertExpression, parameter, parameters);
+            var compileExpression =
+                Expression.Lambda<Func<object, object[], object>>(convertExpression, parameter, parameters);
             return compileExpression.Compile();
         }
 
         /// <summary>
-        /// 获取表达式的字段名
+        ///     获取表达式的字段名
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="expression"></param>
         /// <returns></returns>
-        public static string GetCorrectPropertyName<T>(this Expression<Func<T, Object>> expression)
+        public static string GetCorrectPropertyName<T>(this Expression<Func<T, object>> expression)
         {
-            if (expression.Body is MemberExpression)
-            {
-                return ((MemberExpression)expression.Body).Member.Name;
-            }
-            else
-            {
-                var op = ((UnaryExpression)expression.Body).Operand;
-                return ((MemberExpression)op).Member.Name;
-            }
+            if (expression.Body is MemberExpression) return ((MemberExpression)expression.Body).Member.Name;
+
+            var op = ((UnaryExpression)expression.Body).Operand;
+            return ((MemberExpression)op).Member.Name;
         }
+
         public static string GetCorrectPropertyName(this Expression expression)
         {
-            if (expression is MemberExpression)
-            {
-                return ((MemberExpression)expression).Member.Name;
-            }
-            else
-            {
-                var op = ((UnaryExpression)expression).Operand;
-                return ((MemberExpression)op).Member.Name;
-            }
+            if (expression is MemberExpression) return ((MemberExpression)expression).Member.Name;
+
+            var op = ((UnaryExpression)expression).Operand;
+            return ((MemberExpression)op).Member.Name;
         }
+
         /// <summary>
-        /// 子查询转sql
+        ///     子查询转sql
         /// </summary>
         /// <param name="expression">表达式</param>
         /// <param name="Param">返回的参数</param>
         /// <param name="paramIndex">参数索引防止冲突</param>
         /// <returns></returns>
-        public static string MethodCallExpressionToSql(this MethodCallExpression expression, ref DynamicParameters Param, int paramIndex = 0)
+        public static string MethodCallExpressionToSql(this MethodCallExpression expression,
+            ref DynamicParameters Param, int paramIndex = 0)
         {
             //解析子查询
             var subquery = new SubqueryExpression(expression, paramIndex);
@@ -189,11 +188,11 @@ namespace Kogel.Dapper.Extension.Extension
 
         public static LambdaExpression GetLambdaExpression(this Expression expression)
         {
-            return (LambdaExpression)(((UnaryExpression)(expression)).Operand);
+            return (LambdaExpression)((UnaryExpression)expression).Operand;
         }
 
         /// <summary>
-        /// 成员表达式转lambda表达式
+        ///     成员表达式转lambda表达式
         /// </summary>
         /// <param name="expression"></param>
         /// <returns></returns>
@@ -204,7 +203,7 @@ namespace Kogel.Dapper.Extension.Extension
         }
 
         /// <summary>
-        /// 是否继承了IBaseEntity
+        ///     是否继承了IBaseEntity
         /// </summary>
         /// <param name="type"></param>
         /// <returns></returns>
@@ -215,23 +214,21 @@ namespace Kogel.Dapper.Extension.Extension
                 entityType = type;
                 return false;
             }
-            else if (type.FullName.Contains("System.Collections.Generic"))//泛型
-            {
+
+            if (type.FullName.Contains("System.Collections.Generic")) //泛型
                 return IsAnyBaseEntity(type.GenericTypeArguments[0], out entityType);
-            }
-            else if (type.BaseType.FullName.Contains("Kogel.Dapper.Extension.IBaseEntity"))
+
+            if (type.BaseType.FullName.Contains("Kogel.Dapper.Extension.IBaseEntity"))
             {
                 entityType = type.BaseType.GenericTypeArguments[0];
                 return true;
             }
-            else
-            {
-                return IsAnyBaseEntity(type.BaseType, out entityType);
-            }
+
+            return IsAnyBaseEntity(type.BaseType, out entityType);
         }
 
         /// <summary>
-        /// 克隆list
+        ///     克隆list
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="list"></param>
@@ -242,25 +239,26 @@ namespace Kogel.Dapper.Extension.Extension
         }
 
         /// <summary>
-        /// 根据名称获取实例值
+        ///     根据名称获取实例值
         /// </summary>
         /// <param name="entityObject"></param>
         /// <param name="name"></param>
         /// <param name="entityObj"></param>
         public static object GetPropertyValue(EntityObject entityObject, string name, object entityObj)
         {
-            PropertyInfo property = entityObject.Properties.FirstOrDefault(x => x.Name == name);
+            var property = entityObject.Properties.FirstOrDefault(x => x.Name == name);
             return property.GetValue(entityObj);
         }
 
         /// <summary>
-        /// 写入值对象
+        ///     写入值对象
         /// </summary>
         /// <typeparam name="TEntity"></typeparam>
         /// <param name="masterData"></param>
         /// <param name="joinTableList"></param>
         /// <param name="index"></param>
-        public static void SetProperValue<TMaster, TEntity>(TMaster master, TEntity entityValue, PropertyInfo propertyInfo)
+        public static void SetProperValue<TMaster, TEntity>(TMaster master, TEntity entityValue,
+            PropertyInfo propertyInfo)
         {
             if (propertyInfo.PropertyType == typeof(TEntity))
             {
@@ -268,21 +266,17 @@ namespace Kogel.Dapper.Extension.Extension
             }
             else
             {
-                List<TEntity> entities = (List<TEntity>)propertyInfo.GetValue(master);
+                var entities = (List<TEntity>)propertyInfo.GetValue(master);
                 if (entities == null)
-                {
-                    entities = new List<TEntity>() { entityValue };
-                }
+                    entities = new List<TEntity> { entityValue };
                 else
-                {
                     entities.Add(entityValue);
-                }
                 propertyInfo.SetValue(master, entities);
             }
         }
 
         /// <summary>
-        ///判断两个类型是否 
+        ///     判断两个类型是否
         /// </summary>
         /// <param name="type1"></param>
         /// <param name="type2"></param>
@@ -290,38 +284,24 @@ namespace Kogel.Dapper.Extension.Extension
         public static bool IsTypeEquals(this Type type1, Type type2)
         {
             if (type1 == type2)
-            {
                 return true;
-            }
-            else if (type1.BaseType == null || type2.BaseType == null)
-            {
+            if (type1.BaseType == null || type2.BaseType == null)
                 return false;
-            }
-            else
-            {
-                return IsTypeEquals(type1.BaseType, type2);
-            }
+            return IsTypeEquals(type1.BaseType, type2);
         }
 
         /// <summary>
-        /// 判断是否是值类型表达式
+        ///     判断是否是值类型表达式
         /// </summary>
         /// <param name="memberExpression"></param>
         /// <returns></returns>
         public static bool IsConstantExpression(this MemberExpression memberExpression)
         {
             if (memberExpression.Expression is ConstantExpression)
-            {
                 return true;
-            }
-            else if (memberExpression.Expression is MemberExpression)
-            {
+            if (memberExpression.Expression is MemberExpression)
                 return IsConstantExpression(memberExpression.Expression as MemberExpression);
-            }
-            else
-            {
-                return false;
-            }
+            return false;
         }
     }
 }

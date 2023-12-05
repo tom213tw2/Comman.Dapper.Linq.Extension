@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Reflection;
-using System.Collections.Generic;
 
 namespace Kogel.Dapper.Extension
 {
@@ -80,7 +79,10 @@ namespace Kogel.Dapper.Extension
             [typeof(ulong)] = TypeCode.UInt64,
         };
 #else
-        public static TypeCode GetTypeCode(Type type) => Type.GetTypeCode(type);
+        public static TypeCode GetTypeCode(Type type)
+        {
+            return Type.GetTypeCode(type);
+        }
 #endif
 
         public static MethodInfo GetPublicInstanceMethod(this Type type, string name, Type[] types)

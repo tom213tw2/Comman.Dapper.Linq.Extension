@@ -4,14 +4,14 @@ namespace Kogel.Dapper.Extension.Expressions
 {
     internal class ExpressionModifier : ExpressionVisitor
     {
+        private readonly Expression _newExpression;
+        private readonly Expression _oldExpression;
+
         public ExpressionModifier(Expression newExpression, Expression oldExpression)
         {
             _newExpression = newExpression;
             _oldExpression = oldExpression;
         }
-
-        private readonly Expression _newExpression;
-        private readonly Expression _oldExpression;
 
         public Expression Replace(Expression node)
         {
@@ -23,5 +23,4 @@ namespace Kogel.Dapper.Extension.Expressions
             return new ExpressionModifier(newExpression, oldExpression).Replace(node);
         }
     }
-
 }

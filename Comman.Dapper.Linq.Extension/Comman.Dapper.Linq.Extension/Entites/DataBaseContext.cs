@@ -1,4 +1,5 @@
-﻿using Kogel.Dapper.Extension.Core.SetC;
+﻿using Comman.Dapper.Linq.Extension.Core.Interfaces;
+using Kogel.Dapper.Extension.Core.SetC;
 using Kogel.Dapper.Extension.Core.SetQ;
 using Kogel.Dapper.Extension.Entites;
 

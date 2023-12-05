@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data;
+using System.Data.SqlClient;
 
 namespace Kogel.Dapper.Extension
 {
@@ -7,19 +8,21 @@ namespace Kogel.Dapper.Extension
     {
 #if !NETSTANDARD1_3 && !NETSTANDARD2_0
         /// <summary>
-        /// A type handler for data-types that are supported by the underlying provider, but which need
-        /// a well-known UdtTypeName to be specified
+        ///     A type handler for data-types that are supported by the underlying provider, but which need
+        ///     a well-known UdtTypeName to be specified
         /// </summary>
         public class UdtTypeHandler : ITypeHandler
         {
             private readonly string udtTypeName;
+
             /// <summary>
-            /// Creates a new instance of UdtTypeHandler with the specified <see cref="UdtTypeHandler"/>.
+            ///     Creates a new instance of UdtTypeHandler with the specified <see cref="UdtTypeHandler" />.
             /// </summary>
             /// <param name="udtTypeName">The user defined type name.</param>
             public UdtTypeHandler(string udtTypeName)
             {
-                if (string.IsNullOrEmpty(udtTypeName)) throw new ArgumentException("Cannot be null or empty", udtTypeName);
+                if (string.IsNullOrEmpty(udtTypeName))
+                    throw new ArgumentException("Cannot be null or empty", udtTypeName);
                 this.udtTypeName = udtTypeName;
             }
 
@@ -33,10 +36,10 @@ namespace Kogel.Dapper.Extension
 #pragma warning disable 0618
                 parameter.Value = SanitizeParameterValue(value);
 #pragma warning restore 0618
-                if (parameter is System.Data.SqlClient.SqlParameter && !(value is DBNull))
+                if (parameter is SqlParameter && !(value is DBNull))
                 {
-                    ((System.Data.SqlClient.SqlParameter)parameter).SqlDbType = SqlDbType.Udt;
-                    ((System.Data.SqlClient.SqlParameter)parameter).UdtTypeName = udtTypeName;
+                    ((SqlParameter)parameter).SqlDbType = SqlDbType.Udt;
+                    ((SqlParameter)parameter).UdtTypeName = udtTypeName;
                 }
             }
         }

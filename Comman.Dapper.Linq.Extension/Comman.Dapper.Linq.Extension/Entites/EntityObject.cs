@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Reflection;
-using System.Linq;
-using Kogel.Dapper.Extension.Attributes;
-using Kogel.Dapper.Extension.Helper;
-using Kogel.Dapper.Extension.Core.Interfaces;
-using System.Linq.Expressions;
 using System.Data;
+using System.Linq;
+using System.Reflection;
+using Comman.Dapper.Linq.Extension.Attributes;
+using Kogel.Dapper.Extension.Helper;
 
 namespace Kogel.Dapper.Extension.Entites
 {
@@ -15,73 +13,65 @@ namespace Kogel.Dapper.Extension.Entites
         public EntityObject(Type type)
         {
             //反射表名称
-            this.Name = type.Name;
+            Name = type.Name;
             //指定as名称
-            this.AsName = type.Name;
+            AsName = type.Name;
             //获取是否有Display特性
-            var typeAttribute = type.GetCustomAttributess(true).FirstOrDefault(x => x.GetType().Equals(typeof(Display)));
+            var typeAttribute =
+                type.GetCustomAttributess(true).FirstOrDefault(x => x.GetType().Equals(typeof(Display)));
             if (typeAttribute != null)
             {
                 var display = typeAttribute as Display;
                 //是否有重命名
                 var rename = display.Rename;
-                if (!string.IsNullOrEmpty(rename))
-                {
-                    this.Name = rename;
-                }
+                if (!string.IsNullOrEmpty(rename)) Name = rename;
                 //是否有名称空间
-                string schema = display.Schema;
-                if (!string.IsNullOrEmpty(schema))
-                {
-                    this.Schema = schema;
-                }
+                var schema = display.Schema;
+                if (!string.IsNullOrEmpty(schema)) Schema = schema;
                 //是否有指定as名称
-                string asName = display.AsName;
+                var asName = display.AsName;
                 if (!string.IsNullOrEmpty(asName))
-                {
-                    this.AsName = asName;
-                }
+                    AsName = asName;
                 else
-                {
                     //防止rename有值，这样就不会出现bug
-                    this.AsName = this.Name;
-                }
+                    AsName = Name;
             }
-            this.Type = type;
-            this.AssemblyString = type.FullName;
+
+            Type = type;
+            AssemblyString = type.FullName;
             //反射实体类属性
-            this.Properties = type.GetProperties();
-            List<PropertyInfo> PropertyInfoList = new List<PropertyInfo>();
+            Properties = type.GetProperties();
+            var PropertyInfoList = new List<PropertyInfo>();
             //字段字典
-            this.FieldPairs = new Dictionary<string, string>();
+            FieldPairs = new Dictionary<string, string>();
             //导航列表
-            this.Navigations = new List<JoinAssTable>();
+            Navigations = new List<JoinAssTable>();
             //字段列表
-            this.EntityFieldList = new List<EntityField>();
+            EntityFieldList = new List<EntityField>();
             //反射实体类字段
-            foreach (var item in this.Properties)
+            foreach (var item in Properties)
             {
                 //子父类存在相同的字段
-                if (this.FieldPairs.Any(x => x.Key == item.Name))
-                {
-                    continue;
-                }
+                if (FieldPairs.Any(x => x.Key == item.Name)) continue;
                 //当前字段是导航属性
-                var foreignKey = item.GetCustomAttributes(true).FirstOrDefault(x => x.GetType().Equals(typeof(ForeignKey)));
+                var foreignKey = item.GetCustomAttributes(true)
+                    .FirstOrDefault(x => x.GetType().Equals(typeof(ForeignKey)));
                 if (foreignKey != null)
                 {
                     var foreign = foreignKey as ForeignKey;
                     //导航属性表
-                    var navigationTable = !item.PropertyType.FullName.Contains("System.Collections.Generic") ? item.PropertyType : item.PropertyType.GenericTypeArguments[0];
+                    var navigationTable = !item.PropertyType.FullName.Contains("System.Collections.Generic")
+                        ? item.PropertyType
+                        : item.PropertyType.GenericTypeArguments[0];
                     var leftTab = EntityCache.QueryEntity(navigationTable);
-                    this.Navigations.Add(new JoinAssTable()
+                    Navigations.Add(new JoinAssTable
                     {
                         Action = JoinAction.Navigation,
                         JoinMode = JoinMode.LEFT,
-                        RightTabName = this.AsName,
+                        RightTabName = AsName,
                         RightAssName = foreign.IndexField,
                         LeftTabName = leftTab.Name,
-                        LeftAssName = foreign.AssoField,
+                        LeftAssName = foreign.AssociatedField,
                         TableType = navigationTable,
                         //PropertyType = item.PropertyType
                         PropertyInfo = item
@@ -89,26 +79,25 @@ namespace Kogel.Dapper.Extension.Entites
                     PropertyInfoList.Add(item);
                     continue;
                 }
+
                 //当前字段属性设置
-                var fieldAttribute = item.GetCustomAttributes(true).FirstOrDefault(x => x.GetType().Equals(typeof(Display)));
+                var fieldAttribute = item.GetCustomAttributes(true)
+                    .FirstOrDefault(x => x.GetType().Equals(typeof(Display)));
                 if (fieldAttribute != null)
                 {
                     var display = fieldAttribute as Display;
                     //获取是否是表关系隐射字段
                     if (display.IsField)
                     {
-                        this.FieldPairs.Add(item.Name, item.Name);
+                        FieldPairs.Add(item.Name, item.Name);
                         //获取是否有重命名
-                        if (!string.IsNullOrEmpty(display.Rename))
-                        {
-                            this.FieldPairs[item.Name] = display.Rename;
-                        }
+                        if (!string.IsNullOrEmpty(display.Rename)) FieldPairs[item.Name] = display.Rename;
                         PropertyInfoList.Add(item);
-                        var sqlDbType = GetSqlDbType(item.PropertyType, out bool ifNull);
+                        var sqlDbType = GetSqlDbType(item.PropertyType, out var ifNull);
                         //设置详细属性
-                        EntityFieldList.Add(new EntityField()
+                        EntityFieldList.Add(new EntityField
                         {
-                            FieldName = this.FieldPairs[item.Name],
+                            FieldName = FieldPairs[item.Name],
                             PropertyInfo = item,
                             SqlDbType = display.SqlDbType != SqlDbType.Structured ? display.SqlDbType : sqlDbType,
                             Length = display.Length,
@@ -120,77 +109,81 @@ namespace Kogel.Dapper.Extension.Entites
                 }
                 else
                 {
-                    this.FieldPairs.Add(item.Name, item.Name);
+                    FieldPairs.Add(item.Name, item.Name);
                     PropertyInfoList.Add(item);
 
                     //设置详细属性
-                    EntityFieldList.Add(new EntityField()
+                    EntityFieldList.Add(new EntityField
                     {
                         FieldName = item.Name,
                         PropertyInfo = item,
-                        SqlDbType = GetSqlDbType(item.PropertyType, out bool ifNull),
+                        SqlDbType = GetSqlDbType(item.PropertyType, out var ifNull),
                         Length = 0,
                         IfNull = ifNull
                     });
                 }
+
                 //获取主键
                 if (string.IsNullOrEmpty(Identitys))
                 {
                     //当前字段是主键
-                    var identityAttribute = item.GetCustomAttributes(true).FirstOrDefault(x => x.GetType().Equals(typeof(Identity)));
+                    var identityAttribute = item.GetCustomAttributes(true)
+                        .FirstOrDefault(x => x.GetType().Equals(typeof(Identity)));
                     if (identityAttribute != null)
                     {
-                        this.Identitys = this.FieldPairs[item.Name];
+                        Identitys = FieldPairs[item.Name];
                         EntityFieldList[EntityFieldList.Count - 1].IsIdentity = true;
-                        EntityFieldList[EntityFieldList.Count - 1].IsIncrease = (identityAttribute as Identity).IsIncrease;
+                        EntityFieldList[EntityFieldList.Count - 1].IsIncrease =
+                            (identityAttribute as Identity).IsIncrease;
                     }
                 }
             }
-            this.Properties = PropertyInfoList.ToArray();
+
+            Properties = PropertyInfoList.ToArray();
         }
 
         /// <summary>
-        /// 主键名称
+        ///     主键名称
         /// </summary>
         public string Identitys { get; set; }
 
         /// <summary>
-        /// 类名(表名称)
+        ///     类名(表名称)
         /// </summary>
         public string Name { get; set; }
 
         /// <summary>
-        /// 名称空间
+        ///     名称空间
         /// </summary>
         public string Schema { get; set; }
 
         /// <summary>
-        /// 指定as名称
+        ///     指定as名称
         /// </summary>
         public string AsName { get; set; }
 
         /// <summary>
-        /// 类型
+        ///     类型
         /// </summary>
         public Type Type { get; set; }
 
         /// <summary>
-        /// 命名空间
+        ///     命名空间
         /// </summary>
         public string AssemblyString { get; set; }
 
         /// <summary>
-        /// 类反射的属性实例
+        ///     类反射的属性实例
         /// </summary>
         public PropertyInfo[] Properties { get; set; }
 
         /// <summary>
-        /// 字段目录(属性名称和实体名称)
+        ///     字段目录(属性名称和实体名称)
         /// </summary>
         public Dictionary<string, string> FieldPairs { get; set; }
 
         /// <summary>
-        /// 导航属性列表
+        ///     导航属性列表
         /// </summary>
         public List<JoinAssTable> Navigations { get; set; }
 
@@ -218,12 +211,12 @@ namespace Kogel.Dapper.Extension.Entites
         //}
 
         /// <summary>
-        /// 字段列表
+        ///     字段列表
         /// </summary>
         public List<EntityField> EntityFieldList { get; set; }
 
         /// <summary>
-        /// 获取默认数据类型
+        ///     获取默认数据类型
         /// </summary>
         /// <param name="type"></param>
         /// <param name="ifNull">是否可空</param>
@@ -232,7 +225,7 @@ namespace Kogel.Dapper.Extension.Entites
         {
             ifNull = false;
             //设置数据库字段类型
-            SqlDbType sqlDbType = SqlDbType.VarChar;
+            var sqlDbType = SqlDbType.VarChar;
             if (type == typeof(int))
             {
                 sqlDbType = SqlDbType.Int;
@@ -266,57 +259,57 @@ namespace Kogel.Dapper.Extension.Entites
                     return GetSqlDbType(type.GenericTypeArguments[0], out ifNull);
                 }
             }
+
             return sqlDbType;
         }
     }
 
     /// <summary>
-    /// 实体字段
+    ///     实体字段
     /// </summary>
     public class EntityField
     {
         /// <summary>
-        /// 是否是主键
+        ///     是否是主键
         /// </summary>
         public bool IsIdentity { get; set; }
 
         /// <summary>
-        /// 是否自增
+        ///     是否自增
         /// </summary>
         public bool IsIncrease { get; set; }
 
         /// <summary>
-        /// 
         /// </summary>
         public PropertyInfo PropertyInfo { get; set; }
 
         /// <summary>
-        /// 字段名称
+        ///     字段名称
         /// </summary>
         public string FieldName { get; set; }
 
         /// <summary>
-        /// 字段类型
+        ///     字段类型
         /// </summary>
         public SqlDbType SqlDbType { get; set; }
 
         /// <summary>
-        /// 字段长度
+        ///     字段长度
         /// </summary>
         public int Length { get; set; }
 
         /// <summary>
-        /// 字段描述
+        ///     字段描述
         /// </summary>
         public string Description { get; set; }
 
         /// <summary>
-        /// 是否允许为空
+        ///     是否允许为空
         /// </summary>
-        public bool IfNull { get; set; } = false;
+        public bool IfNull { get; set; }
 
         /// <summary>
-        /// 默认值
+        ///     默认值
         /// </summary>
         public object DefaultValue { get; set; }
     }

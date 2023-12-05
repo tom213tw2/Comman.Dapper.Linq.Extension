@@ -7,112 +7,109 @@ using System.Threading;
 namespace Kogel.Dapper.Extension
 {
     /// <summary>
-    /// Represents the key aspects of a sql operation
+    ///     Represents the key aspects of a sql operation
     /// </summary>
     public struct CommandDefinition
     {
         internal static CommandDefinition ForCallback(object parameters)
         {
             if (parameters is DynamicParameters)
-            {
                 return new CommandDefinition(parameters);
-            }
-            else
-            {
-                return default(CommandDefinition);
-            }
+            return default;
         }
 
         internal void OnCompleted()
         {
             (Parameters as SqlMapper.IParameterCallbacks)?.OnCompleted();
         }
+
         /// <summary>
-        /// db command connection
+        ///     db command connection
         /// </summary>
         public IDbConnection Connection { get; set; }
 
         /// <summary>
-        /// The command (sql or a stored-procedure name) to execute
+        ///     The command (sql or a stored-procedure name) to execute
         /// </summary>
         public string CommandText { get; set; }
 
         /// <summary>
-        /// The parameters associated with the command
+        ///     The parameters associated with the command
         /// </summary>
         public object Parameters { get; }
 
         /// <summary>
-        /// The active transaction for the command
+        ///     The active transaction for the command
         /// </summary>
         public IDbTransaction Transaction { get; set; }
 
         /// <summary>
-        /// 是否进入过工作单元
+        ///     是否进入过工作单元
         /// </summary>
         public bool IsUnitOfWork { get; set; }
 
         /// <summary>
-        /// 是否排除在工作单元外
+        ///     是否排除在工作单元外
         /// </summary>
         public bool IsExcludeUnitOfWork { get; set; }
 
         /// <summary>
-        /// The effective timeout for the command
+        ///     The effective timeout for the command
         /// </summary>
         public int? CommandTimeout { get; }
 
         /// <summary>
-        /// The type of command that the command-text represents
+        ///     The type of command that the command-text represents
         /// </summary>
         public CommandType? CommandType { get; }
 
         /// <summary>
-        /// Should data be buffered before returning?
+        ///     Should data be buffered before returning?
         /// </summary>
         public bool Buffered => (Flags & CommandFlags.Buffered) != 0;
 
         /// <summary>
-        /// Should the plan for this query be cached?
+        ///     Should the plan for this query be cached?
         /// </summary>
         internal bool AddToCache => (Flags & CommandFlags.NoCache) == 0;
 
         /// <summary>
-        /// Additional state flags against this command
+        ///     Additional state flags against this command
         /// </summary>
         public CommandFlags Flags { get; }
 
         /// <summary>
-        /// Can async queries be pipelined?
+        ///     Can async queries be pipelined?
         /// </summary>
         public bool Pipelined => (Flags & CommandFlags.Pipelined) != 0;
 
         /// <summary>
-        /// Initialize the command definition
+        ///     Initialize the command definition
         /// </summary>
         /// <param name="commandText">The text for this command.</param>
         /// <param name="parameters">The parameters for this command.</param>
         /// <param name="transaction">The transaction for this command to participate in.</param>
         /// <param name="commandTimeout">The timeout (in seconds) for this command.</param>
-        /// <param name="commandType">The <see cref="CommandType"/> for this command.</param>
+        /// <param name="commandType">The <see cref="CommandType" /> for this command.</param>
         /// <param name="flags">The behavior flags for this command.</param>
         /// <param name="cancellationToken">The cancellation token for this command.</param>
-        public CommandDefinition(IDbConnection connection, string commandText, object parameters = null, IDbTransaction transaction = null, int? commandTimeout = null,
-                                 CommandType? commandType = null, CommandFlags flags = CommandFlags.Buffered
-                                 , CancellationToken cancellationToken = default(CancellationToken),
-                                 bool isExcludeUnitOfWork = false
-            )
+        public CommandDefinition(IDbConnection connection, string commandText, object parameters = null,
+            IDbTransaction transaction = null, int? commandTimeout = null,
+            CommandType? commandType = null, CommandFlags flags = CommandFlags.Buffered
+            , CancellationToken cancellationToken = default,
+            bool isExcludeUnitOfWork = false
+        )
         {
-            this.Connection = connection;
-            this.CommandText = commandText;
-            this.Parameters = parameters;
-            this.Transaction = transaction;
-            this.CommandTimeout = commandTimeout;
-            this.CommandType = commandType;
-            this.Flags = flags;
-            this.CancellationToken = cancellationToken;
-            this.IsUnitOfWork = false;
-            this.IsExcludeUnitOfWork = isExcludeUnitOfWork;
+            Connection = connection;
+            CommandText = commandText;
+            Parameters = parameters;
+            Transaction = transaction;
+            CommandTimeout = commandTimeout;
+            CommandType = commandType;
+            Flags = flags;
+            CancellationToken = cancellationToken;
+            IsUnitOfWork = false;
+            IsExcludeUnitOfWork = isExcludeUnitOfWork;
         }
 
         private CommandDefinition(object parameters) : this()
@@ -121,7 +118,7 @@ namespace Kogel.Dapper.Extension
         }
 
         /// <summary>
-        /// For asynchronous operations, the cancellation-token
+        ///     For asynchronous operations, the cancellation-token
         /// </summary>
         public CancellationToken CancellationToken { get; }
 
@@ -134,13 +131,9 @@ namespace Kogel.Dapper.Extension
                 cmd.Transaction = Transaction;
             cmd.CommandText = CommandText;
             if (CommandTimeout.HasValue)
-            {
                 cmd.CommandTimeout = CommandTimeout.Value;
-            }
             else if (SqlMapper.Settings.CommandTimeout.HasValue)
-            {
                 cmd.CommandTimeout = SqlMapper.Settings.CommandTimeout.Value;
-            }
             if (CommandType.HasValue)
                 cmd.CommandType = CommandType.Value;
             paramReader?.Invoke(cmd, Parameters);
@@ -153,17 +146,15 @@ namespace Kogel.Dapper.Extension
         {
             if (commandType == null)
                 return null; // GIGO
-            if (SqlMapper.Link<Type, Action<IDbCommand>>.TryGet(commandInitCache, commandType, out Action<IDbCommand> action))
-            {
+            if (SqlMapper.Link<Type, Action<IDbCommand>>.TryGet(commandInitCache, commandType, out var action))
                 return action;
-            }
             var bindByName = GetBasicPropertySetter(commandType, "BindByName", typeof(bool));
             var initialLongFetchSize = GetBasicPropertySetter(commandType, "InitialLONGFetchSize", typeof(int));
 
             action = null;
             if (bindByName != null || initialLongFetchSize != null)
             {
-                var method = new DynamicMethod(commandType.Name + "_init", null, new Type[] { typeof(IDbCommand) });
+                var method = new DynamicMethod(commandType.Name + "_init", null, new[] { typeof(IDbCommand) });
                 var il = method.GetILGenerator();
 
                 if (bindByName != null)
@@ -174,6 +165,7 @@ namespace Kogel.Dapper.Extension
                     il.Emit(OpCodes.Ldc_I4_1);
                     il.EmitCall(OpCodes.Callvirt, bindByName, null);
                 }
+
                 if (initialLongFetchSize != null)
                 {
                     // .InitialLONGFetchSize = -1
@@ -182,9 +174,11 @@ namespace Kogel.Dapper.Extension
                     il.Emit(OpCodes.Ldc_I4_M1);
                     il.EmitCall(OpCodes.Callvirt, initialLongFetchSize, null);
                 }
+
                 il.Emit(OpCodes.Ret);
                 action = (Action<IDbCommand>)method.CreateDelegate(typeof(Action<IDbCommand>));
             }
+
             // cache it
             SqlMapper.Link<Type, Action<IDbCommand>>.TryAdd(ref commandInitCache, commandType, ref action);
             return action;
@@ -194,9 +188,7 @@ namespace Kogel.Dapper.Extension
         {
             var prop = declaringType.GetProperty(name, BindingFlags.Public | BindingFlags.Instance);
             if (prop?.CanWrite == true && prop.PropertyType == expectedType && prop.GetIndexParameters().Length == 0)
-            {
                 return prop.GetSetMethod();
-            }
             return null;
         }
     }

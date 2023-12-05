@@ -1,16 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
+using Comman.Dapper.Linq.Extension.Core.Interfaces;
 
 namespace Kogel.Dapper.Extension.Core.Interfaces
 {
-    public interface IQuerySet<T, TReturn> : IQuerySet<T>
+    public interface IQuerySet<T, TReturn> : Comman.Dapper.Linq.Extension.Core.Interfaces.IQuerySet<T>
     {
         /// <summary>
-        /// 
         /// </summary>
         /// <typeparam name="TReturn"></typeparam>
         /// <param name="select"></param>

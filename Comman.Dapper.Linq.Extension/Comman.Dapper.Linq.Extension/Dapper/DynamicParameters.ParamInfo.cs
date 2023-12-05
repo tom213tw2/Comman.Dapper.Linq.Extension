@@ -19,10 +19,11 @@ namespace Kogel.Dapper.Extension
 
             public byte? Precision { get; set; }
             public byte? Scale { get; set; }
+
             /// <summary>
-            /// 是否永存
+            ///     是否永存
             /// </summary>
-            public bool IsForever { get; set; } = false;
+            public bool IsForever { get; set; }
         }
     }
 }

@@ -1,35 +1,30 @@
-﻿using Kogel.Dapper.Extension.Core.Interfaces;
-using Kogel.Dapper.Extension.Extension.From;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
+using Comman.Dapper.Linq.Extension.Core.Interfaces;
+using Kogel.Dapper.Extension.Core.Interfaces;
+using Kogel.Dapper.Extension.Extension.From;
 
 namespace Kogel.Dapper.Extension.Core.SetQ
 {
     /// <summary>
-    /// 多表查询扩展
+    ///     多表查询扩展
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public partial class QuerySet<T>
     {
         /// <summary>
-        /// 
         /// </summary>
         /// <typeparam name="TReturn"></typeparam>
         /// <param name="select"></param>
         /// <returns></returns>
         public IQuery<T, TReturn> Select<TReturn>(Expression<Func<T, TReturn>> select)
         {
-            var query = new Query<T, TReturn>(this.DbCon, this.SqlProvider, this.DbTransaction);
+            var query = new Query<T, TReturn>(DbCon, SqlProvider, DbTransaction);
             query.SqlProvider.Context.Set.SelectExpression = select;
             return query;
         }
 
         /// <summary>
-        /// 
         /// </summary>
         /// <typeparam name="T1"></typeparam>
         /// <typeparam name="T2"></typeparam>
@@ -40,7 +35,6 @@ namespace Kogel.Dapper.Extension.Core.SetQ
         }
 
         /// <summary>
-        /// 
         /// </summary>
         /// <typeparam name="T1"></typeparam>
         /// <typeparam name="T2"></typeparam>
@@ -52,7 +46,6 @@ namespace Kogel.Dapper.Extension.Core.SetQ
         }
 
         /// <summary>
-        /// 
         /// </summary>
         /// <typeparam name="T1"></typeparam>
         /// <typeparam name="T2"></typeparam>

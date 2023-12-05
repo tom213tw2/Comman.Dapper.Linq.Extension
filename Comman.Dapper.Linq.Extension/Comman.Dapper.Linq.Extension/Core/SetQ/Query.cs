@@ -2,25 +2,23 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Linq.Expressions;
+using System.Threading.Tasks;
+using Comman.Dapper.Linq.Extension;
+using Comman.Dapper.Linq.Extension.Core.Interfaces;
 using Kogel.Dapper.Extension.Core.Interfaces;
-using Kogel.Dapper.Extension.Entites;
 using Kogel.Dapper.Extension.Extension;
-using Kogel.Dapper.Extension;
 
 namespace Kogel.Dapper.Extension.Core.SetQ
 {
     /// <summary>
-    /// 查询
+    ///     查询
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public abstract class Query<T> : AbstractSet, IQuery<T>
     {
         public readonly IDbConnection DbCon;
         public readonly IDbTransaction DbTransaction;
-
-        protected DataBaseContext<T> SetContext { get; set; }
 
         protected Query(IDbConnection conn, SqlProvider sqlProvider)
         {
@@ -34,6 +32,8 @@ namespace Kogel.Dapper.Extension.Core.SetQ
             DbCon = conn;
             DbTransaction = dbTransaction;
         }
+
+        protected DataBaseContext<T> SetContext { get; set; }
 
         public T Get()
         {
@@ -54,7 +54,8 @@ namespace Kogel.Dapper.Extension.Core.SetQ
             return DbCon.QueryFirst_1<TReturn>(SqlProvider, DbTransaction);
         }
 
-        public TReturn Get<TReturn>(bool where, Expression<Func<T, TReturn>> trueSelect, Expression<Func<T, TReturn>> falseSelect)
+        public TReturn Get<TReturn>(bool where, Expression<Func<T, TReturn>> trueSelect,
+            Expression<Func<T, TReturn>> falseSelect)
         {
             if (where)
                 SqlProvider.Context.Set.SelectExpression = trueSelect;
@@ -83,7 +84,8 @@ namespace Kogel.Dapper.Extension.Core.SetQ
             return await DbCon.QueryFirst_1Async<TReturn>(SqlProvider, DbTransaction);
         }
 
-        public async Task<TReturn> GetAsync<TReturn>(bool where, Expression<Func<T, TReturn>> trueSelect, Expression<Func<T, TReturn>> falseSelect)
+        public async Task<TReturn> GetAsync<TReturn>(bool where, Expression<Func<T, TReturn>> trueSelect,
+            Expression<Func<T, TReturn>> falseSelect)
         {
             if (where)
                 SqlProvider.Context.Set.SelectExpression = trueSelect;
@@ -112,7 +114,8 @@ namespace Kogel.Dapper.Extension.Core.SetQ
             return DbCon.Query_1<TReturn>(SqlProvider, DbTransaction);
         }
 
-        public IEnumerable<TReturn> ToIEnumerable<TReturn>(bool where, Expression<Func<T, TReturn>> trueSelect, Expression<Func<T, TReturn>> falseSelect)
+        public IEnumerable<TReturn> ToIEnumerable<TReturn>(bool where, Expression<Func<T, TReturn>> trueSelect,
+            Expression<Func<T, TReturn>> falseSelect)
         {
             if (where)
                 SqlProvider.Context.Set.SelectExpression = trueSelect;
@@ -141,7 +144,8 @@ namespace Kogel.Dapper.Extension.Core.SetQ
             return await DbCon.Query_1Async<TReturn>(SqlProvider, DbTransaction);
         }
 
-        public async Task<IEnumerable<TReturn>> ToIEnumerableAsync<TReturn>(bool where, Expression<Func<T, TReturn>> trueSelect, Expression<Func<T, TReturn>> falseSelect)
+        public async Task<IEnumerable<TReturn>> ToIEnumerableAsync<TReturn>(bool where,
+            Expression<Func<T, TReturn>> trueSelect, Expression<Func<T, TReturn>> falseSelect)
         {
             if (where)
                 SqlProvider.Context.Set.SelectExpression = trueSelect;
@@ -170,7 +174,8 @@ namespace Kogel.Dapper.Extension.Core.SetQ
             return DbCon.Query_1<TReturn>(SqlProvider, DbTransaction);
         }
 
-        public List<TReturn> ToList<TReturn>(bool where, Expression<Func<T, TReturn>> trueSelect, Expression<Func<T, TReturn>> falseSelect)
+        public List<TReturn> ToList<TReturn>(bool where, Expression<Func<T, TReturn>> trueSelect,
+            Expression<Func<T, TReturn>> falseSelect)
         {
             if (where)
                 SqlProvider.Context.Set.SelectExpression = trueSelect;
@@ -199,7 +204,8 @@ namespace Kogel.Dapper.Extension.Core.SetQ
             return await DbCon.Query_1Async<TReturn>(SqlProvider, DbTransaction);
         }
 
-        public async Task<List<TReturn>> ToListAsync<TReturn>(bool where, Expression<Func<T, TReturn>> trueSelect, Expression<Func<T, TReturn>> falseSelect)
+        public async Task<List<TReturn>> ToListAsync<TReturn>(bool where, Expression<Func<T, TReturn>> trueSelect,
+            Expression<Func<T, TReturn>> falseSelect)
         {
             if (where)
                 SqlProvider.Context.Set.SelectExpression = trueSelect;
@@ -228,7 +234,8 @@ namespace Kogel.Dapper.Extension.Core.SetQ
             return DbCon.Query_1<TReturn>(SqlProvider, DbTransaction);
         }
 
-        public List<TReturn> Page<TReturn>(int pageIndex, int pageSize, bool where, Expression<Func<T, TReturn>> trueSelect, Expression<Func<T, TReturn>> falseSelect)
+        public List<TReturn> Page<TReturn>(int pageIndex, int pageSize, bool where,
+            Expression<Func<T, TReturn>> trueSelect, Expression<Func<T, TReturn>> falseSelect)
         {
             if (where)
                 SqlProvider.Context.Set.SelectExpression = trueSelect;
@@ -250,14 +257,16 @@ namespace Kogel.Dapper.Extension.Core.SetQ
             return await DbCon.Query_1Async<TSource>(SqlProvider, DbTransaction);
         }
 
-        public async Task<List<TReturn>> PageAsync<TReturn>(int pageIndex, int pageSize, Expression<Func<T, TReturn>> select)
+        public async Task<List<TReturn>> PageAsync<TReturn>(int pageIndex, int pageSize,
+            Expression<Func<T, TReturn>> select)
         {
             SqlProvider.Context.Set.SelectExpression = select;
             SqlProvider.FormatToPageList<T>(pageIndex, pageSize);
             return await DbCon.Query_1Async<TReturn>(SqlProvider, DbTransaction);
         }
 
-        public async Task<List<TReturn>> PageAsync<TReturn>(int pageIndex, int pageSize, bool where, Expression<Func<T, TReturn>> trueSelect, Expression<Func<T, TReturn>> falseSelect)
+        public async Task<List<TReturn>> PageAsync<TReturn>(int pageIndex, int pageSize, bool where,
+            Expression<Func<T, TReturn>> trueSelect, Expression<Func<T, TReturn>> falseSelect)
         {
             if (where)
                 SqlProvider.Context.Set.SelectExpression = trueSelect;
@@ -284,6 +293,7 @@ namespace Kogel.Dapper.Extension.Core.SetQ
             {
                 itemList = new List<T>();
             }
+
             return new PageList<T>(pageIndex, pageSize, pageTotal, itemList);
         }
 
@@ -304,6 +314,7 @@ namespace Kogel.Dapper.Extension.Core.SetQ
             {
                 itemList = new List<TSource>();
             }
+
             return new PageList<TSource>(pageIndex, pageSize, pageTotal, itemList);
         }
 
@@ -325,10 +336,12 @@ namespace Kogel.Dapper.Extension.Core.SetQ
             {
                 itemList = new List<TReturn>();
             }
+
             return new PageList<TReturn>(pageIndex, pageSize, pageTotal, itemList);
         }
 
-        public PageList<TReturn> PageList<TReturn>(int pageIndex, int pageSize, bool where, Expression<Func<T, TReturn>> trueSelect, Expression<Func<T, TReturn>> falseSelect)
+        public PageList<TReturn> PageList<TReturn>(int pageIndex, int pageSize, bool where,
+            Expression<Func<T, TReturn>> trueSelect, Expression<Func<T, TReturn>> falseSelect)
         {
             if (where)
                 SqlProvider.Context.Set.SelectExpression = trueSelect;
@@ -349,6 +362,7 @@ namespace Kogel.Dapper.Extension.Core.SetQ
             {
                 itemList = new List<TReturn>();
             }
+
             return new PageList<TReturn>(pageIndex, pageSize, pageTotal, itemList);
         }
 
@@ -369,6 +383,7 @@ namespace Kogel.Dapper.Extension.Core.SetQ
             {
                 itemList = new List<T>();
             }
+
             return new PageList<T>(pageIndex, pageSize, pageTotal, itemList);
         }
 
@@ -389,10 +404,12 @@ namespace Kogel.Dapper.Extension.Core.SetQ
             {
                 itemList = new List<TSource>();
             }
+
             return new PageList<TSource>(pageIndex, pageSize, pageTotal, itemList);
         }
 
-        public async Task<PageList<TReturn>> PageListAsync<TReturn>(int pageIndex, int pageSize, Expression<Func<T, TReturn>> select)
+        public async Task<PageList<TReturn>> PageListAsync<TReturn>(int pageIndex, int pageSize,
+            Expression<Func<T, TReturn>> select)
         {
             SqlProvider.Context.Set.SelectExpression = select;
             //查询总行数
@@ -410,10 +427,12 @@ namespace Kogel.Dapper.Extension.Core.SetQ
             {
                 itemList = new List<TReturn>();
             }
+
             return new PageList<TReturn>(pageIndex, pageSize, pageTotal, itemList);
         }
 
-        public async Task<PageList<TReturn>> PageListAsync<TReturn>(int pageIndex, int pageSize, bool where, Expression<Func<T, TReturn>> trueSelect, Expression<Func<T, TReturn>> falseSelect)
+        public async Task<PageList<TReturn>> PageListAsync<TReturn>(int pageIndex, int pageSize, bool where,
+            Expression<Func<T, TReturn>> trueSelect, Expression<Func<T, TReturn>> falseSelect)
         {
             if (where)
                 SqlProvider.Context.Set.SelectExpression = trueSelect;
@@ -434,6 +453,7 @@ namespace Kogel.Dapper.Extension.Core.SetQ
             {
                 itemList = new List<TReturn>();
             }
+
             return new PageList<TReturn>(pageIndex, pageSize, pageTotal, itemList);
         }
 
@@ -450,7 +470,8 @@ namespace Kogel.Dapper.Extension.Core.SetQ
             return DbCon.QueryDataSets(SqlProvider, DbTransaction, dataAdapter);
         }
 
-        public DataSet ToDataSet<TReturn>(bool where, Expression<Func<T, TReturn>> trueSelect, Expression<Func<T, TReturn>> falseSelect, IDbDataAdapter dataAdapter = null)
+        public DataSet ToDataSet<TReturn>(bool where, Expression<Func<T, TReturn>> trueSelect,
+            Expression<Func<T, TReturn>> falseSelect, IDbDataAdapter dataAdapter = null)
         {
             if (where)
                 SqlProvider.Context.Set.SelectExpression = trueSelect;
@@ -466,14 +487,16 @@ namespace Kogel.Dapper.Extension.Core.SetQ
             return await DbCon.QueryDataSetsAsync(SqlProvider, DbTransaction, dataAdapter);
         }
 
-        public async Task<DataSet> ToDataSetAsync<TReturn>(Expression<Func<T, TReturn>> select, IDbDataAdapter dataAdapter = null)
+        public async Task<DataSet> ToDataSetAsync<TReturn>(Expression<Func<T, TReturn>> select,
+            IDbDataAdapter dataAdapter = null)
         {
             SqlProvider.Context.Set.SelectExpression = select;
             SqlProvider.FormatToList<T>();
             return await DbCon.QueryDataSetsAsync(SqlProvider, DbTransaction, dataAdapter);
         }
 
-        public async Task<DataSet> ToDataSetAsync<TReturn>(bool where, Expression<Func<T, TReturn>> trueSelect, Expression<Func<T, TReturn>> falseSelect, IDbDataAdapter dataAdapter = null)
+        public async Task<DataSet> ToDataSetAsync<TReturn>(bool where, Expression<Func<T, TReturn>> trueSelect,
+            Expression<Func<T, TReturn>> falseSelect, IDbDataAdapter dataAdapter = null)
         {
             if (where)
                 SqlProvider.Context.Set.SelectExpression = trueSelect;
@@ -490,7 +513,8 @@ namespace Kogel.Dapper.Extension.Core.SetQ
         {
         }
 
-        public Query(IDbConnection conn, SqlProvider sqlProvider, IDbTransaction dbTransaction) : base(conn, sqlProvider, dbTransaction)
+        public Query(IDbConnection conn, SqlProvider sqlProvider, IDbTransaction dbTransaction) : base(conn,
+            sqlProvider, dbTransaction)
         {
         }
 

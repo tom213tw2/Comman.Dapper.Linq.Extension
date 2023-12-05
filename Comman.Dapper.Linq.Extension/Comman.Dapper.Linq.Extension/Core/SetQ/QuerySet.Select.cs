@@ -1,11 +1,9 @@
-﻿using Kogel.Dapper.Extension.Core.Interfaces;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Data;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
+using Comman.Dapper.Linq.Extension;
+using Comman.Dapper.Linq.Extension.Core.Interfaces;
+using Kogel.Dapper.Extension.Core.Interfaces;
 
 namespace Kogel.Dapper.Extension.Core.SetQ
 {
@@ -15,7 +13,8 @@ namespace Kogel.Dapper.Extension.Core.SetQ
         {
         }
 
-        public QuerySet(IDbConnection conn, SqlProvider sqlProvider, IDbTransaction dbTransaction) : base(conn, sqlProvider, dbTransaction)
+        public QuerySet(IDbConnection conn, SqlProvider sqlProvider, IDbTransaction dbTransaction) : base(conn,
+            sqlProvider, dbTransaction)
         {
         }
 

@@ -5,7 +5,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
-
 #if NETSTANDARD1_3
 using ApplicationException = System.InvalidOperationException;
 #endif
@@ -13,20 +12,21 @@ using ApplicationException = System.InvalidOperationException;
 namespace Kogel.Dapper.Extension
 {
     /// <summary>
-    /// A bag of parameters that can be passed to the Dapper Query and Execute methods
+    ///     A bag of parameters that can be passed to the Dapper Query and Execute methods
     /// </summary>
-    public partial class DynamicParameters : SqlMapper.IDynamicParameters, SqlMapper.IParameterLookup, SqlMapper.IParameterCallbacks
+    public partial class DynamicParameters : SqlMapper.IDynamicParameters, SqlMapper.IParameterLookup,
+        SqlMapper.IParameterCallbacks
     {
         internal const DbType EnumerableMultiParameter = (DbType)(-1);
-        private static readonly Dictionary<SqlMapper.Identity, Action<IDbCommand, object>> paramReaderCache = new Dictionary<SqlMapper.Identity, Action<IDbCommand, object>>();
+
+        private static readonly Dictionary<SqlMapper.Identity, Action<IDbCommand, object>> paramReaderCache =
+            new Dictionary<SqlMapper.Identity, Action<IDbCommand, object>>();
+
         private readonly Dictionary<string, ParamInfo> parameters = new Dictionary<string, ParamInfo>();
         private List<object> templates;
 
-        object SqlMapper.IParameterLookup.this[string name] =>
-            parameters.TryGetValue(name, out ParamInfo param) ? param.Value : null;
-
         /// <summary>
-        /// construct a dynamic parameter bag
+        ///     construct a dynamic parameter bag
         /// </summary>
         public DynamicParameters()
         {
@@ -34,7 +34,7 @@ namespace Kogel.Dapper.Extension
         }
 
         /// <summary>
-        /// construct a dynamic parameter bag
+        ///     construct a dynamic parameter bag
         /// </summary>
         /// <param name="template">can be an anonymous type or a DynamicParameters bag</param>
         public DynamicParameters(object template)
@@ -44,8 +44,21 @@ namespace Kogel.Dapper.Extension
         }
 
         /// <summary>
-        /// Append a whole object full of params to the dynamic
-        /// EG: AddDynamicParams(new {A = 1, B = 2}) // will add property A and B to the dynamic
+        ///     If true, the command-text is inspected and only values that are clearly used are included on the connection
+        /// </summary>
+        public bool RemoveUnused { get; set; }
+
+        void SqlMapper.IDynamicParameters.AddParameters(IDbCommand command, SqlMapper.Identity identity)
+        {
+            AddParameters(command, identity, false);
+        }
+
+        object SqlMapper.IParameterLookup.this[string name] =>
+            parameters.TryGetValue(name, out var param) ? param.Value : null;
+
+        /// <summary>
+        ///     Append a whole object full of params to the dynamic
+        ///     EG: AddDynamicParams(new {A = 1, B = 2}) // will add property A and B to the dynamic
         /// </summary>
         /// <param name="param"></param>
         /// <param name="isForever"></param>
@@ -65,38 +78,30 @@ namespace Kogel.Dapper.Extension
                     }
                     else
                     {
-                        foreach (var kvp in dictionary)
-                        {
-                            Add(kvp.Key, kvp.Value, null, null, null, isForever);
-                        }
+                        foreach (var kvp in dictionary) Add(kvp.Key, kvp.Value, null, null, null, isForever);
                     }
                 }
                 else
                 {
                     if (subDynamic.parameters != null)
-                    {
                         foreach (var kvp in subDynamic.parameters)
                         {
                             if (kvp.Value != null)
                                 kvp.Value.IsForever = isForever;
                             parameters.Add(kvp.Key, kvp.Value);
                         }
-                    }
 
                     if (subDynamic.templates != null)
                     {
                         templates = templates ?? new List<object>();
-                        foreach (var t in subDynamic.templates)
-                        {
-                            templates.Add(t);
-                        }
+                        foreach (var t in subDynamic.templates) templates.Add(t);
                     }
                 }
             }
         }
 
         /// <summary>
-        /// Add a parameter to this dynamic parameter list.
+        ///     Add a parameter to this dynamic parameter list.
         /// </summary>
         /// <param name="name">The name of the parameter.</param>
         /// <param name="value">The value of the parameter.</param>
@@ -104,7 +109,8 @@ namespace Kogel.Dapper.Extension
         /// <param name="direction">The in or out direction of the parameter.</param>
         /// <param name="size">The size of the parameter.</param>
         /// <param name="isForever"></param>
-        public void Add(string name, object value, DbType? dbType, ParameterDirection? direction, int? size, bool isForever = false)
+        public void Add(string name, object value, DbType? dbType, ParameterDirection? direction, int? size,
+            bool isForever = false)
         {
             parameters[Clean(name)] = new ParamInfo
             {
@@ -118,7 +124,7 @@ namespace Kogel.Dapper.Extension
         }
 
         /// <summary>
-        /// Add a parameter to this dynamic parameter list.
+        ///     Add a parameter to this dynamic parameter list.
         /// </summary>
         /// <param name="name">The name of the parameter.</param>
         /// <param name="value">The value of the parameter.</param>
@@ -128,7 +134,8 @@ namespace Kogel.Dapper.Extension
         /// <param name="precision">The precision of the parameter.</param>
         /// <param name="scale">The scale of the parameter.</param>
         /// <param name="isForever"></param>
-        public void Add(string name, object value = null, DbType? dbType = null, ParameterDirection? direction = null, int? size = null, byte? precision = null, byte? scale = null, bool isForever = false)
+        public void Add(string name, object value = null, DbType? dbType = null, ParameterDirection? direction = null,
+            int? size = null, byte? precision = null, byte? scale = null, bool isForever = false)
         {
             parameters[Clean(name)] = new ParamInfo
             {
@@ -146,7 +153,6 @@ namespace Kogel.Dapper.Extension
         private static string Clean(string name)
         {
             if (!string.IsNullOrEmpty(name))
-            {
                 switch (name[0])
                 {
                     case '@':
@@ -154,22 +160,12 @@ namespace Kogel.Dapper.Extension
                     case '?':
                         return name.Substring(1);
                 }
-            }
+
             return name;
         }
 
-        void SqlMapper.IDynamicParameters.AddParameters(IDbCommand command, SqlMapper.Identity identity)
-        {
-            AddParameters(command, identity, false);
-        }
-
         /// <summary>
-        /// If true, the command-text is inspected and only values that are clearly used are included on the connection
-        /// </summary>
-        public bool RemoveUnused { get; set; }
-
-        /// <summary>
-        /// Add all the parameters needed to the command just before it executes
+        ///     Add all the parameters needed to the command just before it executes
         /// </summary>
         /// <param name="command">The raw command prior to execution</param>
         /// <param name="identity">Information about the query</param>
@@ -200,12 +196,10 @@ namespace Kogel.Dapper.Extension
                 // The parameters were added to the command, but not the
                 // DynamicParameters until now.
                 foreach (IDbDataParameter param in command.Parameters)
-                {
                     // If someone makes a DynamicParameters with a template,
                     // then explicitly adds a parameter of a matching name,
                     // it will already exist in 'parameters'.
                     if (!parameters.ContainsKey(param.ParameterName))
-                    {
                         parameters.Add(param.ParameterName, new ParamInfo
                         {
                             AttachedParam = param,
@@ -217,18 +211,12 @@ namespace Kogel.Dapper.Extension
                             Value = param.Value,
                             IsForever = isForever
                         });
-                    }
-                }
 
                 // Now that the parameters are added to the command, let's place our output callbacks
                 var tmp = outputCallbacks;
                 if (tmp != null)
-                {
                     foreach (var generator in tmp)
-                    {
                         generator();
-                    }
-                }
             }
 
             foreach (var param in parameters.Values)
@@ -237,7 +225,7 @@ namespace Kogel.Dapper.Extension
 
                 var dbType = param.DbType;
                 var val = param.Value;
-                string name = Clean(param.Name);
+                var name = Clean(param.Name);
                 var isCustomQueryParameter = val is SqlMapper.ICustomQueryParameter;
 
                 SqlMapper.ITypeHandler handler = null;
@@ -247,6 +235,7 @@ namespace Kogel.Dapper.Extension
                     dbType = SqlMapper.LookupDbType(val.GetType(), name, true, out handler);
 #pragma warning disable 618
                 }
+
                 if (isCustomQueryParameter)
                 {
                     ((SqlMapper.ICustomQueryParameter)val).AddParameter(command, name);
@@ -259,7 +248,7 @@ namespace Kogel.Dapper.Extension
                 }
                 else
                 {
-                    bool add = !command.Parameters.Contains(name);
+                    var add = !command.Parameters.Contains(name);
                     IDbDataParameter p;
                     if (add)
                     {
@@ -277,15 +266,9 @@ namespace Kogel.Dapper.Extension
 #pragma warning disable 0618
                         p.Value = SqlMapper.SanitizeParameterValue(val);
 #pragma warning restore 0618
-                        if (dbType != null && p.DbType != dbType)
-                        {
-                            p.DbType = dbType.Value;
-                        }
+                        if (dbType != null && p.DbType != dbType) p.DbType = dbType.Value;
                         var s = val as string;
-                        if (s?.Length <= DbString.DefaultLength)
-                        {
-                            p.Size = DbString.DefaultLength;
-                        }
+                        if (s?.Length <= DbString.DefaultLength) p.Size = DbString.DefaultLength;
                         if (param.Size != null) p.Size = param.Size.Value;
                         if (param.Precision != null) p.Precision = param.Precision.Value;
                         if (param.Scale != null) p.Scale = param.Scale.Value;
@@ -299,10 +282,7 @@ namespace Kogel.Dapper.Extension
                         handler.SetValue(p, val ?? DBNull.Value);
                     }
 
-                    if (add)
-                    {
-                        command.Parameters.Add(p);
-                    }
+                    if (add) command.Parameters.Add(p);
                     param.AttachedParam = p;
                 }
             }
@@ -312,12 +292,12 @@ namespace Kogel.Dapper.Extension
         }
 
         /// <summary>
-        /// All the names of the param in the bag, use Get to yank them out
+        ///     All the names of the param in the bag, use Get to yank them out
         /// </summary>
         public IEnumerable<string> ParameterNames => parameters.Select(p => p.Key);
 
         /// <summary>
-        /// Get the value of a parameter
+        ///     Get the value of a parameter
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="name"></param>
@@ -326,21 +306,21 @@ namespace Kogel.Dapper.Extension
         {
             var paramInfo = parameters[Clean(name)];
             var attachedParam = paramInfo.AttachedParam;
-            object val = attachedParam == null ? paramInfo.Value : attachedParam.Value;
+            var val = attachedParam == null ? paramInfo.Value : attachedParam.Value;
             if (val == DBNull.Value)
             {
                 if (default(T) != null)
-                {
-                    throw new ApplicationException("Attempting to cast a DBNull to a non nullable type! Note that out/return parameters will not have updated values until the data stream completes (after the 'foreach' for Query(..., buffered: false), or after the GridReader has been disposed for QueryMultiple)");
-                }
-                return default(T);
+                    throw new ApplicationException(
+                        "Attempting to cast a DBNull to a non nullable type! Note that out/return parameters will not have updated values until the data stream completes (after the 'foreach' for Query(..., buffered: false), or after the GridReader has been disposed for QueryMultiple)");
+                return default;
             }
+
             return (T)val;
         }
 
         /// <summary>
-        /// Allows you to automatically populate a target property/field from output parameters. It actually
-        /// creates an InputOutput parameter, so you can still pass data in.
+        ///     Allows you to automatically populate a target property/field from output parameters. It actually
+        ///     creates an InputOutput parameter, so you can still pass data in.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="target">The object whose property/field you wish to populate.</param>
@@ -348,7 +328,8 @@ namespace Kogel.Dapper.Extension
         /// <param name="dbType"></param>
         /// <param name="size">The size to set on the parameter. Defaults to 0, or DbString.DefaultLength in case of strings.</param>
         /// <returns>The DynamicParameters instance</returns>
-        public DynamicParameters Output<T>(T target, Expression<Func<T, object>> expression, DbType? dbType = null, int? size = null)
+        public DynamicParameters Output<T>(T target, Expression<Func<T, object>> expression, DbType? dbType = null,
+            int? size = null)
         {
             var failMessage = "Expression must be a property/field chain off of a(n) {0} instance";
             failMessage = string.Format(failMessage, typeof(T).Name);
@@ -364,21 +345,17 @@ namespace Kogel.Dapper.Extension
                 if (expression.Body.NodeType == ExpressionType.Convert
                     && expression.Body.Type == typeof(object)
                     && ((UnaryExpression)expression.Body).Operand is MemberExpression)
-                {
                     // It's got to be unboxed
                     lastMemberAccess = (MemberExpression)((UnaryExpression)expression.Body).Operand;
-                }
                 else
-                {
                     @throw();
-                }
             }
 
             // Does the chain consist of MemberExpressions leading to a ParameterExpression of type T?
-            MemberExpression diving = lastMemberAccess;
+            var diving = lastMemberAccess;
             // Retain a list of member names and the member expressions so we can rebuild the chain.
-            List<string> names = new List<string>();
-            List<MemberExpression> chain = new List<MemberExpression>();
+            var names = new List<string>();
+            var chain = new List<MemberExpression>();
 
             do
             {
@@ -391,17 +368,12 @@ namespace Kogel.Dapper.Extension
                 diving = diving?.Expression as MemberExpression;
 
                 if (constant != null && constant.Type == typeof(T))
-                {
                     break;
-                }
-                else if (diving == null
+                if (diving == null
                     || (!(diving.Member is PropertyInfo)
                         && !(diving.Member is FieldInfo)))
-                {
                     @throw();
-                }
-            }
-            while (diving != null);
+            } while (diving != null);
 
             var dynamicParamName = string.Concat(names.ToArray());
 
@@ -413,15 +385,16 @@ namespace Kogel.Dapper.Extension
             if (setter != null) goto MAKECALLBACK;
 
             // Come on let's build a method, let's build it, let's build it now!
-            var dm = new DynamicMethod("ExpressionParam" + Guid.NewGuid().ToString(), null, new[] { typeof(object), GetType() }, true);
+            var dm = new DynamicMethod("ExpressionParam" + Guid.NewGuid(), null, new[] { typeof(object), GetType() },
+                true);
             var il = dm.GetILGenerator();
 
             il.Emit(OpCodes.Ldarg_0); // [object]
-            il.Emit(OpCodes.Castclass, typeof(T));    // [T]
+            il.Emit(OpCodes.Castclass, typeof(T)); // [T]
 
             // Count - 1 to skip the last member access
             var i = 0;
-            for (; i < (chain.Count - 1); i++)
+            for (; i < chain.Count - 1; i++)
             {
                 var member = chain[0].Member;
 
@@ -436,7 +409,8 @@ namespace Kogel.Dapper.Extension
                 }
             }
 
-            var paramGetter = GetType().GetMethod("Get", new Type[] { typeof(string) }).MakeGenericMethod(lastMemberAccess.Type);
+            var paramGetter = GetType().GetMethod("Get", new[] { typeof(string) })
+                .MakeGenericMethod(lastMemberAccess.Type);
 
             il.Emit(OpCodes.Ldarg_1); // [target] [DynamicParameters]
             il.Emit(OpCodes.Ldstr, dynamicParamName); // [target] [DynamicParameters] [ParamName]
@@ -462,34 +436,34 @@ namespace Kogel.Dapper.Extension
                 cache[lookup] = setter;
             }
 
-        // Queue the preparation to be fired off when adding parameters to the DbCommand
-        MAKECALLBACK:
+            // Queue the preparation to be fired off when adding parameters to the DbCommand
+            MAKECALLBACK:
             (outputCallbacks ?? (outputCallbacks = new List<Action>())).Add(() =>
             {
                 // Finally, prep the parameter and attach the callback to it
                 var targetMemberType = lastMemberAccess?.Type;
-                int sizeToSet = (!size.HasValue && targetMemberType == typeof(string)) ? DbString.DefaultLength : size ?? 0;
+                var sizeToSet = !size.HasValue && targetMemberType == typeof(string)
+                    ? DbString.DefaultLength
+                    : size ?? 0;
 
-                if (parameters.TryGetValue(dynamicParamName, out ParamInfo parameter))
+                if (parameters.TryGetValue(dynamicParamName, out var parameter))
                 {
                     parameter.ParameterDirection = parameter.AttachedParam.Direction = ParameterDirection.InputOutput;
 
-                    if (parameter.AttachedParam.Size == 0)
-                    {
-                        parameter.Size = parameter.AttachedParam.Size = sizeToSet;
-                    }
+                    if (parameter.AttachedParam.Size == 0) parameter.Size = parameter.AttachedParam.Size = sizeToSet;
                 }
                 else
                 {
-                    dbType = (!dbType.HasValue)
+                    dbType = !dbType.HasValue
 #pragma warning disable 618
-                    ? SqlMapper.LookupDbType(targetMemberType, targetMemberType?.Name, true, out SqlMapper.ITypeHandler handler)
+                        ? SqlMapper.LookupDbType(targetMemberType, targetMemberType?.Name, true, out var handler)
 #pragma warning restore 618
-                    : dbType;
+                        : dbType;
 
                     // CameFromTemplate property would not apply here because this new param
                     // Still needs to be added to the command
-                    Add(dynamicParamName, expression.Compile().Invoke(target), null, ParameterDirection.InputOutput, sizeToSet, false);
+                    Add(dynamicParamName, expression.Compile().Invoke(target), null, ParameterDirection.InputOutput,
+                        sizeToSet, false);
                 }
 
                 parameter = parameters[dynamicParamName];
@@ -505,25 +479,19 @@ namespace Kogel.Dapper.Extension
         void SqlMapper.IParameterCallbacks.OnCompleted()
         {
             foreach (var param in from p in parameters select p.Value)
-            {
                 param.OutputCallback?.Invoke(param.OutputTarget, this);
-            }
         }
 
         /// <summary>
-        /// 清除參數字典
+        ///     清除參數字典
         /// </summary>
         public void Clear()
         {
             lock (parameters)
             {
                 foreach (var item in parameters.ToArray())
-                {
                     if (!item.Value.IsForever)
-                    {
                         parameters.Remove(item.Key);
-                    }
-                }
             }
         }
     }

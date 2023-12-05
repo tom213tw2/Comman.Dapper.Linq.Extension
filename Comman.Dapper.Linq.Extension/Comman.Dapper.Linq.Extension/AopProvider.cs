@@ -1,58 +1,61 @@
-﻿using Kogel.Dapper.Extension;
-using System.Threading;
-
+﻿using System.Threading;
+using Kogel.Dapper.Extension;
 #if NET45 || NET451
 using System.Runtime.Remoting.Messaging;
 #endif
 
-
-namespace Kogel.Dapper.Extension
+namespace Comman.Dapper.Linq.Extension
 {
+    /// <summary>
+    /// 提供 AOP 功能的提供者。
+    /// </summary>
     public class AopProvider
     {
         /// <summary>
-        /// 事件模型定义
+        /// 事件模型定義。
         /// </summary>
-        /// <param name="command"></param>
-        public delegate void EventHander(ref CommandDefinition command);
+        /// <param name="command">命令定義引用。</param>
+        public delegate void EventHandler(ref CommandDefinition command);
 
         /// <summary>
-        /// 执行前
+        /// 執行前事件。
         /// </summary>
-        public event EventHander OnExecuting;
+        public event EventHandler OnExecuting;
 
         /// <summary>
-        /// 执行后
+        /// 執行後事件。
         /// </summary>
-        public event EventHander OnExecuted;
+        public event EventHandler OnExecuted;
 
         /// <summary>
-        /// 触发执行前
+        /// 觸發執行前事件。
         /// </summary>
-        /// <param name="definition"></param>
+        /// <param name="definition">命令定義引用。</param>
         internal void InvokeExecuting(ref CommandDefinition definition)
         {
-            this.OnExecuting?.Invoke(ref definition);
+            OnExecuting?.Invoke(ref definition);
         }
+
         /// <summary>
-        /// 触发执行后
+        /// 觸發執行後事件。
         /// </summary>
-        /// <param name="definition"></param>
+        /// <param name="definition">命令定義引用。</param>
         internal void InvokeExecuted(ref CommandDefinition definition)
         {
-            this.OnExecuted?.Invoke(ref definition);
+            OnExecuted?.Invoke(ref definition);
         }
 
 #if NET45 || NET451
-        //private static ThreadLocal<AopProvider> _aop = new ThreadLocal<AopProvider>();
+        // .NET Framework 版本的 AopProvider 實現。
 #else
-                private static AsyncLocal<AopProvider> _aop = new AsyncLocal<AopProvider>();
+        // .NET Core 及以上版本的 AopProvider 實現。
+        private static readonly AsyncLocal<AopProvider> _aop = new AsyncLocal<AopProvider>();
 #endif
 
         /// <summary>
-        /// 获取当前线程唯一Aop
+        /// 獲取當前線程唯一的 Aop 實例。
         /// </summary>
-        /// <returns></returns>
+        /// <returns>AopProvider 實例。</returns>
         public static AopProvider Get()
         {
 #if NET45 || NET451
@@ -64,15 +67,10 @@ namespace Kogel.Dapper.Extension
                 CallContext.LogicalSetData(contextKey, _aop);
             }
             return _aop as AopProvider;
-#else  
-            lock (_aop) 
+#else
+            lock (_aop)
             {
-                if (_aop.Value == null)
-                {
-                    //_aop = new ThreadLocal<AopProvider>();
-                    _aop.Value = new AopProvider();
-                }
-                return _aop.Value;
+                return _aop.Value ?? (_aop.Value = new AopProvider());
             }
 #endif
         }

@@ -1,16 +1,18 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
+using System.Linq.Expressions;
 
 namespace Kogel.Dapper.Extension
 {
     public static partial class SqlMapper
     {
         private sealed class DapperRow
-            : System.Dynamic.IDynamicMetaObjectProvider
-            , IDictionary<string, object>
-            , IReadOnlyDictionary<string, object>
+            : IDynamicMetaObjectProvider
+                , IDictionary<string, object>
+                , IReadOnlyDictionary<string, object>
         {
             private readonly DapperTable table;
             private object[] values;
@@ -21,21 +23,14 @@ namespace Kogel.Dapper.Extension
                 this.values = values ?? throw new ArgumentNullException(nameof(values));
             }
 
-            private sealed class DeadValue
-            {
-                public static readonly DeadValue Default = new DeadValue();
-                private DeadValue() { /* hiding constructor */ }
-            }
-
             int ICollection<KeyValuePair<string, object>>.Count
             {
                 get
                 {
-                    int count = 0;
-                    for (int i = 0; i < values.Length; i++)
-                    {
-                        if (!(values[i] is DeadValue)) count++;
-                    }
+                    var count = 0;
+                    for (var i = 0; i < values.Length; i++)
+                        if (!(values[i] is DeadValue))
+                            count++;
                     return count;
                 }
             }
@@ -44,18 +39,43 @@ namespace Kogel.Dapper.Extension
             {
                 var index = table.IndexOfName(key);
                 if (index < 0)
-                { // doesn't exist
+                {
+                    // doesn't exist
                     value = null;
                     return false;
                 }
+
                 // exists, **even if** we don't have a value; consider table rows heterogeneous
                 value = index < values.Length ? values[index] : null;
                 if (value is DeadValue)
-                { // pretend it isn't here
+                {
+                    // pretend it isn't here
                     value = null;
                     return false;
                 }
+
                 return true;
+            }
+
+            public IEnumerator<KeyValuePair<string, object>> GetEnumerator()
+            {
+                var names = table.FieldNames;
+                for (var i = 0; i < names.Length; i++)
+                {
+                    var value = i < values.Length ? values[i] : null;
+                    if (!(value is DeadValue)) yield return new KeyValuePair<string, object>(names[i], value);
+                }
+            }
+
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                return GetEnumerator();
+            }
+
+            DynamicMetaObject IDynamicMetaObjectProvider.GetMetaObject(
+                Expression parameter)
+            {
+                return new DapperRowMetaObject(parameter, BindingRestrictions.Empty, this);
             }
 
             public override string ToString()
@@ -66,40 +86,22 @@ namespace Kogel.Dapper.Extension
                     var value = kv.Value;
                     sb.Append(", ").Append(kv.Key);
                     if (value != null)
-                    {
                         sb.Append(" = '").Append(kv.Value).Append('\'');
-                    }
                     else
-                    {
                         sb.Append(" = NULL");
-                    }
                 }
 
                 return sb.Append('}').__ToStringRecycle();
             }
 
-            System.Dynamic.DynamicMetaObject System.Dynamic.IDynamicMetaObjectProvider.GetMetaObject(
-                System.Linq.Expressions.Expression parameter)
+            private sealed class DeadValue
             {
-                return new DapperRowMetaObject(parameter, System.Dynamic.BindingRestrictions.Empty, this);
-            }
+                public static readonly DeadValue Default = new DeadValue();
 
-            public IEnumerator<KeyValuePair<string, object>> GetEnumerator()
-            {
-                var names = table.FieldNames;
-                for (var i = 0; i < names.Length; i++)
+                private DeadValue()
                 {
-                    object value = i < values.Length ? values[i] : null;
-                    if (!(value is DeadValue))
-                    {
-                        yield return new KeyValuePair<string, object>(names[i], value);
-                    }
+                    /* hiding constructor */
                 }
-            }
-
-            IEnumerator IEnumerable.GetEnumerator()
-            {
-                return GetEnumerator();
             }
 
             #region Implementation of ICollection<KeyValuePair<string,object>>
@@ -111,22 +113,20 @@ namespace Kogel.Dapper.Extension
             }
 
             void ICollection<KeyValuePair<string, object>>.Clear()
-            { // removes values for **this row**, but doesn't change the fundamental table
-                for (int i = 0; i < values.Length; i++)
+            {
+                // removes values for **this row**, but doesn't change the fundamental table
+                for (var i = 0; i < values.Length; i++)
                     values[i] = DeadValue.Default;
             }
 
             bool ICollection<KeyValuePair<string, object>>.Contains(KeyValuePair<string, object> item)
             {
-                return TryGetValue(item.Key, out object value) && Equals(value, item.Value);
+                return TryGetValue(item.Key, out var value) && Equals(value, item.Value);
             }
 
             void ICollection<KeyValuePair<string, object>>.CopyTo(KeyValuePair<string, object>[] array, int arrayIndex)
             {
-                foreach (var kv in this)
-                {
-                    array[arrayIndex++] = kv; // if they didn't leave enough space; not our fault
-                }
+                foreach (var kv in this) array[arrayIndex++] = kv; // if they didn't leave enough space; not our fault
             }
 
             bool ICollection<KeyValuePair<string, object>>.Remove(KeyValuePair<string, object> item)
@@ -136,13 +136,14 @@ namespace Kogel.Dapper.Extension
             }
 
             bool ICollection<KeyValuePair<string, object>>.IsReadOnly => false;
+
             #endregion
 
             #region Implementation of IDictionary<string,object>
 
             bool IDictionary<string, object>.ContainsKey(string key)
             {
-                int index = table.IndexOfName(key);
+                var index = table.IndexOfName(key);
                 if (index < 0 || index >= values.Length || values[index] is DeadValue) return false;
                 return true;
             }
@@ -154,7 +155,7 @@ namespace Kogel.Dapper.Extension
 
             bool IDictionary<string, object>.Remove(string key)
             {
-                int index = table.IndexOfName(key);
+                var index = table.IndexOfName(key);
                 if (index < 0 || index >= values.Length || values[index] is DeadValue) return false;
                 values[index] = DeadValue.Default;
                 return true;
@@ -162,8 +163,12 @@ namespace Kogel.Dapper.Extension
 
             object IDictionary<string, object>.this[string key]
             {
-                get { TryGetValue(key, out object val); return val; }
-                set { SetValue(key, value, false); }
+                get
+                {
+                    TryGetValue(key, out var val);
+                    return val;
+                }
+                set => SetValue(key, value, false);
             }
 
             public object SetValue(string key, object value)
@@ -174,27 +179,21 @@ namespace Kogel.Dapper.Extension
             private object SetValue(string key, object value, bool isAdd)
             {
                 if (key == null) throw new ArgumentNullException(nameof(key));
-                int index = table.IndexOfName(key);
+                var index = table.IndexOfName(key);
                 if (index < 0)
-                {
                     index = table.AddField(key);
-                }
                 else if (isAdd && index < values.Length && !(values[index] is DeadValue))
-                {
                     // then semantically, this value already exists
                     throw new ArgumentException("An item with the same key has already been added", nameof(key));
-                }
-                int oldLength = values.Length;
+                var oldLength = values.Length;
                 if (oldLength <= index)
                 {
                     // we'll assume they're doing lots of things, and
                     // grow it to the full width of the table
                     Array.Resize(ref values, table.FieldCount);
-                    for (int i = oldLength; i < values.Length; i++)
-                    {
-                        values[i] = DeadValue.Default;
-                    }
+                    for (var i = oldLength; i < values.Length; i++) values[i] = DeadValue.Default;
                 }
+
                 return values[index] = value;
             }
 
@@ -213,24 +212,24 @@ namespace Kogel.Dapper.Extension
 
             #region Implementation of IReadOnlyDictionary<string,object>
 
-
             int IReadOnlyCollection<KeyValuePair<string, object>>.Count
             {
-                get
-                {
-                    return values.Count(t => !(t is DeadValue));
-                }
+                get { return values.Count(t => !(t is DeadValue)); }
             }
 
             bool IReadOnlyDictionary<string, object>.ContainsKey(string key)
             {
-                int index = table.IndexOfName(key);
+                var index = table.IndexOfName(key);
                 return index >= 0 && index < values.Length && !(values[index] is DeadValue);
             }
 
             object IReadOnlyDictionary<string, object>.this[string key]
             {
-                get { TryGetValue(key, out object val); return val; }
+                get
+                {
+                    TryGetValue(key, out var val);
+                    return val;
+                }
             }
 
             IEnumerable<string> IReadOnlyDictionary<string, object>.Keys

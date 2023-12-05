@@ -1,20 +1,16 @@
-﻿using Kogel.Dapper.Extension.Extension.From;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
+using Comman.Dapper.Linq.Extension.Core.Interfaces;
+using Kogel.Dapper.Extension.Extension.From;
 
 namespace Kogel.Dapper.Extension.Core.Interfaces
 {
     /// <summary>
-    /// 多表查询扩展
+    ///     多表查询扩展
     /// </summary>
     public partial interface IQuerySet<T>
     {
         /// <summary>
-        /// 
         /// </summary>
         /// <typeparam name="TReturn"></typeparam>
         /// <param name="select"></param>
@@ -22,7 +18,6 @@ namespace Kogel.Dapper.Extension.Core.Interfaces
         IQuery<T, TReturn> Select<TReturn>(Expression<Func<T, TReturn>> select);
 
         /// <summary>
-        /// 
         /// </summary>
         /// <typeparam name="T1"></typeparam>
         /// <typeparam name="T2"></typeparam>
@@ -30,7 +25,6 @@ namespace Kogel.Dapper.Extension.Core.Interfaces
         ISelectFrom<T, T1, T2> From<T1, T2>();
 
         /// <summary>
-        /// 
         /// </summary>
         /// <typeparam name="T1"></typeparam>
         /// <typeparam name="T2"></typeparam>
@@ -39,7 +33,6 @@ namespace Kogel.Dapper.Extension.Core.Interfaces
         ISelectFrom<T, T1, T2, T3> From<T1, T2, T3>();
 
         /// <summary>
-        /// 
         /// </summary>
         /// <typeparam name="T1"></typeparam>
         /// <typeparam name="T2"></typeparam>

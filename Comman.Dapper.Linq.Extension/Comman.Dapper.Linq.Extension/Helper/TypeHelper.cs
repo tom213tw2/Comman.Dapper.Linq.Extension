@@ -12,29 +12,22 @@ namespace Kogel.Dapper.Extension.Helper
             if (seqType.IsArray)
                 return typeof(IEnumerable<>).MakeGenericType(seqType.GetElementType());
             if (seqType.IsGenericTypes())
-            {
                 foreach (var arg in seqType.GetGenericArguments())
                 {
                     var ienum = typeof(IEnumerable<>).MakeGenericType(arg);
-                    if (ienum.IsAssignableFrom(seqType))
-                    {
-                        return ienum;
-                    }
+                    if (ienum.IsAssignableFrom(seqType)) return ienum;
                 }
-            }
-            Type[] ifaces = seqType.GetInterfaces();
+
+            var ifaces = seqType.GetInterfaces();
             if (ifaces.Length > 0)
-            {
-                foreach (Type iface in ifaces)
+                foreach (var iface in ifaces)
                 {
-                    Type ienum = FindIEnumerable(iface);
+                    var ienum = FindIEnumerable(iface);
                     if (ienum != null) return ienum;
                 }
-            }
+
             if (seqType.BaseTypes() != null && seqType.BaseTypes() != typeof(object))
-            {
                 return FindIEnumerable(seqType.BaseTypes());
-            }
             return null;
         }
 
@@ -50,11 +43,8 @@ namespace Kogel.Dapper.Extension.Helper
 
         public static Type GetNonNullableType(Type type)
         {
-            if (IsNullableType(type))
-            {
-                return type.GetGenericArguments()[0];
-            }
+            if (IsNullableType(type)) return type.GetGenericArguments()[0];
             return type;
         }
-	}
+    }
 }

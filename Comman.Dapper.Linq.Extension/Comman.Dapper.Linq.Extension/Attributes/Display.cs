@@ -1,82 +1,79 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Data;
+﻿using System.Data;
 
-namespace Kogel.Dapper.Extension.Attributes
+namespace Comman.Dapper.Linq.Extension.Attributes
 {
-	/// <summary>
-	/// 
-	/// </summary>
-	public class Display : BaseAttrbute
-	{
-		/// <summary>
-		/// 是否需要隐射该字段
-		/// </summary>
-		public bool IsField { get; set; }
+    /// <summary>
+    /// 代表實體欄位的顯示屬性。
+    /// </summary>
+    public class Display : BaseAttribute
+    {
+        /// <summary>
+        /// 初始化 <see cref="Display"/> 類別的新實例。
+        /// </summary>
+        /// <param name="name">欄位名稱。</param>
+        /// <param name="description">欄位描述。</param>
+        /// <param name="rename">對應的資料庫欄位名稱。</param>
+        /// <param name="schema">資料庫架構（SQL Server 預設為 'dbo'）。</param>
+        /// <param name="asName">欄位的別名。</param>
+        /// <param name="isField">指示該屬性是否為表相關欄位。</param>
+        /// <param name="sqlDbType">欄位的 SQL 資料庫類型。</param>
+        /// <param name="length">欄位長度。</param>
+        /// <param name="isNull">指示該欄位是否可為 null。</param>
+        /// <param name="defaultValue">欄位的預設值。</param>
+        public Display(string name = null, string description = null, string rename = null, string schema = null,
+                       string asName = null, bool isField = true, SqlDbType sqlDbType = SqlDbType.Structured,
+                       int length = 0, bool? isNull = default, object defaultValue = null)
+        {
+            Name = name;
+            Description = description;
+            IsField = isField;
+            Rename = string.IsNullOrEmpty(rename) ? name : rename;
+            Schema = schema;
+            AsName = asName;
+            SqlDbType = sqlDbType;
+            Length = length;
+            IfNull = isNull;
+            DefaultValue = defaultValue;
+        }
 
-		/// <summary>
-		/// 重命名(数据库隐射名称(默认为类名))
-		/// </summary>
-		public string Rename { get; set; }
+        /// <summary>
+        /// 獲取或設置一個值，指示此屬性是否為表相關欄位。
+        /// </summary>
+        public bool IsField { get; set; }
 
-		/// <summary>
-		/// 名称空间(例如sqlserver中的dbo)
-		/// </summary>
-		public string Schema { get; set; }
+        /// <summary>
+        /// 獲取或設置此屬性的資料庫映射名稱。如果未指定，則預設為類別名稱。
+        /// </summary>
+        public string Rename { get; set; }
 
-		/// <summary>
-		/// 指定 as 名称
-		/// </summary>
-		public string AsName { get; set; }
+        /// <summary>
+        /// 獲取或設置資料庫的命名空間，例如 SQL Server 中的 'dbo'。
+        /// </summary>
+        public string Schema { get; set; }
 
-		/// <summary>
-		/// 数据库字段类型
-		/// </summary>
-		public SqlDbType SqlDbType { get; set; }
+        /// <summary>
+        /// 獲取或設置此欄位的 'AS' 別名。
+        /// </summary>
+        public string AsName { get; set; }
 
-		/// <summary>
-		/// 长度
-		/// </summary>
-		public int Length { get; set; }
+        /// <summary>
+        /// 獲取或設置此欄位的 SQL 資料庫類型。
+        /// </summary>
+        public SqlDbType SqlDbType { get; set; }
 
-		/// <summary>
-		/// 是否允许为空
-		/// </summary>
-		public bool? IfNull { get; set; }
+        /// <summary>
+        /// 獲取或設置此欄位的長度。
+        /// </summary>
+        public int Length { get; set; }
 
-		/// <summary>
-		/// 默认值
-		/// </summary>
-		public object DefaultValue { get; set; }
+        /// <summary>
+        /// 獲取或設置一個值，指示此欄位是否可以為 null。
+        /// </summary>
+        public bool? IfNull { get; set; }
 
-		/// <summary>
-		/// 描述字段特性
-		/// </summary>
-		/// <param name="Name">名称</param>
-		/// <param name="Description">描述</param>
-		/// <param name="Rename">设置对应数据库名称</param>
-		/// <param name="Schema">命名空间（sqlserver默认dbo）</param>
-		/// <param name="AsName">重命名 as xxx</param>
-		/// <param name="IsField">是否是表关联字段(实体类为True)</param>
-		/// <param name="SqlDbType">数据库字段类型</param>
-		/// <param name="Length">字段长度</param>
-		/// <param name="IsNull">是否为空</param>
-		/// <param name="DefaultValue">字段默认值</param>
-		public Display(string Name = null, string Description = null, string Rename = null, string Schema = null,
-			string AsName = null, bool IsField = true, SqlDbType SqlDbType = SqlDbType.Structured, int Length = 0,
-			bool IfNull = default, object DefaultValue = null)
-		{
-			this.Name = Name;
-			this.Description = Description;
-			this.IsField = IsField;
-			this.Rename = string.IsNullOrEmpty(Rename) ? Name : Rename;
-			this.Schema = Schema;
-			this.AsName = AsName;
-			this.SqlDbType = SqlDbType;
-			this.Length = Length;
-			this.IfNull = IfNull;
-			this.DefaultValue = DefaultValue;
-		}
-	}
+        /// <summary>
+        /// 獲取或設置此欄位的預設值。
+        /// </summary>
+        public object DefaultValue { get; set; }
+    }
 }

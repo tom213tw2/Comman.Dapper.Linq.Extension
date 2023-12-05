@@ -22,18 +22,35 @@ namespace Kogel.Dapper.Extension
             return doc;
         }
 
-        protected override string Format(XmlDocument xml) => xml.OuterXml;
+        protected override string Format(XmlDocument xml)
+        {
+            return xml.OuterXml;
+        }
     }
 
     internal sealed class XDocumentHandler : XmlTypeHandler<XDocument>
     {
-        protected override XDocument Parse(string xml) => XDocument.Parse(xml);
-        protected override string Format(XDocument xml) => xml.ToString();
+        protected override XDocument Parse(string xml)
+        {
+            return XDocument.Parse(xml);
+        }
+
+        protected override string Format(XDocument xml)
+        {
+            return xml.ToString();
+        }
     }
 
     internal sealed class XElementHandler : XmlTypeHandler<XElement>
     {
-        protected override XElement Parse(string xml) => XElement.Parse(xml);
-        protected override string Format(XElement xml) => xml.ToString();
+        protected override XElement Parse(string xml)
+        {
+            return XElement.Parse(xml);
+        }
+
+        protected override string Format(XElement xml)
+        {
+            return xml.ToString();
+        }
     }
 }
