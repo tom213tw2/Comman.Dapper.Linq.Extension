@@ -417,13 +417,12 @@ namespace Kogel.Dapper.Extension.Core.Interfaces
             int index = 0;
             foreach (var item in entitys)
             {
-
                 var resolveInsertParamsAndValues = ResolveInsertParamsAndValues(item, excludeFields, index++);
                 var tableName = resolveInsertParamsAndValues.Item1;
                 var fieldStr = resolveInsertParamsAndValues.Item2;
                 var paramStr = resolveInsertParamsAndValues.Item3;
                 var parameter = resolveInsertParamsAndValues.Item4;
-
+               
 
                 //增加字段(只加一次)
                 if (sqlBuilder.Length == 0)
