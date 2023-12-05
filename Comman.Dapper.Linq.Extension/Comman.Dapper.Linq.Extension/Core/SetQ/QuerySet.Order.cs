@@ -25,14 +25,14 @@ namespace Comman.Dapper.Linq.Extension.Core.SetQ
         }
 
         /// <inheritdoc />
-        public Comman.Dapper.Linq.Extension.Core.Interfaces.IQuerySet<T> OrderByDeicing<TProperty>(Expression<Func<TProperty, object>> field)
+        public Comman.Dapper.Linq.Extension.Core.Interfaces.IQuerySet<T> OrderByDescending<TProperty>(Expression<Func<TProperty, object>> field)
         {
             if (field != null)
                 OrderbyExpressionList.Add(field, EOrderBy.Desc);
             return this;
         }
 
-        public Comman.Dapper.Linq.Extension.Core.Interfaces.IQuerySet<T> OrderByDeicing(Expression<Func<T, object>> field)
+        public Comman.Dapper.Linq.Extension.Core.Interfaces.IQuerySet<T> OrderByDescending(Expression<Func<T, object>> field)
         {
             if (field != null)
                 OrderbyExpressionList.Add(field, EOrderBy.Desc);

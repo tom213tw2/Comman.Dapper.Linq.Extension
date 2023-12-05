@@ -3,7 +3,6 @@ using System.Linq.Expressions;
 using System.Text;
 using Comman.Dapper.Linq.Extension.Extension;
 using Comman.Dapper.Linq.Extension.Helper.Cache;
-using Kogel.Dapper.Extension;
 
 namespace Comman.Dapper.Linq.Extension.Expressions
 {

@@ -9,8 +9,6 @@ using Comman.Dapper.Linq.Extension.Exception;
 using Comman.Dapper.Linq.Extension.Expressions;
 using Comman.Dapper.Linq.Extension.Helper;
 using Comman.Dapper.Linq.Extension.Helper.Cache;
-using Kogel.Dapper.Extension;
-using Kogel.Dapper.Extension.Core.Interfaces;
 using DynamicParameters = Comman.Dapper.Linq.Extension.Dapper.DynamicParameters;
 
 namespace Comman.Dapper.Linq.Extension

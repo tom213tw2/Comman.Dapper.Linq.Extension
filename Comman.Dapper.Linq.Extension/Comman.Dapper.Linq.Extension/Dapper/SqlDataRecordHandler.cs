@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using Kogel.Dapper.Extension;
 using Microsoft.SqlServer.Server;
 
 namespace Comman.Dapper.Linq.Extension.Dapper

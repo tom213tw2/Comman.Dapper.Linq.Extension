@@ -9,7 +9,6 @@ using Comman.Dapper.Linq.Extension.Core.Interfaces;
 using Comman.Dapper.Linq.Extension.Dapper;
 using Comman.Dapper.Linq.Extension.Expressions;
 using Comman.Dapper.Linq.Extension.Helper.Cache;
-using Kogel.Dapper.Extension;
 
 namespace Comman.Dapper.Linq.Extension.Extension
 {

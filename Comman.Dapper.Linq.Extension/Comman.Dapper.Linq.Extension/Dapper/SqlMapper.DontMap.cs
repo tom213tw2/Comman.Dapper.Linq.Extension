@@ -1,5 +1,4 @@
 ﻿using Comman.Dapper.Linq.Extension.Extension.From;
-using Kogel.Dapper.Extension;
 
 namespace Comman.Dapper.Linq.Extension.Dapper
 {

@@ -8,7 +8,6 @@ using Comman.Dapper.Linq.Extension.Entites;
 using Comman.Dapper.Linq.Extension.Expressions;
 using Comman.Dapper.Linq.Extension.Extension;
 using Comman.Dapper.Linq.Extension.Helper.Cache;
-using Kogel.Dapper.Extension;
 using DynamicParameters = Comman.Dapper.Linq.Extension.Dapper.DynamicParameters;
 
 namespace Comman.Dapper.Linq.Extension.Core.Interfaces
@@ -16,7 +15,7 @@ namespace Comman.Dapper.Linq.Extension.Core.Interfaces
     public abstract class ResolveExpression
     {
         /// <summary>
-        ///     字段列列表
+        ///     字段列映射表。
         /// </summary>
         private static readonly Hashtable TableFieldMap = new Hashtable();
 
@@ -31,22 +30,27 @@ namespace Comman.Dapper.Linq.Extension.Core.Interfaces
 
         private AbstractSet AbstractSet => provider.Context.Set;
 
+
         /// <summary>
-        ///     根据反射对象获取表字段
+        ///     根據反射對象獲取表字段。
         /// </summary>
-        /// <returns></returns>
+        /// <param name="entityObject">實體對象。</param>
+        /// <returns>表字段字符串。</returns>
         public virtual string GetTableField(EntityObject entityObject)
         {
             lock (TableFieldMap)
             {
                 var fieldBuild = (string)TableFieldMap[entityObject];
                 if (fieldBuild != null) return fieldBuild;
+
                 var asName = entityObject.Name == entityObject.AsName
                     ? providerOption.CombineFieldName(entityObject.AsName)
                     : entityObject.AsName;
+
                 fieldBuild = string.Join(",",
                     entityObject.FieldPairs.Select(field =>
                         $"{asName}.{providerOption.CombineFieldName(field.Value)}"));
+
                 TableFieldMap.Add(entityObject, fieldBuild);
 
                 return fieldBuild;
@@ -54,43 +58,46 @@ namespace Comman.Dapper.Linq.Extension.Core.Interfaces
         }
 
         /// <summary>
-        ///     解析查询字段
+        ///     解析查詢字段。
         /// </summary>
-        /// <param name="topNum"></param>
-        /// <returns></returns>
+        /// <param name="topNum">查詢頂部數量限制。</param>
+        /// <returns>查詢字段的 SQL 字串。</returns>
         public abstract string ResolveSelect(int? topNum);
 
         /// <summary>
-        ///     解析查询条件
+        ///     解析查詢條件。
         /// </summary>
-        /// <param name="prefix"></param>
-        /// <returns></returns>
+        /// <param name="prefix">查詢條件的前綴。</param>
+        /// <returns>查詢條件的 SQL 字串。</returns>
         public virtual string ResolveWhereList(string prefix = null)
         {
-            //添加Linq生成的sql条件和参数
+            // 添加 Linq 生成的 SQL 條件和參數
             var lambdaExpressionList = AbstractSet.WhereExpressionList;
             var builder = new StringBuilder("WHERE 1=1 ");
+
             for (var i = 0; i < lambdaExpressionList.Count; i++)
             {
                 var wherePrefix = string.IsNullOrEmpty(prefix) ? $"{i}" : $"{prefix}{i}_";
                 var whereParam = new WhereExpression(lambdaExpressionList[i], wherePrefix, provider);
                 builder.Append(whereParam.SqlCmd);
-                //参数
+
+                // 添加參數
                 foreach (var paramKey in whereParam.Param.ParameterNames)
                     AbstractSet.Params.Add(paramKey, whereParam.Param.Get<object>(paramKey));
             }
 
-            //添加自定义sql生成的条件和参数
+            // 添加自定義 SQL 生成的條件和參數
             if (AbstractSet.WhereBuilder != null && AbstractSet.WhereBuilder.Length != 0)
-                //添加自定义条件sql
                 builder.Append(AbstractSet.WhereBuilder);
+
             return builder.ToString();
         }
 
+
         /// <summary>
-        ///     解析分组
+        ///     解析分組。
         /// </summary>
-        /// <returns></returns>
+        /// <returns>分組的 SQL 字串。</returns>
         public virtual string ResolveGroupBy()
         {
             var builder = new StringBuilder();
@@ -112,9 +119,9 @@ namespace Comman.Dapper.Linq.Extension.Core.Interfaces
         }
 
         /// <summary>
-        ///     解析分组聚合条件
+        ///     解析分組聚合條件。
         /// </summary>
-        /// <returns></returns>
+        /// <returns>聚合條件的 SQL 字串。</returns>
         public virtual string ResolveHaving()
         {
             var builder = new StringBuilder();
@@ -125,7 +132,7 @@ namespace Comman.Dapper.Linq.Extension.Core.Interfaces
                 {
                     var whereParam = new WhereExpression(havingExpression[i], $"Having_{i}", provider);
                     builder.Append(whereParam.SqlCmd);
-                    //参数
+                    // 添加參數
                     foreach (var paramKey in whereParam.Param.ParameterNames)
                         AbstractSet.Params.Add(paramKey, whereParam.Param.Get<object>(paramKey));
                 }
@@ -137,9 +144,9 @@ namespace Comman.Dapper.Linq.Extension.Core.Interfaces
         }
 
         /// <summary>
-        ///     解析排序
+        ///     解析排序。
         /// </summary>
-        /// <returns></returns>
+        /// <returns>排序的 SQL 字串。</returns>
         public virtual string ResolveOrderBy()
         {
             var orderByList = AbstractSet?.OrderbyExpressionList.Select(a =>
@@ -150,52 +157,54 @@ namespace Comman.Dapper.Linq.Extension.Core.Interfaces
                     $"{entity.AsName}.{providerOption.CombineFieldName(columnName)}{(a.Value == EOrderBy.Asc ? " ASC " : " DESC ")}";
                 return orderBySql;
             }) ?? new List<string>();
+
             if (!orderByList.Any() && (AbstractSet?.OrderbyBuilder == null || AbstractSet.OrderbyBuilder.Length == 0))
                 return "";
 
             return $"ORDER BY {string.Join(",", orderByList)} {AbstractSet.OrderbyBuilder}";
         }
 
+
         /// <summary>
-        ///     解析查询总和
+        ///     解析查詢總和。
         /// </summary>
-        /// <param name="selector"></param>
-        /// <returns></returns>
+        /// <param name="selector">選擇器表達式。</param>
+        /// <returns>總和查詢的 SQL 字串。</returns>
         public abstract string ResolveSum(LambdaExpression selector);
 
         /// <summary>
-        ///     解析查询最小值
+        ///     解析查詢最小值。
         /// </summary>
-        /// <param name="selector"></param>
-        /// <returns></returns>
+        /// <param name="selector">選擇器表達式。</param>
+        /// <returns>最小值查詢的 SQL 字串。</returns>
         public abstract string ResolveMax(LambdaExpression selector);
 
         /// <summary>
-        ///     解析查询最大值
+        ///     解析查詢最大值。
         /// </summary>
-        /// <param name="selector"></param>
-        /// <returns></returns>
+        /// <param name="selector">選擇器表達式。</param>
+        /// <returns>最大值查詢的 SQL 字串。</returns>
         public abstract string ResolveMin(LambdaExpression selector);
 
         /// <summary>
-        ///     解析更新
+        ///     解析更新表達式。
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="updateExpression"></param>
-        /// <returns></returns>
+        /// <typeparam name="T">實體類型。</typeparam>
+        /// <param name="updateExpression">更新表達式。</param>
+        /// <returns>更新表達式物件。</returns>
         public virtual UpdateExpression<T> ResolveUpdate<T>(Expression<Func<T, T>> updateExpression)
         {
             return new UpdateExpression<T>(updateExpression, provider);
         }
 
         /// <summary>
-        ///     解析更新语句
+        ///     解析更新語句。
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="entity"></param>
-        /// <param name="param"></param>
-        /// <param name="excludeFields"></param>
-        /// <returns></returns>
+        /// <typeparam name="T">實體類型。</typeparam>
+        /// <param name="entity">更新的實體對象。</param>
+        /// <param name="param">參數集合。</param>
+        /// <param name="excludeFields">排除的字段名稱列表。</param>
+        /// <returns>更新語句的 SQL 字串。</returns>
         public virtual string ResolveUpdate<T>(T entity, DynamicParameters param, string[] excludeFields)
         {
             var entityObject = EntityCache.QueryEntity(typeof(T));
@@ -203,7 +212,7 @@ namespace Comman.Dapper.Linq.Extension.Core.Interfaces
             foreach (var entityField in entityObject.EntityFieldList)
             {
                 var name = entityField.FieldName;
-                //是否是排除字段
+                // 是否為排除字段
                 if (excludeFields != null &&
                     (excludeFields.Contains(entityField.PropertyInfo.Name) || excludeFields.Contains(name))) continue;
                 if (entityField.IsIncrease) continue;
@@ -218,15 +227,16 @@ namespace Comman.Dapper.Linq.Extension.Core.Interfaces
             return builder.ToString();
         }
 
+
         /// <summary>
-        ///     批量修改
+        ///     批量修改。
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="entites"></param>
-        /// <param name="param"></param>
-        /// <param name="excludeFields"></param>
-        /// <returns></returns>
-        public virtual string ResolveBulkUpdate<T>(IEnumerable<T> entites, DynamicParameters param,
+        /// <typeparam name="T">實體類型。</typeparam>
+        /// <param name="entities">實體集合。</param>
+        /// <param name="param">參數集合。</param>
+        /// <param name="excludeFields">排除的字段名稱列表。</param>
+        /// <returns>批量修改的 SQL 字串。</returns>
+        public virtual string ResolveBulkUpdate<T>(IEnumerable<T> entities, DynamicParameters param,
             string[] excludeFields)
         {
             var entityObject = EntityCache.QueryEntity(typeof(T));
@@ -234,7 +244,7 @@ namespace Comman.Dapper.Linq.Extension.Core.Interfaces
             foreach (var entityField in entityObject.EntityFieldList)
             {
                 var name = entityField.FieldName;
-                //是否是排除字段
+                // 是否為排除字段
                 if (excludeFields != null &&
                     (excludeFields.Contains(entityField.PropertyInfo.Name) || excludeFields.Contains(name))) continue;
                 if (entityField.IsIncrease) continue;
@@ -249,38 +259,36 @@ namespace Comman.Dapper.Linq.Extension.Core.Interfaces
         }
 
         /// <summary>
+        ///     解析無鎖查詢設定。
         /// </summary>
-        /// <param name="nolock"></param>
-        /// <returns></returns>
+        /// <param name="nolock">是否無鎖查詢。</param>
+        /// <returns>無鎖查詢設定的 SQL 字串。</returns>
         public virtual string ResolveWithNoLock(bool nolock)
         {
             return nolock ? "(NOLOCK)" : "";
         }
 
         /// <summary>
-        ///     解析连表查询
+        ///     解析連表查詢。
         /// </summary>
-        /// <param name="joinAssTables"></param>
-        /// <param name="sql"></param>
-        /// <returns></returns>
+        /// <param name="joinAssTables">連表輔助表列表。</param>
+        /// <param name="sql">原始 SQL 字串。</param>
+        /// <returns>連表查詢的 SQL 字串。</returns>
         public virtual string ResolveJoinSql(List<JoinAssTable> joinAssTables, ref string sql)
         {
             var builder = new StringBuilder(Environment.NewLine);
             if (joinAssTables.Count != 0)
             {
                 sql = sql.TrimEnd();
-                //循环拼接连表对象
+                // 循環拼接連表對象
                 for (var i = 0; i < joinAssTables.Count; i++)
                 {
-                    //当前连表对象
                     var item = joinAssTables[i];
                     if (item.IsMapperField == false) continue;
                     item.MapperList.Clear();
                     if (item.TableType != null)
                     {
-                        //连表实体
                         var leftEntity = EntityCache.QueryEntity(item.TableType);
-                        //默认连表
                         if (item.Action == JoinAction.Default || item.Action == JoinAction.Navigation)
                         {
                             var leftTable = providerOption.CombineFieldName(item.LeftTabName);
@@ -289,14 +297,12 @@ namespace Comman.Dapper.Linq.Extension.Core.Interfaces
                                       .{providerOption.CombineFieldName(item.LeftAssName)} = {providerOption.CombineFieldName(item.RightTabName)}
                                       .{providerOption.CombineFieldName(item.RightAssName)} " + Environment.NewLine);
                         }
-                        else //sql连表
+                        else
                         {
                             builder.Append(" " + item.JoinSql);
-                            //判断是否需要显示连表的字段
                             if (!item.IsMapperField) continue;
                         }
 
-                        //自定义返回
                         if (provider.Context.Set.SelectExpression != null) continue;
                         FieldDetailWith(ref sql, item, leftEntity);
                     }
@@ -304,7 +310,6 @@ namespace Comman.Dapper.Linq.Extension.Core.Interfaces
                     {
                         if (item.Action != JoinAction.Sql) continue;
                         builder.Append(" " + item.JoinSql);
-                        //判断是否需要显示连表的字段
                         if (!item.IsMapperField) continue;
                     }
                 }
@@ -313,21 +318,22 @@ namespace Comman.Dapper.Linq.Extension.Core.Interfaces
             return builder.ToString();
         }
 
+
         /// <summary>
-        ///     字段处理
+        ///     字段處理。
         /// </summary>
-        /// <param name="masterSql"></param>
-        /// <param name="joinAssTable"></param>
-        /// <param name="joinEntity"></param>
-        /// <returns></returns>
+        /// <param name="masterSql">主 SQL 字串。</param>
+        /// <param name="joinAssTable">連表輔助表。</param>
+        /// <param name="joinEntity">連接實體。</param>
+        /// <returns>處理後的 SQL 字串。</returns>
         private string FieldDetailWith(ref string masterSql, JoinAssTable joinAssTable, EntityObject joinEntity)
         {
             var sqlBuilder = new StringBuilder();
-            //表名称
+            // 表名稱
             var joinTableName = joinEntity.AsName == joinEntity.Name
                 ? providerOption.CombineFieldName(joinEntity.Name)
                 : joinEntity.AsName;
-            //查询的字段
+            // 查詢的字段
             var fieldPairs = joinAssTable.SelectFieldPairs != null && joinAssTable.SelectFieldPairs.Any()
                 ? joinAssTable.SelectFieldPairs
                 : joinEntity.FieldPairs;
@@ -336,13 +342,9 @@ namespace Comman.Dapper.Linq.Extension.Core.Interfaces
                 if (masterSql.LastIndexOf(',') == masterSql.Length - 1 && sqlBuilder.Length == 0)
                     sqlBuilder.Append($"{joinTableName}.");
                 else
-                    //首先添加表名称
                     sqlBuilder.Append($",{joinTableName}.");
-                //字段
                 var field = providerOption.CombineFieldName(fieldValue);
-                //字符出现的次数
                 var repeatCount = masterSql.Split(new[] { field }, StringSplitOptions.None).Length - 1;
-                //添加字段
                 sqlBuilder.Append(field);
                 if (repeatCount > 0)
                 {
@@ -355,32 +357,23 @@ namespace Comman.Dapper.Linq.Extension.Core.Interfaces
                 }
             }
 
-            //导航属性目前有点问题
-            //var joinEntityType = joinAssTable.IsDto == false ? joinEntity.Type : joinAssTable.DtoType;
-            ////重新注册实体映射
-            //SqlMapper.SetTypeMap(joinEntityType, new CustomPropertyTypeMap(joinEntityType,
-            //		(type, column) =>
-            //		type.GetPropertys(joinAssTable.MapperList.FirstOrDefault(x => x.Value.Equals(column)).Key)
-            //		), true);
-            //设置sql字段
             masterSql += sqlBuilder;
             return masterSql;
         }
 
         /// <summary>
-        ///     解析批量新增
+        ///     解析批量新增。
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="entitys"></param>
-        /// <param name="excludeFields"></param>
-        /// <returns></returns>
-        public virtual string ResolveBulkInsert<T>(IEnumerable<T> entitys, string[] excludeFields)
+        /// <typeparam name="T">實體類型。</typeparam>
+        /// <param name="entities">實體集合。</param>
+        /// <param name="excludeFields">排除字段列表。</param>
+        /// <returns>批量新增的 SQL 字串。</returns>
+        public virtual string ResolveBulkInsert<T>(IEnumerable<T> entities, string[] excludeFields)
         {
             var sqlBuilder = new StringBuilder();
             var parameters = new DynamicParameters();
-            //当前数据索引
             var index = 0;
-            foreach (var item in entitys)
+            foreach (var item in entities)
             {
                 var resolveInsertParamsAndValues = ResolveInsertParamsAndValues(item, excludeFields, index++);
                 var tableName = resolveInsertParamsAndValues.Item1;
@@ -388,19 +381,12 @@ namespace Comman.Dapper.Linq.Extension.Core.Interfaces
                 var paramStr = resolveInsertParamsAndValues.Item3;
                 var parameter = resolveInsertParamsAndValues.Item4;
 
-
-                //增加字段(只加一次)
                 if (sqlBuilder.Length == 0)
                 {
-                    sqlBuilder.Append($"INSERT INTO {tableName}");
-                    sqlBuilder.Append($"({fieldStr})");
+                    sqlBuilder.Append($"INSERT INTO {tableName}({fieldStr})");
                 }
 
-                //增加参数
-                if (index == 1)
-                    sqlBuilder.Append($"Values({paramStr})");
-                else
-                    sqlBuilder.Append($",({paramStr})");
+                sqlBuilder.Append(index == 1 ? $"Values({paramStr})" : $",({paramStr})");
                 parameters.AddDynamicParams(parameter);
             }
 
@@ -408,13 +394,15 @@ namespace Comman.Dapper.Linq.Extension.Core.Interfaces
             return sqlBuilder.ToString();
         }
 
+
         /// <summary>
+        /// 解析插入操作的參數和值。
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="tValue"></param>
-        /// <param name="excludeFields">排除字段</param>
-        /// <param name="index">当前数据索引</param>
-        /// <returns></returns>
+        /// <typeparam name="T">實體類型。</typeparam>
+        /// <param name="tValue">實體對象。</param>
+        /// <param name="excludeFields">需要排除的字段列表。</param>
+        /// <param name="index">當前數據索引。</param>
+        /// <returns>返回包含表名、字段構建器、參數構建器和參數的元組。</returns>
         private Tuple<string, StringBuilder, StringBuilder, DynamicParameters> ResolveInsertParamsAndValues<T>(
             T tValue, string[] excludeFields = null, int index = 0)
         {
@@ -429,10 +417,10 @@ namespace Comman.Dapper.Linq.Extension.Core.Interfaces
             foreach (var entityField in entityProperties.EntityFieldList)
             {
                 var fieldName = entityField.FieldName;
-                //是否是排除字段
+                // 檢查是否為排除字段
                 if (excludeFields != null && (excludeFields.Contains(fieldName) ||
                                               excludeFields.Contains(entityField.PropertyInfo.Name))) continue;
-                //是否自增
+                // 檢查是否為自增字段
                 if (entityField.IsIncrease) continue;
                 if (isAppend)
                 {
@@ -440,9 +428,9 @@ namespace Comman.Dapper.Linq.Extension.Core.Interfaces
                     paramBuilder.Append(",");
                 }
 
-                //字段添加
+                // 添加字段
                 fieldBuilder.Append($"{provider.ProviderOption.CombineFieldName(fieldName)}");
-                //参数添加
+                // 添加參數
                 paramBuilder.Append($"{provider.ProviderOption.ParameterPrefix}{fieldName}{index}");
                 parameters.Add($"{provider.ProviderOption.ParameterPrefix}{fieldName}{index}",
                     entityField.PropertyInfo.GetValue(tValue));

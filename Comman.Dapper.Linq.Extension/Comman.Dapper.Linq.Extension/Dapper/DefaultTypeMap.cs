@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Kogel.Dapper.Extension;
 
 namespace Comman.Dapper.Linq.Extension.Dapper
 {

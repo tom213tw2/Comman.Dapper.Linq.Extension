@@ -3,7 +3,6 @@ using System.Data;
 using System.Linq.Expressions;
 using Comman.Dapper.Linq.Extension.Core.Interfaces;
 using Comman.Dapper.Linq.Extension.Dapper;
-using Kogel.Dapper.Extension;
 
 namespace Comman.Dapper.Linq.Extension.Core.SetQ
 {

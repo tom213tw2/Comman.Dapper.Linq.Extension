@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using Comman.Dapper.Linq.Extension.Core.Interfaces;
 using Comman.Dapper.Linq.Extension.Entites;
 using Comman.Dapper.Linq.Extension.Extension;
-using Kogel.Dapper.Extension;
 
 namespace Comman.Dapper.Linq.Extension.Core.SetQ
 {

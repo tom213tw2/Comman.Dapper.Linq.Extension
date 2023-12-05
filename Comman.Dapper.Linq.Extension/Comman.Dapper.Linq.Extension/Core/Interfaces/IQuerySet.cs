@@ -47,119 +47,122 @@ namespace Comman.Dapper.Linq.Extension.Core.Interfaces
 
 
         /// <summary>
-        ///     连表查询
+        ///     進行連表查詢。
         /// </summary>
-        /// <typeparam name="TWhere"></typeparam>
-        /// <typeparam name="TInner"></typeparam>
-        /// <param name="rightField"></param>
-        /// <param name="leftField"></param>
-        /// <param name="joinMode"></param>
-        /// <returns></returns>
+        /// <typeparam name="TWhere">條件表達式型別。</typeparam>
+        /// <typeparam name="TInner">內部表達式型別。</typeparam>
+        /// <param name="rightField">右表欄位。</param>
+        /// <param name="leftField">左表欄位。</param>
+        /// <param name="joinMode">連接模式，預設為左連接（LEFT JOIN）。</param>
+        /// <returns>返回查詢集合。</returns>
         IQuerySet<T> Join<TWhere, TInner>(Expression<Func<TWhere, object>> rightField,
             Expression<Func<TInner, object>> leftField, JoinMode joinMode = JoinMode.LEFT);
 
         /// <summary>
-        ///     连表查询(任意查)
+        ///     進行連表查詢（使用自定義條件）。
         /// </summary>
-        /// <typeparam name="TWhere">主表</typeparam>
-        /// <typeparam name="TInner">副表</typeparam>
-        /// <param name="exp"></param>
-        /// <param name="joinMode">连表方式</param>
-        /// <param name="isDisField">是否显示字段</param>
-        /// <returns></returns>
+        /// <typeparam name="TWhere">主表型別。</typeparam>
+        /// <typeparam name="TInner">副表型別。</typeparam>
+        /// <param name="exp">查詢條件表達式。</param>
+        /// <param name="joinMode">連接模式，預設為左連接（LEFT JOIN）。</param>
+        /// <param name="isDisField">是否顯示欄位，預設為 true。</param>
+        /// <returns>返回查詢集合。</returns>
         IQuerySet<T> Join<TWhere, TInner>(Expression<Func<TWhere, TInner, bool>> exp, JoinMode joinMode = JoinMode.LEFT,
             bool isDisField = true);
 
         /// <summary>
-        ///     连表查询
+        ///     進行多表連表查詢。
         /// </summary>
-        /// <typeparam name="TWhere"></typeparam>
-        /// <typeparam name="TInner"></typeparam>
-        /// <typeparam name="TWhere2"></typeparam>
-        /// <param name="expression"></param>
-        /// <param name="joinMode"></param>
-        /// <param name="isDisField"></param>
-        /// <returns></returns>
+        /// <typeparam name="TWhere">第一個條件表達式型別。</typeparam>
+        /// <typeparam name="TInner">第二個內部表達式型別。</typeparam>
+        /// <typeparam name="TWhere2">第三個條件表達式型別。</typeparam>
+        /// <param name="expression">查詢條件表達式。</param>
+        /// <param name="joinMode">連接模式，預設為左連接（LEFT JOIN）。</param>
+        /// <param name="isDisField">是否顯示欄位，預設為 true。</param>
+        /// <returns>返回查詢集合。</returns>
         IQuerySet<T> Join<TWhere, TInner, TWhere2>(Expression<Func<TWhere, TInner, TWhere2, bool>> expression,
             JoinMode joinMode = JoinMode.LEFT, bool isDisField = true);
 
         /// <summary>
+        ///     進行多表連表查詢。
         /// </summary>
-        /// <typeparam name="TWhere"></typeparam>
-        /// <typeparam name="TInner"></typeparam>
-        /// <typeparam name="TWhere2"></typeparam>
-        /// <typeparam name="TWhere3"></typeparam>
-        /// <param name="expression"></param>
-        /// <param name="joinMode"></param>
-        /// <param name="isDisField"></param>
-        /// <returns></returns>
+        /// <typeparam name="TWhere">第一個條件表達式型別。</typeparam>
+        /// <typeparam name="TInner">第二個內部表達式型別。</typeparam>
+        /// <typeparam name="TWhere2">第三個條件表達式型別。</typeparam>
+        /// <typeparam name="TWhere3">第四個條件表達式型別。</typeparam>
+        /// <param name="expression">查詢條件表達式。</param>
+        /// <param name="joinMode">連接模式，預設為左連接（LEFT JOIN）。</param>
+        /// <param name="isDisField">是否顯示欄位，預設為 true。</param>
+        /// <returns>返回查詢集合。</returns>
         IQuerySet<T> Join<TWhere, TInner, TWhere2, TWhere3>(
             Expression<Func<TWhere, TInner, TWhere2, TWhere3, bool>> expression, JoinMode joinMode = JoinMode.LEFT,
             bool isDisField = true);
 
         /// <summary>
-        ///     连表查询(通过sql连接，不指定表实体不增加该表显示字段)
+        ///     通過 SQL 語句進行連表查詢，不指定表實體不增加該表顯示欄位。
         /// </summary>
-        /// <returns></returns>
+        /// <param name="sqlJoin">SQL 連接語句。</param>
+        /// <returns>返回查詢集合。</returns>
         IQuerySet<T> Join(string sqlJoin);
 
         /// <summary>
-        ///     连接(通过sql连接，指定表实体增加该表显示字段)
+        ///     通過 SQL 語句進行連表查詢，指定表實體增加該表顯示欄位。
         /// </summary>
-        /// <typeparam name="TInner"></typeparam>
-        /// <param name="sqlJoin"></param>
-        /// <returns></returns>
+        /// <typeparam name="TInner">內部表型別。</typeparam>
+        /// <param name="sqlJoin">SQL 連接語句。</param>
+        /// <returns>返回查詢集合。</returns>
         IQuerySet<T> Join<TInner>(string sqlJoin);
 
+
         /// <summary>
-        ///     分组
+        ///     進行分組查詢。
         /// </summary>
-        /// <param name="groupByExp"></param>
-        /// <returns></returns>
+        /// <param name="groupByExp">分組表達式。</param>
+        /// <returns>返回查詢集合。</returns>
         IQuerySet<T> GroupBy(Expression<Func<T, object>> groupByExp);
 
         /// <summary>
-        ///     分组(根据指定表)
+        ///     進行分組查詢（指定表）。
         /// </summary>
-        /// <typeparam name="TGroup"></typeparam>
-        /// <param name="groupByExp"></param>
-        /// <returns></returns>
+        /// <typeparam name="TGroup">分組的型別。</typeparam>
+        /// <param name="groupByExp">分組表達式。</param>
+        /// <returns>返回查詢集合。</returns>
         IQuerySet<T> GroupBy<TGroup>(Expression<Func<TGroup, object>> groupByExp);
 
         /// <summary>
-        ///     分组(带判断)
+        ///     進行條件分組查詢。
         /// </summary>
-        /// <typeparam name="TGroup"></typeparam>
-        /// <param name="where"></param>
-        /// <param name="trueGroupByExp"></param>
-        /// <param name="falseGroupByExp"></param>
-        /// <returns></returns>
+        /// <typeparam name="TGroup">分組的型別。</typeparam>
+        /// <param name="where">條件判斷。</param>
+        /// <param name="trueGroupByExp">滿足條件時的分組表達式。</param>
+        /// <param name="falseGroupByExp">不滿足條件時的分組表達式。</param>
+        /// <returns>返回查詢集合。</returns>
         IQuerySet<T> GroupByIf<TGroup>(bool where, Expression<Func<TGroup, object>> trueGroupByExp,
             Expression<Func<TGroup, object>> falseGroupByExp);
 
         /// <summary>
-        ///     分组聚合条件
+        ///     設定分組後的聚合條件。
         /// </summary>
-        /// <param name="havingExp"></param>
-        /// <returns></returns>
+        /// <param name="havingExp">聚合條件表達式。</param>
+        /// <returns>返回查詢集合。</returns>
         IQuerySet<T> Having(Expression<Func<T, object>> havingExp);
 
         /// <summary>
-        ///     分组聚合条件(根据指定表)
+        ///     設定分組後的聚合條件（指定表）。
         /// </summary>
-        /// <typeparam name="THaving"></typeparam>
-        /// <param name="havingExp"></param>
-        /// <returns></returns>
+        /// <typeparam name="THaving">聚合條件的型別。</typeparam>
+        /// <param name="havingExp">聚合條件表達式。</param>
+        /// <returns>返回查詢集合。</returns>
         IQuerySet<T> Having<THaving>(Expression<Func<THaving, object>> havingExp);
 
         /// <summary>
-        ///     分组聚合条件(带判断)
+        ///     設定條件分組後的聚合條件。
         /// </summary>
-        /// <typeparam name="THaving"></typeparam>
-        /// <param name="where"></param>
-        /// <param name="trueHavingExp"></param>
-        /// <param name="falseHavingExp"></param>
-        /// <returns></returns>
+        /// <typeparam name="THaving">聚合條件的型別。</typeparam>
+        /// <param name="where">條件判斷。</param>
+        /// <param name="trueHavingExp">滿足條件時的聚合條件表達式。</param>
+        /// <param name="falseHavingExp">不滿足條件時的聚合條件表達式。</param>
+        /// <returns>返回查詢集合。</returns>
         IQuerySet<T> HavingIf<THaving>(bool where, Expression<Func<THaving, object>> trueHavingExp,
             Expression<Func<THaving, object>> falseHavingExp);
     }

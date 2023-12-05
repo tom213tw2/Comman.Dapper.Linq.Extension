@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Linq.Expressions;
-using Comman.Dapper.Linq.Extension.Core.Interfaces;
 using Comman.Dapper.Linq.Extension.Extension.From;
 
-namespace Kogel.Dapper.Extension.Core.Interfaces
+namespace Comman.Dapper.Linq.Extension.Core.Interfaces
 {
     /// <summary>
     ///     多表查询扩展

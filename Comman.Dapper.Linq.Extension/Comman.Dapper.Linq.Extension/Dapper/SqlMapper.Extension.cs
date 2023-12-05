@@ -8,7 +8,6 @@ using Comman.Dapper.Linq.Extension.Entites;
 using Comman.Dapper.Linq.Extension.Extension;
 using Comman.Dapper.Linq.Extension.Extension.From;
 using Comman.Dapper.Linq.Extension.Helper.Cache;
-using Kogel.Dapper.Extension;
 using static Comman.Dapper.Linq.Extension.Dapper.SqlMapper;
 
 namespace Comman.Dapper.Linq.Extension.Dapper
@@ -16,10 +15,11 @@ namespace Comman.Dapper.Linq.Extension.Dapper
     public static class SqlMapperExtension
     {
         /// <summary>
-        ///     获取拆分字段
+        ///     獲取拆分字段。
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
+        /// <typeparam name="T">實體類型。</typeparam>
+        /// <param name="provider">SQL 提供者。</param>
+        /// <returns>拆分字段字符串。</returns>
         private static string GetSplitOn<T>(SqlProvider provider)
         {
             var splitOn = string.Empty;
@@ -29,16 +29,14 @@ namespace Comman.Dapper.Linq.Extension.Dapper
         }
 
         /// <summary>
-        ///     查询带聚合导航属性的对象集合
+        ///     查詢帶聚合導航屬性的對象集合。
         /// </summary>
-        /// <typeparam name="TFirst"></typeparam>
-        /// <typeparam name="TSecond"></typeparam>
-        /// <param name="cnn"></param>
-        /// <param name="sql"></param>
-        /// <param name="param"></param>
-        /// <param name="transaction"></param>
-        /// <param name="splitOn"></param>
-        /// <returns></returns>
+        /// <typeparam name="TFirst">第一個實體類型。</typeparam>
+        /// <typeparam name="TSecond">第二個實體類型。</typeparam>
+        /// <param name="cnn">資料庫連接。</param>
+        /// <param name="provider">SQL 提供者。</param>
+        /// <param name="transaction">事務處理。</param>
+        /// <returns>查詢的第一個對象。</returns>
         public static TFirst QueryFirstOrDefault<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh>(
             this IDbConnection cnn, SqlProvider provider, IDbTransaction transaction = null)
             where TFirst : IBaseEntity
@@ -54,16 +52,14 @@ namespace Comman.Dapper.Linq.Extension.Dapper
         }
 
         /// <summary>
-        ///     异步查询带聚合导航属性的对象集合
+        ///     異步查詢帶聚合導航屬性的對象集合。
         /// </summary>
-        /// <typeparam name="TFirst"></typeparam>
-        /// <typeparam name="TSecond"></typeparam>
-        /// <param name="cnn"></param>
-        /// <param name="sql"></param>
-        /// <param name="param"></param>
-        /// <param name="transaction"></param>
-        /// <param name="splitOn"></param>
-        /// <returns></returns>
+        /// <typeparam name="TFirst">第一個實體類型。</typeparam>
+        /// <typeparam name="TSecond">第二個實體類型。</typeparam>
+        /// <param name="cnn">資料庫連接。</param>
+        /// <param name="provider">SQL 提供者。</param>
+        /// <param name="transaction">事務處理。</param>
+        /// <returns>異步操作結果。</returns>
         public static async Task<TFirst> QueryFirstOrDefaultAsync<TFirst, TSecond, TThird, TFourth, TFifth, TSixth,
             TSeventh>(this IDbConnection cnn, SqlProvider provider, IDbTransaction transaction = null)
             where TFirst : IBaseEntity
@@ -78,16 +74,21 @@ namespace Comman.Dapper.Linq.Extension.Dapper
                 transaction)).FirstOrDefault();
         }
 
+
         /// <summary>
-        ///     查询带聚合导航属性的对象集合
+        ///     查詢帶聚合導航屬性的對象集合。
         /// </summary>
-        /// <typeparam name="TFirst"></typeparam>
-        /// <typeparam name="TSecond"></typeparam>
-        /// <param name="cnn"></param>
-        /// <param name="provider"></param>
-        /// <param name="transaction"></param>
-        /// <param name="splitOn"></param>
-        /// <returns></returns>
+        /// <typeparam name="TFirst">第一個實體類型。</typeparam>
+        /// <typeparam name="TSecond">第二個實體類型。</typeparam>
+        /// <typeparam name="TThird">第三個實體類型。</typeparam>
+        /// <typeparam name="TFourth">第四個實體類型。</typeparam>
+        /// <typeparam name="TFifth">第五個實體類型。</typeparam>
+        /// <typeparam name="TSixth">第六個實體類型。</typeparam>
+        /// <typeparam name="TSeventh">第七個實體類型。</typeparam>
+        /// <param name="cnn">資料庫連接。</param>
+        /// <param name="provider">SQL 提供者。</param>
+        /// <param name="transaction">事務處理。</param>
+        /// <returns>對象集合。</returns>
         public static IEnumerable<TFirst> Query<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh>(
             this IDbConnection cnn, SqlProvider provider, IDbTransaction transaction = null)
             where TFirst : IBaseEntity
@@ -102,10 +103,10 @@ namespace Comman.Dapper.Linq.Extension.Dapper
             var splitOn = GetSplitOn<TFirst>(provider);
             if (!string.IsNullOrEmpty(splitOn))
             {
-                //导航属性列表
-                var navigationList = provider.JoinList.Where(x => x.Action == JoinAction.Navigation && x.IsMapperField)
+                var navigationList = provider.JoinList
+                    .Where(x => x.Action == JoinAction.Navigation && x.IsMapperField)
                     .ToList();
-                //把所有实体的信息存下做导航关联索引
+
                 var firsts = new List<TFirst>();
                 var seconds = new List<TSecond>();
                 var thirds = new List<TThird>();
@@ -113,36 +114,27 @@ namespace Comman.Dapper.Linq.Extension.Dapper
                 var fifths = new List<TFifth>();
                 var sixths = new List<TSixth>();
                 var sevenths = new List<TSeventh>();
-                cnn.Query<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TFirst>(provider.SqlString,
+
+                cnn.Query<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TFirst>(
+                    provider.SqlString,
                     (first, second, third, fourth, fifth, sixth, seventh) =>
                     {
                         firsts.Add(first);
-                        if (second != null)
-                        {
-                            seconds.Add(second);
-                            if (third != null)
-                            {
-                                thirds.Add(third);
-                                if (fourth != null)
-                                {
-                                    fourths.Add(fourth);
-                                    if (fifth != null)
-                                    {
-                                        fifths.Add(fifth);
-                                        if (sixth != null)
-                                        {
-                                            sixths.Add(sixth);
-                                            if (seventh != null)
-                                                sevenths.Add(seventh);
-                                        }
-                                    }
-                                }
-                            }
-                        }
+                        if (second != null) seconds.Add(second);
+                        if (third != null) thirds.Add(third);
+                        if (fourth != null) fourths.Add(fourth);
+                        if (fifth != null) fifths.Add(fifth);
+                        if (sixth != null) sixths.Add(sixth);
+                        if (seventh != null) sevenths.Add(seventh);
 
                         return default;
-                    }, provider.Params, transaction, true, splitOn);
-                //分割导航属性数据
+                    },
+                    provider.Params,
+                    transaction,
+                    true,
+                    splitOn
+                );
+
                 firsts = ExcisionData(firsts, seconds, thirds, fourths, fifths, sixths, sevenths, navigationList);
                 return firsts;
             }
@@ -150,25 +142,26 @@ namespace Comman.Dapper.Linq.Extension.Dapper
             return cnn.Query<TFirst>(provider.SqlString, provider.Params, transaction);
         }
 
+
         /// <summary>
-        ///     分割导航属性数据
+        ///     分割導航屬性數據。
         /// </summary>
-        /// <typeparam name="TFirst"></typeparam>
-        /// <typeparam name="TSecond"></typeparam>
-        /// <typeparam name="TThird"></typeparam>
-        /// <typeparam name="TFourth"></typeparam>
-        /// <typeparam name="TFifth"></typeparam>
-        /// <typeparam name="TSixth"></typeparam>
-        /// <typeparam name="TSeventh"></typeparam>
-        /// <param name="firsts"></param>
-        /// <param name="seconds"></param>
-        /// <param name="thirds"></param>
-        /// <param name="fourths"></param>
-        /// <param name="fifths"></param>
-        /// <param name="sixths"></param>
-        /// <param name="sevenths"></param>
-        /// <param name="joinAssTables"></param>
-        /// <returns></returns>
+        /// <typeparam name="TFirst">第一個實體類型。</typeparam>
+        /// <typeparam name="TSecond">第二個實體類型。</typeparam>
+        /// <typeparam name="TThird">第三個實體類型。</typeparam>
+        /// <typeparam name="TFourth">第四個實體類型。</typeparam>
+        /// <typeparam name="TFifth">第五個實體類型。</typeparam>
+        /// <typeparam name="TSixth">第六個實體類型。</typeparam>
+        /// <typeparam name="TSeventh">第七個實體類型。</typeparam>
+        /// <param name="firsts">第一個實體列表。</param>
+        /// <param name="seconds">第二個實體列表。</param>
+        /// <param name="thirds">第三個實體列表。</param>
+        /// <param name="fourths">第四個實體列表。</param>
+        /// <param name="fifths">第五個實體列表。</param>
+        /// <param name="sixths">第六個實體列表。</param>
+        /// <param name="sevenths">第七個實體列表。</param>
+        /// <param name="joinAssTables">連接輔助表列表。</param>
+        /// <returns>處理後的第一個實體列表。</returns>
         private static List<TFirst> ExcisionData<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh>(
             List<TFirst> firsts, List<TSecond> seconds, List<TThird> thirds,
             List<TFourth> fourths, List<TFifth> fifths, List<TSixth> sixths, List<TSeventh> sevenths,
@@ -204,7 +197,7 @@ namespace Comman.Dapper.Linq.Extension.Dapper
                     seventhList.Clear();
                 }
 
-                //设置第一个导航属性
+
                 if (seconds.Count > i)
                 {
                     var second = secondList.Find(x => x.GetId().Equals(seconds[i].GetId()));
@@ -213,7 +206,7 @@ namespace Comman.Dapper.Linq.Extension.Dapper
                         second = seconds[i];
                         secondList.Add(second);
                         ExpressionExtension.SetProperValue(first, second, joinAssTables[0].PropertyInfo);
-                        //重置关联数据
+
                         thirdList.Clear();
                         fourthList.Clear();
                         fifthList.Clear();
@@ -221,7 +214,7 @@ namespace Comman.Dapper.Linq.Extension.Dapper
                         seventhList.Clear();
                     }
 
-                    //设置第二个导航属性
+
                     if (thirds.Count > i)
                     {
                         var third = thirdList.Find(x => x.GetId().Equals(thirds[i].GetId()));
@@ -232,10 +225,15 @@ namespace Comman.Dapper.Linq.Extension.Dapper
                             //然后查找导航属性父级实体信息位置
                             var parentIndex = joinAssTables.FindIndex(x =>
                                 x.TableType == joinAssTables[1].PropertyInfo.DeclaringType) + 1;
-                            if (parentIndex == 0)
-                                ExpressionExtension.SetProperValue(first, third, joinAssTables[1].PropertyInfo);
-                            else if (parentIndex == 1)
-                                ExpressionExtension.SetProperValue(second, third, joinAssTables[1].PropertyInfo);
+                            switch (parentIndex)
+                            {
+                                case 0:
+                                    ExpressionExtension.SetProperValue(first, third, joinAssTables[1].PropertyInfo);
+                                    break;
+                                case 1:
+                                    ExpressionExtension.SetProperValue(second, third, joinAssTables[1].PropertyInfo);
+                                    break;
+                            }
                             //重置关联数据
                             fourthList.Clear();
                             fifthList.Clear();
@@ -251,22 +249,28 @@ namespace Comman.Dapper.Linq.Extension.Dapper
                             {
                                 fourth = fourths[i];
                                 fourthList.Add(fourth);
-                                //然后查找导航属性父级实体信息位置
+
                                 var parentIndex = joinAssTables.FindIndex(x =>
                                     x.TableType == joinAssTables[2].PropertyInfo.DeclaringType) + 1;
-                                if (parentIndex == 0)
-                                    ExpressionExtension.SetProperValue(first, fourth, joinAssTables[2].PropertyInfo);
-                                else if (parentIndex == 1)
-                                    ExpressionExtension.SetProperValue(second, fourth, joinAssTables[2].PropertyInfo);
-                                else if (parentIndex == 2)
-                                    ExpressionExtension.SetProperValue(third, fourth, joinAssTables[2].PropertyInfo);
-                                //重置关联数据
+                                switch (parentIndex)
+                                {
+                                    case 0:
+                                        ExpressionExtension.SetProperValue(first, fourth, joinAssTables[2].PropertyInfo);
+                                        break;
+                                    case 1:
+                                        ExpressionExtension.SetProperValue(second, fourth, joinAssTables[2].PropertyInfo);
+                                        break;
+                                    case 2:
+                                        ExpressionExtension.SetProperValue(third, fourth, joinAssTables[2].PropertyInfo);
+                                        break;
+                                }
+
                                 fifthList.Clear();
                                 sixthList.Clear();
                                 seventhList.Clear();
                             }
 
-                            //设置第四个导航属性
+
                             if (fifths.Count > i)
                             {
                                 var fifth = fifthList.Find(x => x.GetId().Equals(fifths[i].GetId()));
@@ -274,25 +278,32 @@ namespace Comman.Dapper.Linq.Extension.Dapper
                                 {
                                     fifth = fifths[i];
                                     fifthList.Add(fifth);
-                                    //然后查找导航属性父级实体信息位置
+
                                     var parentIndex = joinAssTables.FindIndex(x =>
                                         x.TableType == joinAssTables[3].PropertyInfo.DeclaringType) + 1;
-                                    if (parentIndex == 0)
-                                        ExpressionExtension.SetProperValue(first, fifth, joinAssTables[3].PropertyInfo);
-                                    else if (parentIndex == 1)
-                                        ExpressionExtension.SetProperValue(second, fifth,
-                                            joinAssTables[3].PropertyInfo);
-                                    else if (parentIndex == 2)
-                                        ExpressionExtension.SetProperValue(third, fifth, joinAssTables[3].PropertyInfo);
-                                    else if (parentIndex == 3)
-                                        ExpressionExtension.SetProperValue(fourth, fifth,
-                                            joinAssTables[3].PropertyInfo);
-                                    //重置关联数据
+                                    switch (parentIndex)
+                                    {
+                                        case 0:
+                                            ExpressionExtension.SetProperValue(first, fifth, joinAssTables[3].PropertyInfo);
+                                            break;
+                                        case 1:
+                                            ExpressionExtension.SetProperValue(second, fifth,
+                                                joinAssTables[3].PropertyInfo);
+                                            break;
+                                        case 2:
+                                            ExpressionExtension.SetProperValue(third, fifth, joinAssTables[3].PropertyInfo);
+                                            break;
+                                        case 3:
+                                            ExpressionExtension.SetProperValue(fourth, fifth,
+                                                joinAssTables[3].PropertyInfo);
+                                            break;
+                                    }
+
                                     sixthList.Clear();
                                     seventhList.Clear();
                                 }
 
-                                //设置第五个导航属性
+
                                 if (sixths.Count > i)
                                 {
                                     var sixth = sixthList.Find(x => x.GetId().Equals(sixths[i].GetId()));
@@ -300,29 +311,37 @@ namespace Comman.Dapper.Linq.Extension.Dapper
                                     {
                                         sixth = sixths[i];
                                         sixthList.Add(sixth);
-                                        //然后查找导航属性父级实体信息位置
+
                                         var parentIndex = joinAssTables.FindIndex(x =>
                                             x.TableType == joinAssTables[4].PropertyInfo.DeclaringType) + 1;
-                                        if (parentIndex == 0)
-                                            ExpressionExtension.SetProperValue(first, sixth,
-                                                joinAssTables[4].PropertyInfo);
-                                        else if (parentIndex == 1)
-                                            ExpressionExtension.SetProperValue(second, sixth,
-                                                joinAssTables[4].PropertyInfo);
-                                        else if (parentIndex == 2)
-                                            ExpressionExtension.SetProperValue(third, sixth,
-                                                joinAssTables[4].PropertyInfo);
-                                        else if (parentIndex == 3)
-                                            ExpressionExtension.SetProperValue(fourth, sixth,
-                                                joinAssTables[4].PropertyInfo);
-                                        else if (parentIndex == 4)
-                                            ExpressionExtension.SetProperValue(fifth, sixth,
-                                                joinAssTables[4].PropertyInfo);
-                                        //重置关联数据
+                                        switch (parentIndex)
+                                        {
+                                            case 0:
+                                                ExpressionExtension.SetProperValue(first, sixth,
+                                                    joinAssTables[4].PropertyInfo);
+                                                break;
+                                            case 1:
+                                                ExpressionExtension.SetProperValue(second, sixth,
+                                                    joinAssTables[4].PropertyInfo);
+                                                break;
+                                            case 2:
+                                                ExpressionExtension.SetProperValue(third, sixth,
+                                                    joinAssTables[4].PropertyInfo);
+                                                break;
+                                            case 3:
+                                                ExpressionExtension.SetProperValue(fourth, sixth,
+                                                    joinAssTables[4].PropertyInfo);
+                                                break;
+                                            case 4:
+                                                ExpressionExtension.SetProperValue(fifth, sixth,
+                                                    joinAssTables[4].PropertyInfo);
+                                                break;
+                                        }
+
                                         seventhList.Clear();
                                     }
 
-                                    //设置第六个导航属性
+
                                     if (sevenths.Count > i)
                                     {
                                         var seventh = seventhList.Find(x => x.GetId().Equals(sevenths[i].GetId()));
@@ -333,24 +352,33 @@ namespace Comman.Dapper.Linq.Extension.Dapper
                                             //然后查找导航属性父级实体信息位置
                                             var parentIndex = joinAssTables.FindIndex(x =>
                                                 x.TableType == joinAssTables[5].PropertyInfo.DeclaringType) + 1;
-                                            if (parentIndex == 0)
-                                                ExpressionExtension.SetProperValue(first, seventh,
-                                                    joinAssTables[5].PropertyInfo);
-                                            else if (parentIndex == 1)
-                                                ExpressionExtension.SetProperValue(second, seventh,
-                                                    joinAssTables[5].PropertyInfo);
-                                            else if (parentIndex == 2)
-                                                ExpressionExtension.SetProperValue(third, seventh,
-                                                    joinAssTables[5].PropertyInfo);
-                                            else if (parentIndex == 3)
-                                                ExpressionExtension.SetProperValue(fourth, seventh,
-                                                    joinAssTables[5].PropertyInfo);
-                                            else if (parentIndex == 4)
-                                                ExpressionExtension.SetProperValue(fifth, seventh,
-                                                    joinAssTables[5].PropertyInfo);
-                                            else if (parentIndex == 5)
-                                                ExpressionExtension.SetProperValue(sixth, seventh,
-                                                    joinAssTables[5].PropertyInfo);
+                                            switch (parentIndex)
+                                            {
+                                                case 0:
+                                                    ExpressionExtension.SetProperValue(first, seventh,
+                                                        joinAssTables[5].PropertyInfo);
+                                                    break;
+                                                case 1:
+                                                    ExpressionExtension.SetProperValue(second, seventh,
+                                                        joinAssTables[5].PropertyInfo);
+                                                    break;
+                                                case 2:
+                                                    ExpressionExtension.SetProperValue(third, seventh,
+                                                        joinAssTables[5].PropertyInfo);
+                                                    break;
+                                                case 3:
+                                                    ExpressionExtension.SetProperValue(fourth, seventh,
+                                                        joinAssTables[5].PropertyInfo);
+                                                    break;
+                                                case 4:
+                                                    ExpressionExtension.SetProperValue(fifth, seventh,
+                                                        joinAssTables[5].PropertyInfo);
+                                                    break;
+                                                case 5:
+                                                    ExpressionExtension.SetProperValue(sixth, seventh,
+                                                        joinAssTables[5].PropertyInfo);
+                                                    break;
+                                            }
                                         }
                                     }
                                 }
@@ -387,10 +415,9 @@ namespace Comman.Dapper.Linq.Extension.Dapper
             var splitOn = GetSplitOn<TFirst>(provider);
             if (!string.IsNullOrEmpty(splitOn))
             {
-                //导航属性列表
                 var navigationList = provider.JoinList.Where(x => x.Action == JoinAction.Navigation && x.IsMapperField)
                     .ToList();
-                //把所有实体的信息存下做导航关联索引
+
                 var firsts = new List<TFirst>();
                 var seconds = new List<TSecond>();
                 var thirds = new List<TThird>();
@@ -436,18 +463,18 @@ namespace Comman.Dapper.Linq.Extension.Dapper
         }
 
         /// <summary>
-        ///     查询返回DataSet
+        ///     查詢返回 DataSet。
         /// </summary>
-        /// <param name="cnn"></param>
-        /// <param name="adapter"></param>
-        /// <param name="sql"></param>
-        /// <param name="param"></param>
-        /// <param name="transaction"></param>
-        /// <param name="buffered"></param>
-        /// <param name="commandTimeout"></param>
-        /// <param name="commandType"></param>
-        /// <param name="isExcludeUnitOfWork"></param>
-        /// <returns></returns>
+        /// <param name="cnn">資料庫連接。</param>
+        /// <param name="adapter">數據適配器。</param>
+        /// <param name="sql">SQL 查詢語句。</param>
+        /// <param name="param">參數。</param>
+        /// <param name="transaction">事務處理。</param>
+        /// <param name="buffered">是否緩存。</param>
+        /// <param name="commandTimeout">命令超時時間。</param>
+        /// <param name="commandType">命令類型。</param>
+        /// <param name="isExcludeUnitOfWork">是否排除單元工作。</param>
+        /// <returns>DataSet。</returns>
         public static DataSet QueryDataSet(this IDbConnection cnn, IDbDataAdapter adapter, string sql,
             object param = null, IDbTransaction transaction = null,
             bool buffered = true, int? commandTimeout = null, CommandType? commandType = null,
@@ -476,18 +503,18 @@ namespace Comman.Dapper.Linq.Extension.Dapper
         }
 
         /// <summary>
-        ///     查询返回DataSet
+        ///     異步查詢返回 DataSet。
         /// </summary>
-        /// <param name="cnn"></param>
-        /// <param name="adapter"></param>
-        /// <param name="sql"></param>
-        /// <param name="param"></param>
-        /// <param name="transaction"></param>
-        /// <param name="buffered"></param>
-        /// <param name="commandTimeout"></param>
-        /// <param name="commandType"></param>
-        /// <param name="isExcludeUnitOfWork"></param>
-        /// <returns></returns>
+        /// <param name="cnn">資料庫連接。</param>
+        /// <param name="adapter">數據適配器。</param>
+        /// <param name="sql">SQL 查詢語句。</param>
+        /// <param name="param">參數。</param>
+        /// <param name="transaction">事務處理。</param>
+        /// <param name="buffered">是否緩存。</param>
+        /// <param name="commandTimeout">命令超時時間。</param>
+        /// <param name="commandType">命令類型。</param>
+        /// <param name="isExcludeUnitOfWork">是否排除單元工作。</param>
+        /// <returns>異步操作結果。</returns>
         public static async Task<DataSet> QueryDataSetAsync(this IDbConnection cnn, IDbDataAdapter adapter, string sql,
             object param = null,
             IDbTransaction transaction = null, bool buffered = true, int? commandTimeout = null,
@@ -517,22 +544,23 @@ namespace Comman.Dapper.Linq.Extension.Dapper
         }
 
         /// <summary>
+        ///     更新操作。
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="cnn"></param>
-        /// <param name="sql"></param>
-        /// <param name="parameters"></param>
-        /// <param name="adapter"></param>
-        /// <param name="entites"></param>
-        /// <param name="provider"></param>
-        /// <param name="transaction"></param>
-        /// <param name="buffered"></param>
-        /// <param name="commandTimeout"></param>
-        /// <param name="commandType"></param>
-        /// <param name="isExcludeUnitOfWork"></param>
-        /// <returns></returns>
-        public static int Update<T>(this IDbConnection cnn, string sql, Comman.Dapper.Linq.Extension.Dapper.DynamicParameters parameters,
-            IDbDataAdapter adapter, IEnumerable<T> entites,
+        /// <typeparam name="T">實體類型。</typeparam>
+        /// <param name="cnn">資料庫連接。</param>
+        /// <param name="sql">更新 SQL 語句。</param>
+        /// <param name="parameters">參數集合。</param>
+        /// <param name="adapter">數據適配器。</param>
+        /// <param name="entites">實體集合。</param>
+        /// <param name="provider">SQL 提供者。</param>
+        /// <param name="transaction">事務處理。</param>
+        /// <param name="buffered">是否緩存。</param>
+        /// <param name="commandTimeout">命令超時時間。</param>
+        /// <param name="commandType">命令類型。</param>
+        /// <param name="isExcludeUnitOfWork">是否排除單元工作。</param>
+        /// <returns>影響的行數。</returns>
+        public static int Update<T>(this IDbConnection cnn, string sql,
+            DynamicParameters parameters, IDbDataAdapter adapter, IEnumerable<T> entites,
             SqlProvider provider, IDbTransaction transaction = null,
             bool buffered = true, int? commandTimeout = null, CommandType? commandType = null,
             bool isExcludeUnitOfWork = false)
@@ -547,24 +575,22 @@ namespace Comman.Dapper.Linq.Extension.Dapper
                 if (wasClosed) command.Connection.Open();
 
                 var selectSqlBuild = new StringBuilder();
-                var selectParam = new Comman.Dapper.Linq.Extension.Dapper.DynamicParameters();
+                var selectParam = new DynamicParameters();
                 var updateCommand = command.Connection.CreateCommand();
                 updateCommand.CommandText = command.CommandText;
                 updateCommand.Transaction = command.Transaction;
                 adapter.UpdateCommand = updateCommand;
-                var updateParam = (Comman.Dapper.Linq.Extension.Dapper.DynamicParameters)command.Parameters;
+                var updateParam = (DynamicParameters)command.Parameters;
                 foreach (var paramName in updateParam.ParameterNames)
                 {
-                    //修改参数
                     var parameter = updateCommand.CreateParameter();
                     parameter.ParameterName = $"@{paramName}";
                     parameter.SourceColumn = paramName;
                     updateCommand.Parameters.Add(parameter);
-                    //添加需要查询的字段
-                    if (selectSqlBuild.Length != 0)
-                        selectSqlBuild.Append(",");
+
+                    if (selectSqlBuild.Length != 0) selectSqlBuild.Append(",");
                     selectSqlBuild.Append(paramName);
-                    //最后增加主键条件
+
                     if (updateCommand.Parameters.Count == updateParam.ParameterNames.Count())
                     {
                         var selectWhereSql = provider.GetIdentityWhere(entites, selectParam);
@@ -573,17 +599,14 @@ namespace Comman.Dapper.Linq.Extension.Dapper
                     }
                 }
 
-                //先查询出ds对象
                 var ds = QueryDataSet(command.Connection, adapter, $"SELECT {selectSqlBuild}", selectParam,
-                    command.Transaction, command.Buffered, command.CommandTimeout
-                    , command.CommandType, command.IsExcludeUnitOfWork);
-                //改变ds对象
+                    command.Transaction, command.Buffered, command.CommandTimeout, command.CommandType,
+                    command.IsExcludeUnitOfWork);
                 ds.UpdateDataSet(entites);
                 adapter.Update(ds);
+
                 if (wasClosed) command.Connection.Close();
-                if (ds.Tables != null && ds.Tables.Count != 0 && ds.Tables[0].Rows != null)
-                    return ds.Tables[0].Rows.Count;
-                return 0;
+                return ds.Tables[0].Rows.Count;
             }
             finally
             {
@@ -592,7 +615,7 @@ namespace Comman.Dapper.Linq.Extension.Dapper
         }
     }
 
-    public class GuidTypeHanlder : TypeHandler<Guid>
+    public class GuidTypeHandler : TypeHandler<Guid>
     {
         public override void SetValue(IDbDataParameter parameter, Guid value)
         {
@@ -628,7 +651,11 @@ namespace Comman.Dapper.Linq.Extension.Dapper
         public override Guid[] Parse(object value)
         {
             var guids = new List<Guid>();
-            foreach (var item in value as string[]) guids.Add(GuidTypeHanlder.Convert(value));
+            foreach (var item in (string[])value)
+            {
+                guids.Add(GuidTypeHandler.Convert(value));
+            }
+
             return guids.ToArray();
         }
     }

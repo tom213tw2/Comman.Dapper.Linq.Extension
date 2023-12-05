@@ -2,7 +2,6 @@
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
-using Kogel.Dapper.Extension;
 using Microsoft.SqlServer.Server;
 
 namespace Comman.Dapper.Linq.Extension.Dapper

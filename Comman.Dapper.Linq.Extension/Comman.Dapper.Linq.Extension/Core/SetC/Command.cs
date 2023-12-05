@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using Comman.Dapper.Linq.Extension.Core.Interfaces;
 using Comman.Dapper.Linq.Extension.Dapper;
 using Comman.Dapper.Linq.Extension.Entites;
-using Kogel.Dapper.Extension;
 using DynamicParameters = Comman.Dapper.Linq.Extension.Dapper.DynamicParameters;
 
 namespace Comman.Dapper.Linq.Extension.Core.SetC

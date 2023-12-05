@@ -5,7 +5,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
-using Kogel.Dapper.Extension;
 #if NETSTANDARD1_3
 using ApplicationException = System.InvalidOperationException;
 #endif

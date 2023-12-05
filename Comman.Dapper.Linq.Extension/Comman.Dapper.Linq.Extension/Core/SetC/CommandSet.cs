@@ -5,7 +5,6 @@ using System.Linq.Expressions;
 using System.Text;
 using Comman.Dapper.Linq.Extension.Core.Interfaces;
 using Comman.Dapper.Linq.Extension.Entites;
-using Kogel.Dapper.Extension;
 using DynamicParameters = Comman.Dapper.Linq.Extension.Dapper.DynamicParameters;
 
 namespace Comman.Dapper.Linq.Extension.Core.SetC

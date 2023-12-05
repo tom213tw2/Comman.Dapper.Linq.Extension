@@ -20,7 +20,6 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Xml;
 using System.Xml.Linq;
-using Kogel.Dapper.Extension;
 using Microsoft.SqlServer.Server;
 #if NETSTANDARD1_3
 using DataException = System.InvalidOperationException;
@@ -150,7 +149,7 @@ namespace Comman.Dapper.Linq.Extension.Dapper
 
             //注册Guid解析
             RemoveTypeMap(typeof(Guid));
-            AddTypeHandler(typeof(Guid), new GuidTypeHanlder());
+            AddTypeHandler(typeof(Guid), new GuidTypeHandler());
 
             RemoveTypeMap(typeof(Guid[]));
             AddTypeHandler(typeof(Guid[]), new GuidArrTypeHanlder());

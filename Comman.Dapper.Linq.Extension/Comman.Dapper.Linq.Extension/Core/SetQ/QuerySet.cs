@@ -9,7 +9,6 @@ using Comman.Dapper.Linq.Extension.Entites;
 using Comman.Dapper.Linq.Extension.Expressions;
 using Comman.Dapper.Linq.Extension.Extension;
 using Comman.Dapper.Linq.Extension.Helper.Cache;
-using Kogel.Dapper.Extension;
 using DynamicParameters = Comman.Dapper.Linq.Extension.Dapper.DynamicParameters;
 
 namespace Comman.Dapper.Linq.Extension.Core.SetQ
