@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using Kogel.Dapper.Extension;
 using Microsoft.SqlServer.Server;
 
-namespace Kogel.Dapper.Extension
+namespace Comman.Dapper.Linq.Extension.Dapper
 {
     internal sealed class SqlDataRecordHandler : SqlMapper.ITypeHandler
     {

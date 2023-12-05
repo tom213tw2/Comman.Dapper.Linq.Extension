@@ -4,11 +4,11 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
-using Comman.Dapper.Linq.Extension;
-using Kogel.Dapper.Extension.Entites;
-using static Kogel.Dapper.Extension.SqlMapper;
+using Comman.Dapper.Linq.Extension.Dapper;
+using Comman.Dapper.Linq.Extension.Entites;
+using static Comman.Dapper.Linq.Extension.Dapper.SqlMapper;
 
-namespace Kogel.Dapper.Extension.Extension
+namespace Comman.Dapper.Linq.Extension.Extension
 {
     /// <summary>
     ///     导航属性扩展

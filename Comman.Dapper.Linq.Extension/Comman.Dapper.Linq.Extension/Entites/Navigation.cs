@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Kogel.Dapper.Extension.Entites
+namespace Comman.Dapper.Linq.Extension.Entites
 {
 	/// <summary>
 	///     导航属性的关联解析实体

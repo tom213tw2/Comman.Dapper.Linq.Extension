@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Linq.Expressions;
-using Kogel.Dapper.Extension.Extension;
-using Kogel.Dapper.Extension.Helper;
+using Comman.Dapper.Linq.Extension.Extension;
+using Comman.Dapper.Linq.Extension.Helper;
 
-namespace Kogel.Dapper.Extension.Expressions
+namespace Comman.Dapper.Linq.Extension.Expressions
 {
     /// <inheritdoc />
     /// <summary>
@@ -11,7 +11,7 @@ namespace Kogel.Dapper.Extension.Expressions
     /// </summary>
     public class TrimExpression : ExpressionVisitor
     {
-        private bool _isDeep;
+        private bool isDeep;
 
         public static Expression Trim(Expression expression)
         {
@@ -37,10 +37,10 @@ namespace Kogel.Dapper.Extension.Expressions
                         return Expression.Constant(value, type);
                     }
 
-                    if (_isDeep)
+                    if (isDeep)
                         return expression;
 
-                    _isDeep = true;
+                    isDeep = true;
                     return Expression.Equal(expression, Expression.Constant(true));
 
                 case ExpressionType.Convert:
@@ -71,7 +71,7 @@ namespace Kogel.Dapper.Extension.Expressions
                 case ExpressionType.AndAlso:
                 case ExpressionType.OrElse:
                     var b = (BinaryExpression)expression;
-                    _isDeep = true;
+                    isDeep = true;
                     if (b.Left.NodeType != b.Right.NodeType)
                     {
                         if (b.Left.NodeType == ExpressionType.MemberAccess && b.Left.Type.Name == "Boolean")
@@ -98,7 +98,7 @@ namespace Kogel.Dapper.Extension.Expressions
 
                     break;
                 default:
-                    _isDeep = true;
+                    isDeep = true;
                     return expression;
             }
 

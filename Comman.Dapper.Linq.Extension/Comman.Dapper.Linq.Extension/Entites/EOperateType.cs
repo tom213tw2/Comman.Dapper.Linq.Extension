@@ -1,4 +1,4 @@
-﻿namespace Kogel.Dapper.Extension.Entites
+﻿namespace Comman.Dapper.Linq.Extension.Entites
 {
     public enum EOperateType
     {

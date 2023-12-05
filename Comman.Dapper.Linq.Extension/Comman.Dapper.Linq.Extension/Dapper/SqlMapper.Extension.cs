@@ -4,12 +4,14 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Comman.Dapper.Linq.Extension;
-using Kogel.Dapper.Extension.Entites;
-using Kogel.Dapper.Extension.Extension;
-using static Kogel.Dapper.Extension.SqlMapper;
+using Comman.Dapper.Linq.Extension.Entites;
+using Comman.Dapper.Linq.Extension.Extension;
+using Comman.Dapper.Linq.Extension.Extension.From;
+using Comman.Dapper.Linq.Extension.Helper.Cache;
+using Kogel.Dapper.Extension;
+using static Comman.Dapper.Linq.Extension.Dapper.SqlMapper;
 
-namespace Kogel.Dapper.Extension
+namespace Comman.Dapper.Linq.Extension.Dapper
 {
     public static class SqlMapperExtension
     {
@@ -529,7 +531,7 @@ namespace Kogel.Dapper.Extension
         /// <param name="commandType"></param>
         /// <param name="isExcludeUnitOfWork"></param>
         /// <returns></returns>
-        public static int Update<T>(this IDbConnection cnn, string sql, DynamicParameters parameters,
+        public static int Update<T>(this IDbConnection cnn, string sql, Comman.Dapper.Linq.Extension.Dapper.DynamicParameters parameters,
             IDbDataAdapter adapter, IEnumerable<T> entites,
             SqlProvider provider, IDbTransaction transaction = null,
             bool buffered = true, int? commandTimeout = null, CommandType? commandType = null,
@@ -545,12 +547,12 @@ namespace Kogel.Dapper.Extension
                 if (wasClosed) command.Connection.Open();
 
                 var selectSqlBuild = new StringBuilder();
-                var selectParam = new DynamicParameters();
+                var selectParam = new Comman.Dapper.Linq.Extension.Dapper.DynamicParameters();
                 var updateCommand = command.Connection.CreateCommand();
                 updateCommand.CommandText = command.CommandText;
                 updateCommand.Transaction = command.Transaction;
                 adapter.UpdateCommand = updateCommand;
-                var updateParam = (DynamicParameters)command.Parameters;
+                var updateParam = (Comman.Dapper.Linq.Extension.Dapper.DynamicParameters)command.Parameters;
                 foreach (var paramName in updateParam.ParameterNames)
                 {
                     //修改参数

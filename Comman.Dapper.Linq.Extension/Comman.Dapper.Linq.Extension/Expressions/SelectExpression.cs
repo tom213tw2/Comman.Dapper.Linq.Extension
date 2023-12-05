@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
-using Comman.Dapper.Linq.Extension;
 using Comman.Dapper.Linq.Extension.Core.Interfaces;
-using Kogel.Dapper.Extension.Core.Interfaces;
-using Kogel.Dapper.Extension.Entites;
-using Kogel.Dapper.Extension.Extension;
+using Comman.Dapper.Linq.Extension.Entites;
+using Comman.Dapper.Linq.Extension.Exception;
+using Comman.Dapper.Linq.Extension.Extension;
+using Comman.Dapper.Linq.Extension.Helper.Cache;
 
-namespace Kogel.Dapper.Extension.Expressions
+namespace Comman.Dapper.Linq.Extension.Expressions
 {
 	/// <summary>
 	///     解析自定义查询字段
@@ -25,7 +25,7 @@ namespace Kogel.Dapper.Extension.Expressions
 	    public SelectExpression(LambdaExpression expression, string prefix, SqlProvider provider) : base(provider)
         {
             _sqlCmd = new StringBuilder();
-            Param = new DynamicParameters();
+            Param = new Comman.Dapper.Linq.Extension.Dapper.DynamicParameters();
             SelectFieldPairs = new Dictionary<string, string>();
             //判断是不是实体类
             if (expression.Body is MemberInitExpression)
@@ -34,7 +34,7 @@ namespace Kogel.Dapper.Extension.Expressions
                 foreach (MemberAssignment memberInit in memberInitExpression.Bindings)
                 {
                     SpliceField.Clear();
-                    base.Param = new DynamicParameters();
+                    base.Param = new Comman.Dapper.Linq.Extension.Dapper.DynamicParameters();
                     if (_sqlCmd.Length != 0)
                         _sqlCmd.Append(",");
                     //实体类型
@@ -127,7 +127,7 @@ namespace Kogel.Dapper.Extension.Expressions
                     foreach (var argument in newExpression.Arguments)
                     {
                         SpliceField.Clear();
-                        base.Param = new DynamicParameters();
+                        base.Param = new Comman.Dapper.Linq.Extension.Dapper.DynamicParameters();
                         if (_sqlCmd.Length != 0)
                             _sqlCmd.Append(",");
                         //返回类型
@@ -169,7 +169,7 @@ namespace Kogel.Dapper.Extension.Expressions
         /// <summary>
         ///     参数
         /// </summary>
-        public new DynamicParameters Param;
+        public new Comman.Dapper.Linq.Extension.Dapper.DynamicParameters Param;
 
         protected Dictionary<string, string> SelectFieldPairs;
 

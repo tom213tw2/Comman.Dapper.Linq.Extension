@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using Kogel.Dapper.Extension.Core.Interfaces;
-using Kogel.Dapper.Extension.Entites;
+using Comman.Dapper.Linq.Extension.Entites;
 
-namespace Kogel.Dapper.Extension.Core.SetQ
+namespace Comman.Dapper.Linq.Extension.Core.SetQ
 {
     /// <summary>
     ///     条件筛选

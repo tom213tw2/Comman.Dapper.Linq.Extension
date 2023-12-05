@@ -3,20 +3,20 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq.Expressions;
 using System.Text;
-using Comman.Dapper.Linq.Extension;
 using Comman.Dapper.Linq.Extension.Core.Interfaces;
-using Kogel.Dapper.Extension.Core.Interfaces;
-using Kogel.Dapper.Extension.Entites;
+using Comman.Dapper.Linq.Extension.Entites;
+using Kogel.Dapper.Extension;
+using DynamicParameters = Comman.Dapper.Linq.Extension.Dapper.DynamicParameters;
 
-namespace Kogel.Dapper.Extension.Core.SetC
+namespace Comman.Dapper.Linq.Extension.Core.SetC
 {
 	/// <summary>
 	///     指令集
 	/// </summary>
 	/// <typeparam name="T"></typeparam>
-	public class CommandSet<T> : Command<T>, ICommandSet<T>
+	public abstract class CommandSet<T> : Command<T>, ICommandSet<T>
     {
-        public CommandSet(IDbConnection conn, SqlProvider sqlProvider) : base(conn, sqlProvider)
+        protected CommandSet(IDbConnection conn, SqlProvider sqlProvider) : base(conn, sqlProvider)
         {
             TableType = typeof(T);
             SetContext = new DataBaseContext<T>
@@ -32,7 +32,7 @@ namespace Kogel.Dapper.Extension.Core.SetC
             Params = new DynamicParameters();
         }
 
-        public CommandSet(IDbConnection conn, SqlProvider sqlProvider, IDbTransaction dbTransaction) : base(conn,
+        protected CommandSet(IDbConnection conn, SqlProvider sqlProvider, IDbTransaction dbTransaction) : base(conn,
             sqlProvider, dbTransaction)
         {
             TableType = typeof(T);
@@ -62,8 +62,7 @@ namespace Kogel.Dapper.Extension.Core.SetC
 
             sqlProvider.Context = SetContext;
             sqlProvider.IsAppendAsName = false;
-            WhereExpressionList = new List<LambdaExpression>();
-            WhereExpressionList.Add(whereExpression);
+            WhereExpressionList = new List<LambdaExpression> { whereExpression };
             WhereBuilder = new StringBuilder();
             Params = new DynamicParameters();
         }
@@ -106,10 +105,7 @@ namespace Kogel.Dapper.Extension.Core.SetC
         public ICommandSet<T> WhereIf(bool where, Expression<Func<T, bool>> truePredicate,
             Expression<Func<T, bool>> falsePredicate)
         {
-            if (where)
-                WhereExpressionList.Add(truePredicate);
-            else
-                WhereExpressionList.Add(falsePredicate);
+            WhereExpressionList.Add(where ? truePredicate : falsePredicate);
             return this;
         }
     }

@@ -5,13 +5,14 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Text.RegularExpressions;
-using Comman.Dapper.Linq.Extension;
-using Kogel.Dapper.Extension.Core.Interfaces;
-using Kogel.Dapper.Extension.Entites;
-using Kogel.Dapper.Extension.Expressions;
-using Kogel.Dapper.Extension.Extension;
+using Comman.Dapper.Linq.Extension.Entites;
+using Comman.Dapper.Linq.Extension.Expressions;
+using Comman.Dapper.Linq.Extension.Extension;
+using Comman.Dapper.Linq.Extension.Helper.Cache;
+using Kogel.Dapper.Extension;
+using DynamicParameters = Comman.Dapper.Linq.Extension.Dapper.DynamicParameters;
 
-namespace Kogel.Dapper.Extension.Core.SetQ
+namespace Comman.Dapper.Linq.Extension.Core.SetQ
 {
     /// <summary>
     ///     查询集
@@ -19,7 +20,7 @@ namespace Kogel.Dapper.Extension.Core.SetQ
     /// <typeparam name="T"></typeparam>
     public partial class QuerySet<T> : Aggregation<T>, Comman.Dapper.Linq.Extension.Core.Interfaces.IQuerySet<T>
     {
-        public QuerySet(IDbConnection conn, SqlProvider sqlProvider) : base(conn, sqlProvider)
+        protected QuerySet(IDbConnection conn, SqlProvider sqlProvider) : base(conn, sqlProvider)
         {
             TableType = typeof(T);
             SetContext = new DataBaseContext<T>
@@ -35,6 +36,11 @@ namespace Kogel.Dapper.Extension.Core.SetQ
             HavingExpressionList = new List<LambdaExpression>();
             OrderbyExpressionList = new Dictionary<LambdaExpression, EOrderBy>();
             OrderbyBuilder = new StringBuilder();
+        }
+
+        public static QuerySet<T> CreateInstance(IDbConnection conn, SqlProvider sqlProvider)
+        {
+            return new QuerySet<T>(conn, sqlProvider);
         }
 
         public QuerySet(IDbConnection conn, SqlProvider sqlProvider, IDbTransaction dbTransaction) : base(conn,

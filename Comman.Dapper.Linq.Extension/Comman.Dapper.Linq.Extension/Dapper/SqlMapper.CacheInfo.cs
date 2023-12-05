@@ -2,14 +2,14 @@
 using System.Data;
 using System.Threading;
 
-namespace Kogel.Dapper.Extension
+namespace Comman.Dapper.Linq.Extension.Dapper
 {
     public static partial class SqlMapper
     {
         internal class CacheInfo
         {
             private int hitCount;
-            public DeserializerState Deserializer { get; set; }
+            public SqlMapper.DeserializerState Deserializer { get; set; }
             public Func<IDataReader, object>[] OtherDeserializers { get; set; }
             public Action<IDbCommand, object> ParamReader { get; set; }
 

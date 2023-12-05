@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Kogel.Dapper.Extension.Entites;
-using Kogel.Dapper.Extension.Expressions;
+using Comman.Dapper.Linq.Extension.Entites;
+using Comman.Dapper.Linq.Extension.Expressions;
 
-namespace Kogel.Dapper.Extension.Extension
+namespace Comman.Dapper.Linq.Extension.Extension
 {
     public static class ExpressionExtension
     {
@@ -178,7 +178,7 @@ namespace Kogel.Dapper.Extension.Extension
         /// <param name="paramIndex">参数索引防止冲突</param>
         /// <returns></returns>
         public static string MethodCallExpressionToSql(this MethodCallExpression expression,
-            ref DynamicParameters Param, int paramIndex = 0)
+            ref Comman.Dapper.Linq.Extension.Dapper.DynamicParameters Param, int paramIndex = 0)
         {
             //解析子查询
             var subquery = new SubqueryExpression(expression, paramIndex);

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Reflection;
 
-namespace Kogel.Dapper.Extension.Helper
+namespace Comman.Dapper.Linq.Extension.Helper
 {
     /// <summary>
     ///     [已弃用]版本兼容类(兼容.netstandard1.3的语法)

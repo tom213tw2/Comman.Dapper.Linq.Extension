@@ -5,12 +5,13 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using Comman.Dapper.Linq.Extension;
 using Comman.Dapper.Linq.Extension.Core.Interfaces;
-using Kogel.Dapper.Extension.Core.Interfaces;
-using Kogel.Dapper.Extension.Expressions;
+using Comman.Dapper.Linq.Extension.Dapper;
+using Comman.Dapper.Linq.Extension.Expressions;
+using Comman.Dapper.Linq.Extension.Helper.Cache;
+using Kogel.Dapper.Extension;
 
-namespace Kogel.Dapper.Extension.Extension
+namespace Comman.Dapper.Linq.Extension.Extension
 {
     /// <summary>
     ///     匿名类解析
@@ -208,7 +209,7 @@ namespace Kogel.Dapper.Extension.Extension
         /// <param name="sql"></param>
         /// <param name="param"></param>
         /// <param name="memberName"></param>
-        public static void SetValue<T, T1>(T data, IDbConnection dbCon, string sql, DynamicParameters param,
+        public static void SetValue<T, T1>(T data, IDbConnection dbCon, string sql, Comman.Dapper.Linq.Extension.Dapper.DynamicParameters param,
             string memberName)
         {
             //执行sql
@@ -287,7 +288,7 @@ namespace Kogel.Dapper.Extension.Extension
         /// <param name="sql"></param>
         /// <param name="param"></param>
         /// <param name="memberName"></param>
-        public static void SetListValue<T, T1>(List<T> data, IDbConnection dbCon, string sql, DynamicParameters param,
+        public static void SetListValue<T, T1>(List<T> data, IDbConnection dbCon, string sql, Comman.Dapper.Linq.Extension.Dapper.DynamicParameters param,
             string memberName)
         {
             //得到需要分配值得对象

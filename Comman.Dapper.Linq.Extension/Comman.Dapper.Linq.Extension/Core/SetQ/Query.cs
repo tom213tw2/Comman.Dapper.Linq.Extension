@@ -4,12 +4,12 @@ using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using Comman.Dapper.Linq.Extension;
 using Comman.Dapper.Linq.Extension.Core.Interfaces;
-using Kogel.Dapper.Extension.Core.Interfaces;
-using Kogel.Dapper.Extension.Extension;
+using Comman.Dapper.Linq.Extension.Entites;
+using Comman.Dapper.Linq.Extension.Extension;
+using Kogel.Dapper.Extension;
 
-namespace Kogel.Dapper.Extension.Core.SetQ
+namespace Comman.Dapper.Linq.Extension.Core.SetQ
 {
     /// <summary>
     ///     查询

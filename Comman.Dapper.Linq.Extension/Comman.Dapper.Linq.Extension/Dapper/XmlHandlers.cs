@@ -2,9 +2,9 @@
 using System.Xml;
 using System.Xml.Linq;
 
-namespace Kogel.Dapper.Extension
+namespace Comman.Dapper.Linq.Extension.Dapper
 {
-    internal abstract class XmlTypeHandler<T> : SqlMapper.StringTypeHandler<T>
+    internal abstract class XmlTypeHandler<T> : Comman.Dapper.Linq.Extension.Dapper.SqlMapper.StringTypeHandler<T>
     {
         public override void SetValue(IDbDataParameter parameter, T value)
         {

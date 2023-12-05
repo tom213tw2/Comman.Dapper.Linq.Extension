@@ -2,13 +2,13 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
-using Comman.Dapper.Linq.Extension;
 using Comman.Dapper.Linq.Extension.Core.Interfaces;
-using Kogel.Dapper.Extension.Core.Interfaces;
-using Kogel.Dapper.Extension.Entites;
-using Kogel.Dapper.Extension.Extension;
+using Comman.Dapper.Linq.Extension.Entites;
+using Comman.Dapper.Linq.Extension.Exception;
+using Comman.Dapper.Linq.Extension.Extension;
+using Comman.Dapper.Linq.Extension.Helper.Cache;
 
-namespace Kogel.Dapper.Extension.Expressions
+namespace Comman.Dapper.Linq.Extension.Expressions
 {
     /// <summary>
     ///     实现表达式解析的基类
@@ -23,7 +23,7 @@ namespace Kogel.Dapper.Extension.Expressions
         public BaseExpressionVisitor(SqlProvider provider)
         {
             SpliceField = new StringBuilder();
-            Param = new DynamicParameters();
+            Param = new Comman.Dapper.Linq.Extension.Dapper.DynamicParameters();
             Provider = provider;
             providerOption = provider.ProviderOption;
         }
@@ -36,7 +36,7 @@ namespace Kogel.Dapper.Extension.Expressions
         /// <summary>
         ///     参数
         /// </summary>
-        protected DynamicParameters Param { get; set; }
+        protected Comman.Dapper.Linq.Extension.Dapper.DynamicParameters Param { get; set; }
 
         /// <summary>
         ///     解析提供方
@@ -160,7 +160,7 @@ namespace Kogel.Dapper.Extension.Expressions
             }
             else if (node.Method.DeclaringType.FullName.Contains("Kogel.Dapper.Extension"))
             {
-                var parameters = new DynamicParameters();
+                var parameters = new Comman.Dapper.Linq.Extension.Dapper.DynamicParameters();
                 SpliceField.Append($"({node.MethodCallExpressionToSql(ref parameters, Index)})");
                 Param.AddDynamicParams(parameters);
             }
@@ -342,7 +342,7 @@ namespace Kogel.Dapper.Extension.Expressions
         public WhereExpressionVisitor(SqlProvider provider) : base(provider)
         {
             SpliceField = new StringBuilder();
-            Param = new DynamicParameters();
+            Param = new Comman.Dapper.Linq.Extension.Dapper.DynamicParameters();
         }
 
         /// <summary>
@@ -368,7 +368,7 @@ namespace Kogel.Dapper.Extension.Expressions
         /// <summary>
         ///     参数目录
         /// </summary>
-        internal new DynamicParameters Param { get; set; }
+        internal new Comman.Dapper.Linq.Extension.Dapper.DynamicParameters Param { get; set; }
 
         /// <summary>
         ///     获取参数名称
@@ -892,7 +892,7 @@ namespace Kogel.Dapper.Extension.Expressions
             string prefix = null) : base(provider)
         {
             SpliceField = new StringBuilder();
-            Param = new DynamicParameters();
+            Param = new Comman.Dapper.Linq.Extension.Dapper.DynamicParameters();
             Index = index;
             Prefix = prefix;
             SpliceField.Append("(");

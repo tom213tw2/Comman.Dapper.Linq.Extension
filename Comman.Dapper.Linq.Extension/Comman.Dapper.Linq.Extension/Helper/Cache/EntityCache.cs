@@ -3,11 +3,11 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Kogel.Dapper.Extension.Entites;
-using Kogel.Dapper.Extension.Extension;
-using Kogel.Dapper.Extension.Helper;
+using Comman.Dapper.Linq.Extension.Dapper;
+using Comman.Dapper.Linq.Extension.Entites;
+using Comman.Dapper.Linq.Extension.Extension;
 
-namespace Kogel.Dapper.Extension
+namespace Comman.Dapper.Linq.Extension.Helper.Cache
 {
     /// <summary>
     ///     实体类缓存
@@ -25,7 +25,7 @@ namespace Kogel.Dapper.Extension
             var entityObject = new EntityObject(entity);
             if (!EntitieList.Any(x => x.AssemblyString.Equals(entityObject.AssemblyString)))
             {
-                SqlMapper.SetTypeMap(entityObject.Type, new CustomPropertyTypeMap(entityObject.Type,
+                Comman.Dapper.Linq.Extension.Dapper.SqlMapper.SetTypeMap(entityObject.Type, new CustomPropertyTypeMap(entityObject.Type,
                     (type, column) =>
                         type.GetPropertys(entityObject.FieldPairs.FirstOrDefault(x => x.Value.Equals(column)).Key)
                 ));

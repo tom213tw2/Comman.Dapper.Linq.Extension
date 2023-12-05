@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Linq.Expressions;
 using System.Text;
-using Comman.Dapper.Linq.Extension;
-using Kogel.Dapper.Extension.Extension;
+using Comman.Dapper.Linq.Extension.Exception;
+using Comman.Dapper.Linq.Extension.Extension;
+using Comman.Dapper.Linq.Extension.Helper.Cache;
 
-namespace Kogel.Dapper.Extension.Expressions
+namespace Comman.Dapper.Linq.Extension.Expressions
 {
 	/// <summary>
 	///     解析分组
@@ -14,14 +15,14 @@ namespace Kogel.Dapper.Extension.Expressions
         public GroupExpression(LambdaExpression expression, string prefix, SqlProvider provider) : base(provider)
         {
             _sqlCmd = new StringBuilder();
-            Param = new DynamicParameters();
+            Param = new Comman.Dapper.Linq.Extension.Dapper.DynamicParameters();
             //当前定义的查询返回对象
             var entity = EntityCache.QueryEntity(expression.Body.Type);
             var newExpression = expression.Body as NewExpression;
             foreach (var argument in newExpression.Arguments)
             {
                 SpliceField.Clear();
-                base.Param = new DynamicParameters();
+                base.Param = new Comman.Dapper.Linq.Extension.Dapper.DynamicParameters();
                 if (_sqlCmd.Length != 0)
                     _sqlCmd.Append(",");
                 //返回类型
@@ -54,7 +55,7 @@ namespace Kogel.Dapper.Extension.Expressions
         /// <summary>
         ///     参数
         /// </summary>
-        public new DynamicParameters Param;
+        public new Comman.Dapper.Linq.Extension.Dapper.DynamicParameters Param;
 
         #endregion
     }

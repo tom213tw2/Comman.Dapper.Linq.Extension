@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Data;
 
-namespace Kogel.Dapper.Extension
+namespace Comman.Dapper.Linq.Extension.Dapper
 {
     public partial class DynamicParameters
     {
@@ -13,7 +13,7 @@ namespace Kogel.Dapper.Extension
             public DbType? DbType { get; set; }
             public int? Size { get; set; }
             public IDbDataParameter AttachedParam { get; set; }
-            internal Action<object, DynamicParameters> OutputCallback { get; set; }
+            internal Action<object, Comman.Dapper.Linq.Extension.Dapper.DynamicParameters> OutputCallback { get; set; }
             internal object OutputTarget { get; set; }
             internal bool CameFromTemplate { get; set; }
 

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Data;
 
-namespace Kogel.Dapper.Extension
+namespace Comman.Dapper.Linq.Extension.Dapper
 {
     public static partial class SqlMapper
     {
@@ -81,7 +81,7 @@ namespace Kogel.Dapper.Extension
                 else AllowedCommandBehaviors &= ~behavior;
             }
 
-            internal static bool DisableCommandBehaviorOptimizations(CommandBehavior behavior, Exception ex)
+            internal static bool DisableCommandBehaviorOptimizations(CommandBehavior behavior, System.Exception ex)
             {
                 if (AllowedCommandBehaviors == DefaultAllowedCommandBehaviors
                     && (behavior & (CommandBehavior.SingleResult | CommandBehavior.SingleRow)) != 0)

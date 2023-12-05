@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Text;
-using Kogel.Dapper.Extension.Entites;
+using Comman.Dapper.Linq.Extension.Entites;
 
 namespace Comman.Dapper.Linq.Extension.Core.Interfaces
 {

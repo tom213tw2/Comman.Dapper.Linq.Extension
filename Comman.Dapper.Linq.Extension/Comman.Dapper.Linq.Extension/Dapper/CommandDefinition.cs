@@ -3,8 +3,9 @@ using System.Data;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Threading;
+using Kogel.Dapper.Extension;
 
-namespace Kogel.Dapper.Extension
+namespace Comman.Dapper.Linq.Extension.Dapper
 {
     /// <summary>
     ///     Represents the key aspects of a sql operation
@@ -13,9 +14,7 @@ namespace Kogel.Dapper.Extension
     {
         internal static CommandDefinition ForCallback(object parameters)
         {
-            if (parameters is DynamicParameters)
-                return new CommandDefinition(parameters);
-            return default;
+            return parameters is DynamicParameters ? new CommandDefinition(parameters) : default;
         }
 
         internal void OnCompleted()
@@ -86,6 +85,7 @@ namespace Kogel.Dapper.Extension
         /// <summary>
         ///     Initialize the command definition
         /// </summary>
+        /// <param name="connection"></param>
         /// <param name="commandText">The text for this command.</param>
         /// <param name="parameters">The parameters for this command.</param>
         /// <param name="transaction">The transaction for this command to participate in.</param>
@@ -93,6 +93,7 @@ namespace Kogel.Dapper.Extension
         /// <param name="commandType">The <see cref="CommandType" /> for this command.</param>
         /// <param name="flags">The behavior flags for this command.</param>
         /// <param name="cancellationToken">The cancellation token for this command.</param>
+        /// <param name="isExcludeUnitOfWork"></param>
         public CommandDefinition(IDbConnection connection, string commandText, object parameters = null,
             IDbTransaction transaction = null, int? commandTimeout = null,
             CommandType? commandType = null, CommandFlags flags = CommandFlags.Buffered
@@ -140,13 +141,13 @@ namespace Kogel.Dapper.Extension
             return cmd;
         }
 
-        private static SqlMapper.Link<Type, Action<IDbCommand>> commandInitCache;
+        private static SqlMapper.Link<Type, Action<IDbCommand>> _commandInitCache;
 
         private static Action<IDbCommand> GetInit(Type commandType)
         {
             if (commandType == null)
                 return null; // GIGO
-            if (SqlMapper.Link<Type, Action<IDbCommand>>.TryGet(commandInitCache, commandType, out var action))
+            if (SqlMapper.Link<Type, Action<IDbCommand>>.TryGet(_commandInitCache, commandType, out var action))
                 return action;
             var bindByName = GetBasicPropertySetter(commandType, "BindByName", typeof(bool));
             var initialLongFetchSize = GetBasicPropertySetter(commandType, "InitialLONGFetchSize", typeof(int));
@@ -180,7 +181,7 @@ namespace Kogel.Dapper.Extension
             }
 
             // cache it
-            SqlMapper.Link<Type, Action<IDbCommand>>.TryAdd(ref commandInitCache, commandType, ref action);
+            SqlMapper.Link<Type, Action<IDbCommand>>.TryAdd(ref _commandInitCache, commandType, ref action);
             return action;
         }
 

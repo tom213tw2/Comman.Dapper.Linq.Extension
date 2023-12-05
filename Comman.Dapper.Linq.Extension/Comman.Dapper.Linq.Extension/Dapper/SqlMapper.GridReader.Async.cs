@@ -6,7 +6,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Kogel.Dapper.Extension
+namespace Comman.Dapper.Linq.Extension.Dapper
 {
     public static partial class SqlMapper
     {
@@ -14,8 +14,8 @@ namespace Kogel.Dapper.Extension
         {
             private readonly CancellationToken cancel;
 
-            internal GridReader(IDbCommand command, IDataReader reader, Identity identity,
-                DynamicParameters dynamicParams, bool addToCache, CancellationToken cancel)
+            internal GridReader(IDbCommand command, IDataReader reader, SqlMapper.Identity identity,
+                Comman.Dapper.Linq.Extension.Dapper.DynamicParameters dynamicParams, bool addToCache, CancellationToken cancel)
                 : this(command, reader, identity, dynamicParams, addToCache)
             {
                 this.cancel = cancel;

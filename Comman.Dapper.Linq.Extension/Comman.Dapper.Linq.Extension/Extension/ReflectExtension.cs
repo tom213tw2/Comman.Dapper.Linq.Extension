@@ -4,8 +4,11 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 using Comman.Dapper.Linq.Extension.Attributes;
+using Comman.Dapper.Linq.Extension.Exception;
+using Comman.Dapper.Linq.Extension.Helper.Cache;
+using Kogel.Dapper.Extension;
 
-namespace Kogel.Dapper.Extension.Extension
+namespace Comman.Dapper.Linq.Extension.Extension
 {
     public static class ReflectExtension
     {

@@ -8,7 +8,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Kogel.Dapper.Extension
+namespace Comman.Dapper.Linq.Extension.Dapper
 {
     public static partial class SqlMapper
     {
@@ -25,7 +25,7 @@ namespace Kogel.Dapper.Extension
         public static Task<IEnumerable<dynamic>> QueryAsync(this IDbConnection cnn, string sql, object param = null,
             IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
         {
-            return QueryAsync<dynamic>(cnn, typeof(DapperRow),
+            return QueryAsync<dynamic>(cnn, typeof(SqlMapper.DapperRow),
                 new CommandDefinition(cnn, sql, param, transaction, commandTimeout, commandType));
         }
 
@@ -37,7 +37,7 @@ namespace Kogel.Dapper.Extension
         /// <remarks>Note: each row can be accessed via "dynamic", or by casting to an IDictionary&lt;string,object&gt;</remarks>
         public static Task<IEnumerable<dynamic>> QueryAsync(this IDbConnection cnn, CommandDefinition command)
         {
-            return QueryAsync<dynamic>(cnn, typeof(DapperRow), command);
+            return QueryAsync<dynamic>(cnn, typeof(SqlMapper.DapperRow), command);
         }
 
         /// <summary>
@@ -48,7 +48,7 @@ namespace Kogel.Dapper.Extension
         /// <remarks>Note: the row can be accessed via "dynamic", or by casting to an IDictionary&lt;string,object&gt;</remarks>
         public static Task<dynamic> QueryFirstAsync(this IDbConnection cnn, CommandDefinition command)
         {
-            return QueryRowAsync<dynamic>(cnn, Row.First, typeof(DapperRow), command);
+            return QueryRowAsync<dynamic>(cnn, Row.First, typeof(SqlMapper.DapperRow), command);
         }
 
         /// <summary>
@@ -59,7 +59,7 @@ namespace Kogel.Dapper.Extension
         /// <remarks>Note: the row can be accessed via "dynamic", or by casting to an IDictionary&lt;string,object&gt;</remarks>
         public static Task<dynamic> QueryFirstOrDefaultAsync(this IDbConnection cnn, CommandDefinition command)
         {
-            return QueryRowAsync<dynamic>(cnn, Row.FirstOrDefault, typeof(DapperRow), command);
+            return QueryRowAsync<dynamic>(cnn, Row.FirstOrDefault, typeof(SqlMapper.DapperRow), command);
         }
 
         /// <summary>
@@ -70,7 +70,7 @@ namespace Kogel.Dapper.Extension
         /// <remarks>Note: the row can be accessed via "dynamic", or by casting to an IDictionary&lt;string,object&gt;</remarks>
         public static Task<dynamic> QuerySingleAsync(this IDbConnection cnn, CommandDefinition command)
         {
-            return QueryRowAsync<dynamic>(cnn, Row.Single, typeof(DapperRow), command);
+            return QueryRowAsync<dynamic>(cnn, Row.Single, typeof(SqlMapper.DapperRow), command);
         }
 
         /// <summary>
@@ -81,7 +81,7 @@ namespace Kogel.Dapper.Extension
         /// <remarks>Note: the row can be accessed via "dynamic", or by casting to an IDictionary&lt;string,object&gt;</remarks>
         public static Task<dynamic> QuerySingleOrDefaultAsync(this IDbConnection cnn, CommandDefinition command)
         {
-            return QueryRowAsync<dynamic>(cnn, Row.SingleOrDefault, typeof(DapperRow), command);
+            return QueryRowAsync<dynamic>(cnn, Row.SingleOrDefault, typeof(SqlMapper.DapperRow), command);
         }
 
         /// <summary>
@@ -192,7 +192,7 @@ namespace Kogel.Dapper.Extension
         public static Task<dynamic> QueryFirstAsync(this IDbConnection cnn, string sql, object param = null,
             IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
         {
-            return QueryRowAsync<dynamic>(cnn, Row.First, typeof(DapperRow),
+            return QueryRowAsync<dynamic>(cnn, Row.First, typeof(SqlMapper.DapperRow),
                 new CommandDefinition(cnn, sql, param, transaction, commandTimeout, commandType, CommandFlags.None));
         }
 
@@ -208,7 +208,7 @@ namespace Kogel.Dapper.Extension
         public static Task<dynamic> QueryFirstOrDefaultAsync(this IDbConnection cnn, string sql, object param = null,
             IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
         {
-            return QueryRowAsync<dynamic>(cnn, Row.FirstOrDefault, typeof(DapperRow),
+            return QueryRowAsync<dynamic>(cnn, Row.FirstOrDefault, typeof(SqlMapper.DapperRow),
                 new CommandDefinition(cnn, sql, param, transaction, commandTimeout, commandType, CommandFlags.None));
         }
 
@@ -224,7 +224,7 @@ namespace Kogel.Dapper.Extension
         public static Task<dynamic> QuerySingleAsync(this IDbConnection cnn, string sql, object param = null,
             IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
         {
-            return QueryRowAsync<dynamic>(cnn, Row.Single, typeof(DapperRow),
+            return QueryRowAsync<dynamic>(cnn, Row.Single, typeof(SqlMapper.DapperRow),
                 new CommandDefinition(cnn, sql, param, transaction, commandTimeout, commandType, CommandFlags.None));
         }
 
@@ -240,7 +240,7 @@ namespace Kogel.Dapper.Extension
         public static Task<dynamic> QuerySingleOrDefaultAsync(this IDbConnection cnn, string sql, object param = null,
             IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
         {
-            return QueryRowAsync<dynamic>(cnn, Row.SingleOrDefault, typeof(DapperRow),
+            return QueryRowAsync<dynamic>(cnn, Row.SingleOrDefault, typeof(SqlMapper.DapperRow),
                 new CommandDefinition(cnn, sql, param, transaction, commandTimeout, commandType, CommandFlags.None));
         }
 
@@ -464,7 +464,7 @@ namespace Kogel.Dapper.Extension
         {
             var task = cmd.ExecuteReaderAsync(GetBehavior(wasClosed, behavior), cancellationToken);
             if (task.Status == TaskStatus.Faulted &&
-                Settings.DisableCommandBehaviorOptimizations(behavior, task.Exception.InnerException))
+                SqlMapper.Settings.DisableCommandBehaviorOptimizations(behavior, task.Exception.InnerException))
                 // we can retry; this time it will have different flags
                 return cmd.ExecuteReaderAsync(GetBehavior(wasClosed, behavior), cancellationToken);
             return task;
@@ -499,7 +499,7 @@ namespace Kogel.Dapper.Extension
         {
             Aop.InvokeExecuting(ref command);
             var param = command.Parameters;
-            var identity = new Identity(command.CommandText, command.CommandType, cnn, effectiveType, param?.GetType(),
+            var identity = new SqlMapper.Identity(command.CommandText, command.CommandType, cnn, effectiveType, param?.GetType(),
                 null);
             var info = GetCacheInfo(identity, param, command.AddToCache);
             var wasClosed = cnn.State == ConnectionState.Closed;
@@ -520,7 +520,7 @@ namespace Kogel.Dapper.Extension
                         if (reader.FieldCount == 0)
                             return Enumerable.Empty<T>();
                         tuple = info.Deserializer =
-                            new DeserializerState(hash, GetDeserializer(effectiveType, reader, 0, -1, false));
+                            new SqlMapper.DeserializerState(hash, GetDeserializer(effectiveType, reader, 0, -1, false));
                         if (command.AddToCache) SetQueryCache(identity, info);
                     }
 
@@ -575,7 +575,7 @@ namespace Kogel.Dapper.Extension
         {
             Aop.InvokeExecuting(ref command);
             var param = command.Parameters;
-            var identity = new Identity(command.CommandText, command.CommandType, cnn, effectiveType, param?.GetType(),
+            var identity = new SqlMapper.Identity(command.CommandText, command.CommandType, cnn, effectiveType, param?.GetType(),
                 null);
             var info = GetCacheInfo(identity, param, command.AddToCache);
             var wasClosed = cnn.State == ConnectionState.Closed;
@@ -600,7 +600,7 @@ namespace Kogel.Dapper.Extension
                         var hash = GetColumnHash(reader);
                         if (tuple.Func == null || tuple.Hash != hash)
                         {
-                            tuple = info.Deserializer = new DeserializerState(hash,
+                            tuple = info.Deserializer = new SqlMapper.DeserializerState(hash,
                                 GetDeserializer(effectiveType, reader, 0, -1, false));
                             if (command.AddToCache) SetQueryCache(identity, info);
                         }
@@ -695,7 +695,7 @@ namespace Kogel.Dapper.Extension
             {
                 if (wasClosed) await cnn.TryOpenAsync(command.CancellationToken).ConfigureAwait(false);
 
-                CacheInfo info = null;
+                SqlMapper.CacheInfo info = null;
                 string masterSql = null;
                 if ((command.Flags & CommandFlags.Pipelined) != 0)
                 {
@@ -711,7 +711,7 @@ namespace Kogel.Dapper.Extension
                                 isFirst = false;
                                 cmd = command.TrySetupAsyncCommand(cnn, null);
                                 masterSql = cmd.CommandText;
-                                var identity = new Identity(command.CommandText, cmd.CommandType, cnn, null,
+                                var identity = new SqlMapper.Identity(command.CommandText, cmd.CommandType, cnn, null,
                                     obj.GetType(), null);
                                 info = GetCacheInfo(identity, obj, command.AddToCache);
                             }
@@ -772,7 +772,7 @@ namespace Kogel.Dapper.Extension
                             {
                                 masterSql = cmd.CommandText;
                                 isFirst = false;
-                                var identity = new Identity(command.CommandText, cmd.CommandType, cnn, null,
+                                var identity = new SqlMapper.Identity(command.CommandText, cmd.CommandType, cnn, null,
                                     obj.GetType(), null);
                                 info = GetCacheInfo(identity, obj, command.AddToCache);
                             }
@@ -802,7 +802,7 @@ namespace Kogel.Dapper.Extension
         private static async Task<int> ExecuteImplAsync(IDbConnection cnn, CommandDefinition command, object param)
         {
             Aop.InvokeExecuting(ref command);
-            var identity = new Identity(command.CommandText, command.CommandType, cnn, null, param?.GetType(), null);
+            var identity = new SqlMapper.Identity(command.CommandText, command.CommandType, cnn, null, param?.GetType(), null);
             var info = GetCacheInfo(identity, param, command.AddToCache);
             var wasClosed = cnn.State == ConnectionState.Closed;
             using (var cmd = command.TrySetupAsyncCommand(cnn, info.ParamReader))
@@ -843,7 +843,7 @@ namespace Kogel.Dapper.Extension
             string sql, Func<TFirst, TSecond, TReturn> map, object param = null, IDbTransaction transaction = null,
             bool buffered = true, string splitOn = "Id", int? commandTimeout = null, CommandType? commandType = null)
         {
-            return MultiMapAsync<TFirst, TSecond, DontMap, DontMap, DontMap, DontMap, DontMap, TReturn>(cnn,
+            return MultiMapAsync<TFirst, TSecond, SqlMapper.DontMap, SqlMapper.DontMap, SqlMapper.DontMap, SqlMapper.DontMap, SqlMapper.DontMap, TReturn>(cnn,
                 new CommandDefinition(cnn, sql, param, transaction, commandTimeout, commandType,
                     buffered ? CommandFlags.Buffered : CommandFlags.None), map, splitOn);
         }
@@ -863,7 +863,7 @@ namespace Kogel.Dapper.Extension
         public static Task<IEnumerable<TReturn>> QueryAsync<TFirst, TSecond, TReturn>(this IDbConnection cnn,
             CommandDefinition command, Func<TFirst, TSecond, TReturn> map, string splitOn = "Id")
         {
-            return MultiMapAsync<TFirst, TSecond, DontMap, DontMap, DontMap, DontMap, DontMap, TReturn>(cnn, command,
+            return MultiMapAsync<TFirst, TSecond, SqlMapper.DontMap, SqlMapper.DontMap, SqlMapper.DontMap, SqlMapper.DontMap, SqlMapper.DontMap, TReturn>(cnn, command,
                 map, splitOn);
         }
 
@@ -890,7 +890,7 @@ namespace Kogel.Dapper.Extension
             IDbTransaction transaction = null, bool buffered = true, string splitOn = "Id", int? commandTimeout = null,
             CommandType? commandType = null)
         {
-            return MultiMapAsync<TFirst, TSecond, TThird, DontMap, DontMap, DontMap, DontMap, TReturn>(cnn,
+            return MultiMapAsync<TFirst, TSecond, TThird, SqlMapper.DontMap, SqlMapper.DontMap, SqlMapper.DontMap, SqlMapper.DontMap, TReturn>(cnn,
                 new CommandDefinition(cnn, sql, param, transaction, commandTimeout, commandType,
                     buffered ? CommandFlags.Buffered : CommandFlags.None), map, splitOn);
         }
@@ -911,7 +911,7 @@ namespace Kogel.Dapper.Extension
         public static Task<IEnumerable<TReturn>> QueryAsync<TFirst, TSecond, TThird, TReturn>(this IDbConnection cnn,
             CommandDefinition command, Func<TFirst, TSecond, TThird, TReturn> map, string splitOn = "Id")
         {
-            return MultiMapAsync<TFirst, TSecond, TThird, DontMap, DontMap, DontMap, DontMap, TReturn>(cnn, command,
+            return MultiMapAsync<TFirst, TSecond, TThird, SqlMapper.DontMap, SqlMapper.DontMap, SqlMapper.DontMap, SqlMapper.DontMap, TReturn>(cnn, command,
                 map, splitOn);
         }
 
@@ -939,7 +939,7 @@ namespace Kogel.Dapper.Extension
             object param = null, IDbTransaction transaction = null, bool buffered = true, string splitOn = "Id",
             int? commandTimeout = null, CommandType? commandType = null)
         {
-            return MultiMapAsync<TFirst, TSecond, TThird, TFourth, DontMap, DontMap, DontMap, TReturn>(cnn,
+            return MultiMapAsync<TFirst, TSecond, TThird, TFourth, SqlMapper.DontMap, SqlMapper.DontMap, SqlMapper.DontMap, TReturn>(cnn,
                 new CommandDefinition(cnn, sql, param, transaction, commandTimeout, commandType,
                     buffered ? CommandFlags.Buffered : CommandFlags.None), map, splitOn);
         }
@@ -962,7 +962,7 @@ namespace Kogel.Dapper.Extension
             this IDbConnection cnn, CommandDefinition command, Func<TFirst, TSecond, TThird, TFourth, TReturn> map,
             string splitOn = "Id")
         {
-            return MultiMapAsync<TFirst, TSecond, TThird, TFourth, DontMap, DontMap, DontMap, TReturn>(cnn, command,
+            return MultiMapAsync<TFirst, TSecond, TThird, TFourth, SqlMapper.DontMap, SqlMapper.DontMap, SqlMapper.DontMap, TReturn>(cnn, command,
                 map, splitOn);
         }
 
@@ -991,7 +991,7 @@ namespace Kogel.Dapper.Extension
             object param = null, IDbTransaction transaction = null, bool buffered = true, string splitOn = "Id",
             int? commandTimeout = null, CommandType? commandType = null)
         {
-            return MultiMapAsync<TFirst, TSecond, TThird, TFourth, TFifth, DontMap, DontMap, TReturn>(cnn,
+            return MultiMapAsync<TFirst, TSecond, TThird, TFourth, TFifth, SqlMapper.DontMap, SqlMapper.DontMap, TReturn>(cnn,
                 new CommandDefinition(cnn, sql, param, transaction, commandTimeout, commandType,
                     buffered ? CommandFlags.Buffered : CommandFlags.None), map, splitOn);
         }
@@ -1015,7 +1015,7 @@ namespace Kogel.Dapper.Extension
             this IDbConnection cnn, CommandDefinition command,
             Func<TFirst, TSecond, TThird, TFourth, TFifth, TReturn> map, string splitOn = "Id")
         {
-            return MultiMapAsync<TFirst, TSecond, TThird, TFourth, TFifth, DontMap, DontMap, TReturn>(cnn, command, map,
+            return MultiMapAsync<TFirst, TSecond, TThird, TFourth, TFifth, SqlMapper.DontMap, SqlMapper.DontMap, TReturn>(cnn, command, map,
                 splitOn);
         }
 
@@ -1045,7 +1045,7 @@ namespace Kogel.Dapper.Extension
             object param = null, IDbTransaction transaction = null, bool buffered = true, string splitOn = "Id",
             int? commandTimeout = null, CommandType? commandType = null)
         {
-            return MultiMapAsync<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, DontMap, TReturn>(cnn,
+            return MultiMapAsync<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, SqlMapper.DontMap, TReturn>(cnn,
                 new CommandDefinition(cnn, sql, param, transaction, commandTimeout, commandType,
                     buffered ? CommandFlags.Buffered : CommandFlags.None), map, splitOn);
         }
@@ -1070,7 +1070,7 @@ namespace Kogel.Dapper.Extension
             this IDbConnection cnn, CommandDefinition command,
             Func<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TReturn> map, string splitOn = "Id")
         {
-            return MultiMapAsync<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, DontMap, TReturn>(cnn, command, map,
+            return MultiMapAsync<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, SqlMapper.DontMap, TReturn>(cnn, command, map,
                 splitOn);
         }
 
@@ -1139,7 +1139,7 @@ namespace Kogel.Dapper.Extension
         {
             Aop.InvokeExecuting(ref command);
             var param = command.Parameters;
-            var identity = new Identity(command.CommandText, command.CommandType, cnn, typeof(TFirst), param?.GetType(),
+            var identity = new SqlMapper.Identity(command.CommandText, command.CommandType, cnn, typeof(TFirst), param?.GetType(),
                 new[]
                 {
                     typeof(TFirst), typeof(TSecond), typeof(TThird), typeof(TFourth), typeof(TFifth), typeof(TSixth),
@@ -1201,7 +1201,7 @@ namespace Kogel.Dapper.Extension
             if (types.Length < 1) throw new ArgumentException("you must provide at least one type to deserialize");
 
             var param = command.Parameters;
-            var identity = new Identity(command.CommandText, command.CommandType, cnn, types[0], param?.GetType(),
+            var identity = new SqlMapper.Identity(command.CommandText, command.CommandType, cnn, types[0], param?.GetType(),
                 types);
             var info = GetCacheInfo(identity, param, command.AddToCache);
             var wasClosed = cnn.State == ConnectionState.Closed;
@@ -1236,7 +1236,7 @@ namespace Kogel.Dapper.Extension
                     /* ignore subsequent result sets */
                 }
 
-                (parameters as IParameterCallbacks)?.OnCompleted();
+                (parameters as SqlMapper.IParameterCallbacks)?.OnCompleted();
             }
         }
 
@@ -1249,7 +1249,7 @@ namespace Kogel.Dapper.Extension
         /// <param name="transaction">The transaction to use for this query.</param>
         /// <param name="commandTimeout">Number of seconds before command execution timeout.</param>
         /// <param name="commandType">Is it a stored proc or a batch?</param>
-        public static Task<GridReader> QueryMultipleAsync(this IDbConnection cnn, string sql, object param = null,
+        public static Task<SqlMapper.GridReader> QueryMultipleAsync(this IDbConnection cnn, string sql, object param = null,
             IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
         {
             return QueryMultipleAsync(cnn,
@@ -1261,11 +1261,11 @@ namespace Kogel.Dapper.Extension
         /// </summary>
         /// <param name="cnn">The connection to query on.</param>
         /// <param name="command">The command to execute for this query.</param>
-        public static async Task<GridReader> QueryMultipleAsync(this IDbConnection cnn, CommandDefinition command)
+        public static async Task<SqlMapper.GridReader> QueryMultipleAsync(this IDbConnection cnn, CommandDefinition command)
         {
             Aop.InvokeExecuting(ref command);
             var param = command.Parameters;
-            var identity = new Identity(command.CommandText, command.CommandType, cnn, typeof(GridReader),
+            var identity = new SqlMapper.Identity(command.CommandText, command.CommandType, cnn, typeof(SqlMapper.GridReader),
                 param?.GetType(), null);
             var info = GetCacheInfo(identity, param, command.AddToCache);
 
@@ -1279,7 +1279,7 @@ namespace Kogel.Dapper.Extension
                 reader = await ExecuteReaderWithFlagsFallbackAsync(cmd, wasClosed, CommandBehavior.SequentialAccess,
                     command.CancellationToken).ConfigureAwait(false);
 
-                var result = new GridReader(cmd, reader, identity, command.Parameters as DynamicParameters,
+                var result = new SqlMapper.GridReader(cmd, reader, identity, command.Parameters as Comman.Dapper.Linq.Extension.Dapper.DynamicParameters,
                     command.AddToCache, command.CancellationToken);
                 wasClosed = false; // *if* the connection was closed and we got this far, then we now have a reader
                 // with the CloseConnection flag, so the reader will deal with the connection; we
@@ -1475,7 +1475,7 @@ namespace Kogel.Dapper.Extension
             var param = command.Parameters;
             if (param != null)
             {
-                var identity = new Identity(command.CommandText, command.CommandType, cnn, null, param.GetType(), null);
+                var identity = new SqlMapper.Identity(command.CommandText, command.CommandType, cnn, null, param.GetType(), null);
                 paramReader = GetCacheInfo(identity, command.Parameters, command.AddToCache).ParamReader;
             }
 

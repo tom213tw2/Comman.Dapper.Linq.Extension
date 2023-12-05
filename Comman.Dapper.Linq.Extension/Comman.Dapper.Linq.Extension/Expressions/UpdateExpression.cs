@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Linq.Expressions;
 using System.Text;
-using Comman.Dapper.Linq.Extension;
-using Kogel.Dapper.Extension.Extension;
+using Comman.Dapper.Linq.Extension.Extension;
+using Comman.Dapper.Linq.Extension.Helper.Cache;
+using Kogel.Dapper.Extension;
 
-namespace Kogel.Dapper.Extension.Expressions
+namespace Comman.Dapper.Linq.Extension.Expressions
 {
     public sealed class UpdateExpression<T> : BaseExpressionVisitor
     {
@@ -17,7 +18,7 @@ namespace Kogel.Dapper.Extension.Expressions
         public UpdateExpression(LambdaExpression expression, SqlProvider provider) : base(provider)
         {
             _sqlCmd = new StringBuilder(100);
-            Param = new DynamicParameters();
+            Param = new Comman.Dapper.Linq.Extension.Dapper.DynamicParameters();
             //update不需要重命名
             providerOption.IsAsName = false;
             if (expression.Body is MemberInitExpression)
@@ -26,7 +27,7 @@ namespace Kogel.Dapper.Extension.Expressions
                 foreach (MemberAssignment memberInit in memberInitExpression.Bindings)
                 {
                     SpliceField.Clear();
-                    base.Param = new DynamicParameters();
+                    base.Param = new Comman.Dapper.Linq.Extension.Dapper.DynamicParameters();
                     if (_sqlCmd.Length != 0)
                         _sqlCmd.Append(",");
                     //实体类型
@@ -72,7 +73,7 @@ namespace Kogel.Dapper.Extension.Expressions
         /// </summary>
         public string SqlCmd => _sqlCmd.ToString();
 
-        public new DynamicParameters Param;
+        public new Comman.Dapper.Linq.Extension.Dapper.DynamicParameters Param;
 
         #endregion
     }

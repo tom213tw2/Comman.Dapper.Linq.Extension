@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Data;
+using Kogel.Dapper.Extension;
 
 #if !NETSTANDARD1_3
-namespace Kogel.Dapper.Extension
+namespace Comman.Dapper.Linq.Extension.Dapper
 {
     internal sealed class DataTableHandler : SqlMapper.ITypeHandler
     {

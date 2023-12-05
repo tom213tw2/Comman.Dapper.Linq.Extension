@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Linq.Expressions;
 using Comman.Dapper.Linq.Extension.Core.Interfaces;
-using Kogel.Dapper.Extension.Core.Interfaces;
-using Kogel.Dapper.Extension.Extension.From;
+using Comman.Dapper.Linq.Extension.Extension.From;
 
-namespace Kogel.Dapper.Extension.Core.SetQ
+namespace Comman.Dapper.Linq.Extension.Core.SetQ
 {
     /// <summary>
     ///     多表查询扩展

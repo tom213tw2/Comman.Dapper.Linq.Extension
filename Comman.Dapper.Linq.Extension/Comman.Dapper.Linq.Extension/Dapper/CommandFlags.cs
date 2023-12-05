@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Kogel.Dapper.Extension
+namespace Comman.Dapper.Linq.Extension.Dapper
 {
     /// <summary>
     ///     Additional state flags that control command behaviour

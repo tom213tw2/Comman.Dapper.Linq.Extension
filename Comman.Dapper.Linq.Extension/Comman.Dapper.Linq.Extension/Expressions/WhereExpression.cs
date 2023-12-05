@@ -1,8 +1,7 @@
 using System.Linq.Expressions;
 using System.Text;
-using Comman.Dapper.Linq.Extension;
 
-namespace Kogel.Dapper.Extension.Expressions
+namespace Comman.Dapper.Linq.Extension.Expressions
 {
     /// <summary>
     ///     解析查询条件
@@ -18,7 +17,7 @@ namespace Kogel.Dapper.Extension.Expressions
         public WhereExpression(LambdaExpression expression, string prefix, SqlProvider provider) : base(provider)
         {
             _sqlCmd = new StringBuilder(100);
-            Param = new DynamicParameters();
+            Param = new Comman.Dapper.Linq.Extension.Dapper.DynamicParameters();
             providerOption = provider.ProviderOption;
             Prefix = prefix;
             //开始解析对象
@@ -75,7 +74,7 @@ namespace Kogel.Dapper.Extension.Expressions
         /// <summary>
         ///     参数
         /// </summary>
-        public new DynamicParameters Param { get; }
+        public new Comman.Dapper.Linq.Extension.Dapper.DynamicParameters Param { get; }
 
         #endregion
     }

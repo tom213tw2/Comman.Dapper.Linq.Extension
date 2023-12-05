@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Data;
 using System.Linq.Expressions;
-using Comman.Dapper.Linq.Extension;
 using Comman.Dapper.Linq.Extension.Core.Interfaces;
-using Kogel.Dapper.Extension.Core.Interfaces;
 
-namespace Kogel.Dapper.Extension.Core.SetQ
+namespace Comman.Dapper.Linq.Extension.Core.SetQ
 {
-    public class QuerySet<T, TReturn> : QuerySet<T>, IQuerySet<T, TReturn>
+    public class QuerySet<T, TReturn> : Comman.Dapper.Linq.Extension.Core.SetQ.QuerySet<T>, IQuerySet<T, TReturn>
     {
         public QuerySet(IDbConnection conn, SqlProvider sqlProvider) : base(conn, sqlProvider)
         {

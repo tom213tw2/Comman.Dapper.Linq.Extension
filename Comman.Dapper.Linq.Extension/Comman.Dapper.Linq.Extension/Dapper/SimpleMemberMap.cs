@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Reflection;
+using Kogel.Dapper.Extension;
 
-namespace Kogel.Dapper.Extension
+namespace Comman.Dapper.Linq.Extension.Dapper
 {
     /// <summary>
     ///     Represents simple member map for one of target parameter or property or field to source DataReader column

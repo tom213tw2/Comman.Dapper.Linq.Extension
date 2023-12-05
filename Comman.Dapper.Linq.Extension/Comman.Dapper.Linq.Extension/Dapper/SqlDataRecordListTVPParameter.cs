@@ -2,9 +2,10 @@
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
+using Kogel.Dapper.Extension;
 using Microsoft.SqlServer.Server;
 
-namespace Kogel.Dapper.Extension
+namespace Comman.Dapper.Linq.Extension.Dapper
 {
     /// <summary>
     ///     Used to pass a IEnumerable&lt;SqlDataRecord&gt; as a SqlDataRecordListTVPParameter

@@ -4,7 +4,7 @@ using System.Data;
 using System.Globalization;
 using System.Linq;
 
-namespace Kogel.Dapper.Extension
+namespace Comman.Dapper.Linq.Extension.Dapper
 {
     public static partial class SqlMapper
     {
@@ -14,14 +14,14 @@ namespace Kogel.Dapper.Extension
         public partial class GridReader : IDisposable
         {
             private readonly bool addToCache;
-            private readonly IParameterCallbacks callbacks;
-            private readonly Identity identity;
+            private readonly SqlMapper.IParameterCallbacks callbacks;
+            private readonly SqlMapper.Identity identity;
 
             private int gridIndex, readCount;
             private IDataReader reader;
 
-            internal GridReader(IDbCommand command, IDataReader reader, Identity identity,
-                IParameterCallbacks callbacks, bool addToCache)
+            internal GridReader(IDbCommand command, IDataReader reader, SqlMapper.Identity identity,
+                SqlMapper.IParameterCallbacks callbacks, bool addToCache)
             {
                 Command = command;
                 this.reader = reader;

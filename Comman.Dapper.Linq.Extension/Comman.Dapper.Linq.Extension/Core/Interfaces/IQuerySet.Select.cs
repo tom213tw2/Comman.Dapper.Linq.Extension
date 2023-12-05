@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Linq.Expressions;
-using Comman.Dapper.Linq.Extension.Core.Interfaces;
 
-namespace Kogel.Dapper.Extension.Core.Interfaces
+namespace Comman.Dapper.Linq.Extension.Core.Interfaces
 {
-    public interface IQuerySet<T, TReturn> : Comman.Dapper.Linq.Extension.Core.Interfaces.IQuerySet<T>
+    public interface IQuerySet<T, TReturn> : IQuerySet<T>
     {
         /// <summary>
         /// </summary>

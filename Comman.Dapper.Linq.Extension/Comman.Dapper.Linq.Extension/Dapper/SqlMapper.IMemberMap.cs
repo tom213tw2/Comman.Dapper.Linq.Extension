@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Reflection;
 
-namespace Kogel.Dapper.Extension
+namespace Comman.Dapper.Linq.Extension.Dapper
 {
     public static partial class SqlMapper
     {

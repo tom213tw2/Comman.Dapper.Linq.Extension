@@ -1,7 +1,7 @@
 ﻿using System.Data;
 using System.Linq.Expressions;
 
-namespace Kogel.Dapper.Extension.Entites
+namespace Comman.Dapper.Linq.Extension.Entites
 {
     public class DynamicTree
     {

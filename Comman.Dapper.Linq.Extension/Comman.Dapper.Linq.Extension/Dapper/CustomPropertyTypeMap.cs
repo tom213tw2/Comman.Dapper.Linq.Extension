@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Reflection;
+using Kogel.Dapper.Extension;
 
-namespace Kogel.Dapper.Extension
+namespace Comman.Dapper.Linq.Extension.Dapper
 {
     /// <summary>
     ///     Implements custom property mapping by user provided criteria (usually presence of some custom attribute with column
@@ -9,8 +10,8 @@ namespace Kogel.Dapper.Extension
     /// </summary>
     public sealed class CustomPropertyTypeMap : SqlMapper.ITypeMap
     {
-        private readonly Func<Type, string, PropertyInfo> _propertySelector;
-        private readonly Type _type;
+        private readonly Func<Type, string, PropertyInfo> propertySelector;
+        private readonly Type type;
 
         /// <summary>
         ///     Creates custom property mapping
@@ -19,8 +20,8 @@ namespace Kogel.Dapper.Extension
         /// <param name="propertySelector">Property selector based on target type and DataReader column name</param>
         public CustomPropertyTypeMap(Type type, Func<Type, string, PropertyInfo> propertySelector)
         {
-            _type = type ?? throw new ArgumentNullException(nameof(type));
-            _propertySelector = propertySelector ?? throw new ArgumentNullException(nameof(propertySelector));
+            this.type = type ?? throw new ArgumentNullException(nameof(type));
+            this.propertySelector = propertySelector ?? throw new ArgumentNullException(nameof(propertySelector));
         }
 
         /// <summary>
@@ -31,7 +32,7 @@ namespace Kogel.Dapper.Extension
         /// <returns>Default constructor</returns>
         public ConstructorInfo FindConstructor(string[] names, Type[] types)
         {
-            return _type.GetConstructor(new Type[0]);
+            return type.GetConstructor(new Type[0]);
         }
 
         /// <summary>
@@ -61,7 +62,7 @@ namespace Kogel.Dapper.Extension
         /// <returns>Poperty member map</returns>
         public SqlMapper.IMemberMap GetMember(string columnName)
         {
-            var prop = _propertySelector(_type, columnName);
+            var prop = propertySelector(type, columnName);
             return prop != null ? new SimpleMemberMap(columnName, prop) : null;
         }
     }

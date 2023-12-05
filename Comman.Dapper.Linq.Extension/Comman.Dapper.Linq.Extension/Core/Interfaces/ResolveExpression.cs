@@ -4,53 +4,50 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
-using Comman.Dapper.Linq.Extension;
-using Comman.Dapper.Linq.Extension.Core.Interfaces;
-using Kogel.Dapper.Extension.Entites;
-using Kogel.Dapper.Extension.Expressions;
-using Kogel.Dapper.Extension.Extension;
+using Comman.Dapper.Linq.Extension.Entites;
+using Comman.Dapper.Linq.Extension.Expressions;
+using Comman.Dapper.Linq.Extension.Extension;
+using Comman.Dapper.Linq.Extension.Helper.Cache;
+using Kogel.Dapper.Extension;
+using DynamicParameters = Comman.Dapper.Linq.Extension.Dapper.DynamicParameters;
 
-namespace Kogel.Dapper.Extension.Core.Interfaces
+namespace Comman.Dapper.Linq.Extension.Core.Interfaces
 {
-    public abstract class IResolveExpression
+    public abstract class ResolveExpression
     {
         /// <summary>
         ///     字段列列表
         /// </summary>
-        private static readonly Hashtable _tableFieldMap = new Hashtable();
+        private static readonly Hashtable TableFieldMap = new Hashtable();
 
-        protected SqlProvider provider;
-        protected ProviderOption providerOption;
+        private readonly SqlProvider provider;
+        private readonly ProviderOption providerOption;
 
-        public IResolveExpression(SqlProvider provider)
+        protected ResolveExpression(SqlProvider provider)
         {
             this.provider = provider;
             providerOption = provider.ProviderOption;
         }
 
-        protected AbstractSet abstractSet => provider.Context.Set;
+        private AbstractSet AbstractSet => provider.Context.Set;
 
         /// <summary>
         ///     根据反射对象获取表字段
         /// </summary>
-        /// <param name="propertyInfos"></param>
         /// <returns></returns>
         public virtual string GetTableField(EntityObject entityObject)
         {
-            lock (_tableFieldMap)
+            lock (TableFieldMap)
             {
-                var fieldBuild = (string)_tableFieldMap[entityObject];
-                if (fieldBuild == null)
-                {
-                    var propertyInfos = entityObject.Properties;
-                    var asName = entityObject.Name == entityObject.AsName
-                        ? providerOption.CombineFieldName(entityObject.AsName)
-                        : entityObject.AsName;
-                    fieldBuild = string.Join(",",
-                        entityObject.FieldPairs.Select(field =>
-                            $"{asName}.{providerOption.CombineFieldName(field.Value)}"));
-                    _tableFieldMap.Add(entityObject, fieldBuild);
-                }
+                var fieldBuild = (string)TableFieldMap[entityObject];
+                if (fieldBuild != null) return fieldBuild;
+                var asName = entityObject.Name == entityObject.AsName
+                    ? providerOption.CombineFieldName(entityObject.AsName)
+                    : entityObject.AsName;
+                fieldBuild = string.Join(",",
+                    entityObject.FieldPairs.Select(field =>
+                        $"{asName}.{providerOption.CombineFieldName(field.Value)}"));
+                TableFieldMap.Add(entityObject, fieldBuild);
 
                 return fieldBuild;
             }
@@ -71,7 +68,7 @@ namespace Kogel.Dapper.Extension.Core.Interfaces
         public virtual string ResolveWhereList(string prefix = null)
         {
             //添加Linq生成的sql条件和参数
-            var lambdaExpressionList = abstractSet.WhereExpressionList;
+            var lambdaExpressionList = AbstractSet.WhereExpressionList;
             var builder = new StringBuilder("WHERE 1=1 ");
             for (var i = 0; i < lambdaExpressionList.Count; i++)
             {
@@ -80,13 +77,13 @@ namespace Kogel.Dapper.Extension.Core.Interfaces
                 builder.Append(whereParam.SqlCmd);
                 //参数
                 foreach (var paramKey in whereParam.Param.ParameterNames)
-                    abstractSet.Params.Add(paramKey, whereParam.Param.Get<object>(paramKey));
+                    AbstractSet.Params.Add(paramKey, whereParam.Param.Get<object>(paramKey));
             }
 
             //添加自定义sql生成的条件和参数
-            if (abstractSet.WhereBuilder != null && abstractSet.WhereBuilder.Length != 0)
+            if (AbstractSet.WhereBuilder != null && AbstractSet.WhereBuilder.Length != 0)
                 //添加自定义条件sql
-                builder.Append(abstractSet.WhereBuilder);
+                builder.Append(AbstractSet.WhereBuilder);
             return builder.ToString();
         }
 
@@ -97,7 +94,7 @@ namespace Kogel.Dapper.Extension.Core.Interfaces
         public virtual string ResolveGroupBy()
         {
             var builder = new StringBuilder();
-            var groupExpression = abstractSet.GroupExpressionList;
+            var groupExpression = AbstractSet.GroupExpressionList;
             if (groupExpression != null && groupExpression.Any())
             {
                 for (var i = 0; i < groupExpression.Count; i++)
@@ -121,7 +118,7 @@ namespace Kogel.Dapper.Extension.Core.Interfaces
         public virtual string ResolveHaving()
         {
             var builder = new StringBuilder();
-            var havingExpression = abstractSet.HavingExpressionList;
+            var havingExpression = AbstractSet.HavingExpressionList;
             if (havingExpression != null && havingExpression.Any())
             {
                 for (var i = 0; i < havingExpression.Count; i++)
@@ -130,7 +127,7 @@ namespace Kogel.Dapper.Extension.Core.Interfaces
                     builder.Append(whereParam.SqlCmd);
                     //参数
                     foreach (var paramKey in whereParam.Param.ParameterNames)
-                        abstractSet.Params.Add(paramKey, whereParam.Param.Get<object>(paramKey));
+                        AbstractSet.Params.Add(paramKey, whereParam.Param.Get<object>(paramKey));
                 }
 
                 builder.Insert(0, " Having 1=1 ");
@@ -145,7 +142,7 @@ namespace Kogel.Dapper.Extension.Core.Interfaces
         /// <returns></returns>
         public virtual string ResolveOrderBy()
         {
-            var orderByList = abstractSet?.OrderbyExpressionList.Select(a =>
+            var orderByList = AbstractSet?.OrderbyExpressionList.Select(a =>
             {
                 var entity = EntityCache.QueryEntity(a.Key.Type.GenericTypeArguments[0]);
                 var columnName = entity.FieldPairs[a.Key.Body.GetCorrectPropertyName()];
@@ -153,10 +150,10 @@ namespace Kogel.Dapper.Extension.Core.Interfaces
                     $"{entity.AsName}.{providerOption.CombineFieldName(columnName)}{(a.Value == EOrderBy.Asc ? " ASC " : " DESC ")}";
                 return orderBySql;
             }) ?? new List<string>();
-            if (!orderByList.Any() && (abstractSet.OrderbyBuilder == null || abstractSet.OrderbyBuilder.Length == 0))
+            if (!orderByList.Any() && (AbstractSet?.OrderbyBuilder == null || AbstractSet.OrderbyBuilder.Length == 0))
                 return "";
 
-            return $"ORDER BY {string.Join(",", orderByList)} {abstractSet.OrderbyBuilder}";
+            return $"ORDER BY {string.Join(",", orderByList)} {AbstractSet.OrderbyBuilder}";
         }
 
         /// <summary>
@@ -209,13 +206,6 @@ namespace Kogel.Dapper.Extension.Core.Interfaces
                 //是否是排除字段
                 if (excludeFields != null &&
                     (excludeFields.Contains(entityField.PropertyInfo.Name) || excludeFields.Contains(name))) continue;
-                //var customAttributes = entityField.PropertyInfo.GetCustomAttributess(true);
-                ////导航属性排除
-                //if (customAttributes.Any(x => x.GetType().Equals(typeof(ForeignKey))))
-                //{
-                //    continue;
-                //}
-                //是否自增
                 if (entityField.IsIncrease) continue;
                 var value = entityField.PropertyInfo.GetValue(entity);
                 if (builder.Length != 0) builder.Append(",");
@@ -247,13 +237,6 @@ namespace Kogel.Dapper.Extension.Core.Interfaces
                 //是否是排除字段
                 if (excludeFields != null &&
                     (excludeFields.Contains(entityField.PropertyInfo.Name) || excludeFields.Contains(name))) continue;
-                //var customAttributes = entityField.PropertyInfo.GetCustomAttributess(true);
-                ////导航属性排除
-                //if (customAttributes.Any(x => x.GetType().Equals(typeof(ForeignKey))))
-                //{
-                //    continue;
-                //}
-                //是否自增
                 if (entityField.IsIncrease) continue;
                 if (builder.Length != 0) builder.Append(",");
                 var paramName = $"{providerOption.ParameterPrefix}{name}";
@@ -319,12 +302,10 @@ namespace Kogel.Dapper.Extension.Core.Interfaces
                     }
                     else
                     {
-                        if (item.Action == JoinAction.Sql)
-                        {
-                            builder.Append(" " + item.JoinSql);
-                            //判断是否需要显示连表的字段
-                            if (!item.IsMapperField) continue;
-                        }
+                        if (item.Action != JoinAction.Sql) continue;
+                        builder.Append(" " + item.JoinSql);
+                        //判断是否需要显示连表的字段
+                        if (!item.IsMapperField) continue;
                     }
                 }
             }
@@ -430,12 +411,11 @@ namespace Kogel.Dapper.Extension.Core.Interfaces
         /// <summary>
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="tValue>
-        /// </param>
+        /// <param name="tValue"></param>
         /// <param name="excludeFields">排除字段</param>
         /// <param name="index">当前数据索引</param>
         /// <returns></returns>
-        protected Tuple<string, StringBuilder, StringBuilder, DynamicParameters> ResolveInsertParamsAndValues<T>(
+        private Tuple<string, StringBuilder, StringBuilder, DynamicParameters> ResolveInsertParamsAndValues<T>(
             T tValue, string[] excludeFields = null, int index = 0)
         {
             var fieldBuilder = new StringBuilder(64);

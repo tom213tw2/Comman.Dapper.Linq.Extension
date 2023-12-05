@@ -4,11 +4,10 @@ using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using Kogel.Dapper.Extension.Core.Interfaces;
-using Kogel.Dapper.Extension.Core.SetQ;
-using Kogel.Dapper.Extension.Entites;
+using Comman.Dapper.Linq.Extension.Dapper;
+using Comman.Dapper.Linq.Extension.Entites;
 
-namespace Kogel.Dapper.Extension.Extension.From
+namespace Comman.Dapper.Linq.Extension.Extension.From
 {
     /// <summary>
     ///     多表索引扩展
@@ -16,19 +15,19 @@ namespace Kogel.Dapper.Extension.Extension.From
     /// <typeparam name="T"></typeparam>
     public class ISelect<T>
     {
-        public ISelect(QuerySet<T> querySet)
+        public ISelect(Comman.Dapper.Linq.Extension.Core.SetQ.QuerySet<T> querySet)
         {
             QuerySet = querySet;
         }
 
-        protected QuerySet<T> QuerySet { get; }
+        protected Comman.Dapper.Linq.Extension.Core.SetQ.QuerySet<T> QuerySet { get; }
 
         public Comman.Dapper.Linq.Extension.Core.Interfaces.IQuerySet<T> GetQuerySet()
         {
             return QuerySet;
         }
 
-        public QuerySet<T> Where(LambdaExpression exp)
+        public Comman.Dapper.Linq.Extension.Core.SetQ.QuerySet<T> Where(LambdaExpression exp)
         {
             QuerySet.WhereExpressionList.Add(exp);
             return QuerySet;
@@ -160,7 +159,7 @@ namespace Kogel.Dapper.Extension.Extension.From
 
     public class ISelectFrom<T, T1, T2> : ISelect<T>
     {
-        public ISelectFrom(QuerySet<T> querySet) : base(querySet)
+        public ISelectFrom(Comman.Dapper.Linq.Extension.Core.SetQ.QuerySet<T> querySet) : base(querySet)
         {
         }
 
@@ -345,7 +344,7 @@ namespace Kogel.Dapper.Extension.Extension.From
 
     public class ISelectFrom<T, T1, T2, T3> : ISelect<T>
     {
-        public ISelectFrom(QuerySet<T> querySet) : base(querySet)
+        public ISelectFrom(Comman.Dapper.Linq.Extension.Core.SetQ.QuerySet<T> querySet) : base(querySet)
         {
         }
 
@@ -521,7 +520,7 @@ namespace Kogel.Dapper.Extension.Extension.From
 
     public class ISelectFrom<T, T1, T2, T3, T4> : ISelect<T>
     {
-        public ISelectFrom(QuerySet<T> querySet) : base(querySet)
+        public ISelectFrom(Comman.Dapper.Linq.Extension.Core.SetQ.QuerySet<T> querySet) : base(querySet)
         {
         }
 

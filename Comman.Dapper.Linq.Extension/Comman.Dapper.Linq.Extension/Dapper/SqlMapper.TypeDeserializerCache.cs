@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Text;
 
-namespace Kogel.Dapper.Extension
+namespace Comman.Dapper.Linq.Extension.Dapper
 {
     public static partial class SqlMapper
     {

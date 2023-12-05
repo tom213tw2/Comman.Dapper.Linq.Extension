@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Kogel.Dapper.Extension.Helper
+namespace Comman.Dapper.Linq.Extension.Helper
 {
     internal static class TypeHelper
     {

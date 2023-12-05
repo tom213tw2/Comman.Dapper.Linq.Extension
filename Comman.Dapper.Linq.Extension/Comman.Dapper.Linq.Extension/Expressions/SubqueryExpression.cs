@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
-using Kogel.Dapper.Extension.Core.SetQ;
-using Kogel.Dapper.Extension.Entites;
-using Kogel.Dapper.Extension.Extension;
+using Comman.Dapper.Linq.Extension.Entites;
+using Comman.Dapper.Linq.Extension.Exception;
+using Comman.Dapper.Linq.Extension.Extension;
 
-namespace Kogel.Dapper.Extension.Expressions
+namespace Comman.Dapper.Linq.Extension.Expressions
 {
     /// <summary>
     ///     专门处理子查询的的表达式树扩展类
@@ -20,7 +20,7 @@ namespace Kogel.Dapper.Extension.Expressions
         /// <summary>
         ///     参数
         /// </summary>
-        public DynamicParameters Param;
+        public Comman.Dapper.Linq.Extension.Dapper.DynamicParameters Param;
 
         private List<ParameterExpression> parameterExpressions;
 
@@ -37,7 +37,7 @@ namespace Kogel.Dapper.Extension.Expressions
         {
             expression = methodCallExpression;
             _sqlCmd = new StringBuilder();
-            Param = new DynamicParameters();
+            Param = new Comman.Dapper.Linq.Extension.Dapper.DynamicParameters();
             WhereExpression = new List<LambdaExpression>();
             this.paramIndex = paramIndex;
             AnalysisExpression();
@@ -202,9 +202,9 @@ namespace Kogel.Dapper.Extension.Expressions
         /// <param name="param"></param>
         /// <param name="sql"></param>
         /// <returns></returns>
-        private DynamicParameters ToSubqueryParam(DynamicParameters param, ref string sql)
+        private Comman.Dapper.Linq.Extension.Dapper.DynamicParameters ToSubqueryParam(Comman.Dapper.Linq.Extension.Dapper.DynamicParameters param, ref string sql)
         {
-            var newParam = new DynamicParameters();
+            var newParam = new Comman.Dapper.Linq.Extension.Dapper.DynamicParameters();
             foreach (var paramName in param.ParameterNames)
             {
                 var newName = $"{paramName}_Subquery_{paramIndex}";
@@ -222,7 +222,7 @@ namespace Kogel.Dapper.Extension.Expressions
         /// <typeparam name="T"></typeparam>
         /// <param name="sqlProvider"></param>
         /// <param name="methodName"></param>
-        public void FormatSend<T>(QuerySet<T> querySet, string methodName)
+        public void FormatSend<T>(Comman.Dapper.Linq.Extension.Core.SetQ.QuerySet<T> querySet, string methodName)
         {
             var sqlProvider = querySet.SqlProvider;
             //写入重新生成后的条件
@@ -356,7 +356,7 @@ namespace Kogel.Dapper.Extension.Expressions
         /// <param name="querySet"></param>
         /// <param name="orderExpression"></param>
         /// <param name="methodName"></param>
-        public void FormatSendOrder<T>(QuerySet<T> querySet, LambdaExpression orderExpression, string methodName)
+        public void FormatSendOrder<T>(Comman.Dapper.Linq.Extension.Core.SetQ.QuerySet<T> querySet, LambdaExpression orderExpression, string methodName)
         {
             if (methodName == "OrderBy")
                 querySet.OrderbyExpressionList.Add(orderExpression, EOrderBy.Asc);

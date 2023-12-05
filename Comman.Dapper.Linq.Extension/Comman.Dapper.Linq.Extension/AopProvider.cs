@@ -1,4 +1,5 @@
 ﻿using System.Threading;
+using Comman.Dapper.Linq.Extension.Dapper;
 using Kogel.Dapper.Extension;
 #if NET45 || NET451
 using System.Runtime.Remoting.Messaging;

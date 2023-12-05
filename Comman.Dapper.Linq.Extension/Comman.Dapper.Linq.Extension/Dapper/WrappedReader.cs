@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Data;
 
-namespace Kogel.Dapper.Extension
+namespace Comman.Dapper.Linq.Extension.Dapper
 {
     internal class WrappedReader : IWrappedDataReader
     {

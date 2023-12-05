@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Kogel.Dapper.Extension
+namespace Comman.Dapper.Linq.Extension.Extension
 {
     public static class ExpressExpansion
     {

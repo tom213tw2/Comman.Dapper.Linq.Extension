@@ -4,11 +4,14 @@ using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
 using Comman.Dapper.Linq.Extension.Core.Interfaces;
+using Comman.Dapper.Linq.Extension.Entites;
+using Comman.Dapper.Linq.Extension.Exception;
+using Comman.Dapper.Linq.Extension.Expressions;
+using Comman.Dapper.Linq.Extension.Helper;
+using Comman.Dapper.Linq.Extension.Helper.Cache;
 using Kogel.Dapper.Extension;
 using Kogel.Dapper.Extension.Core.Interfaces;
-using Kogel.Dapper.Extension.Entites;
-using Kogel.Dapper.Extension.Expressions;
-using Kogel.Dapper.Extension.Helper;
+using DynamicParameters = Comman.Dapper.Linq.Extension.Dapper.DynamicParameters;
 
 namespace Comman.Dapper.Linq.Extension
 {
@@ -37,7 +40,7 @@ namespace Comman.Dapper.Linq.Extension
         /// <summary>
         /// 表達式解析器。
         /// </summary>
-        public abstract IResolveExpression ResolveExpression { get; set; }
+        public abstract ResolveExpression ResolveExpression { get; set; }
 
         /// <summary>
         /// 生成的 SQL 字串。

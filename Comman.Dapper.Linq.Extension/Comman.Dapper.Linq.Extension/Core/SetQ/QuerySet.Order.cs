@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Linq.Expressions;
-using Kogel.Dapper.Extension.Core.Interfaces;
-using Kogel.Dapper.Extension.Entites;
+using Comman.Dapper.Linq.Extension.Entites;
 
-namespace Kogel.Dapper.Extension.Core.SetQ
+namespace Comman.Dapper.Linq.Extension.Core.SetQ
 {
     /// <summary>
     ///     排序
@@ -26,14 +25,14 @@ namespace Kogel.Dapper.Extension.Core.SetQ
         }
 
         /// <inheritdoc />
-        public Comman.Dapper.Linq.Extension.Core.Interfaces.IQuerySet<T> OrderByDescing<TProperty>(Expression<Func<TProperty, object>> field)
+        public Comman.Dapper.Linq.Extension.Core.Interfaces.IQuerySet<T> OrderByDeicing<TProperty>(Expression<Func<TProperty, object>> field)
         {
             if (field != null)
                 OrderbyExpressionList.Add(field, EOrderBy.Desc);
             return this;
         }
 
-        public Comman.Dapper.Linq.Extension.Core.Interfaces.IQuerySet<T> OrderByDescing(Expression<Func<T, object>> field)
+        public Comman.Dapper.Linq.Extension.Core.Interfaces.IQuerySet<T> OrderByDeicing(Expression<Func<T, object>> field)
         {
             if (field != null)
                 OrderbyExpressionList.Add(field, EOrderBy.Desc);

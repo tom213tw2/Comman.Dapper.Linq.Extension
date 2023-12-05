@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq.Expressions;
 
-namespace Kogel.Dapper.Extension.Core.Interfaces
+namespace Comman.Dapper.Linq.Extension.Core.Interfaces
 {
     public partial interface IQuerySet<T>
     {
@@ -17,7 +17,7 @@ namespace Kogel.Dapper.Extension.Core.Interfaces
         /// </summary>
         /// <param name="field"></param>
         /// <returns></returns>
-        IQuerySet<T> OrderByDescing(Expression<Func<T, object>> field);
+        IQuerySet<T> OrderByDeicing(Expression<Func<T, object>> field);
 
         /// <summary>
         ///     顺序
@@ -33,7 +33,7 @@ namespace Kogel.Dapper.Extension.Core.Interfaces
         /// <typeparam name="TProperty"></typeparam>
         /// <param name="field"></param>
         /// <returns></returns>
-        IQuerySet<T> OrderByDescing<TProperty>(Expression<Func<TProperty, object>> field);
+        IQuerySet<T> OrderByDeicing<TProperty>(Expression<Func<TProperty, object>> field);
 
         /// <summary>
         ///     字符串拼接排序

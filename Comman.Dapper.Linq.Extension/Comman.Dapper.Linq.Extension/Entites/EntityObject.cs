@@ -4,9 +4,11 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 using Comman.Dapper.Linq.Extension.Attributes;
-using Kogel.Dapper.Extension.Helper;
+using Comman.Dapper.Linq.Extension.Helper;
+using Comman.Dapper.Linq.Extension.Helper.Cache;
+using Kogel.Dapper.Extension;
 
-namespace Kogel.Dapper.Extension.Entites
+namespace Comman.Dapper.Linq.Extension.Entites
 {
     public class EntityObject
     {
@@ -18,7 +20,7 @@ namespace Kogel.Dapper.Extension.Entites
             AsName = type.Name;
             //获取是否有Display特性
             var typeAttribute =
-                type.GetCustomAttributess(true).FirstOrDefault(x => x.GetType().Equals(typeof(Display)));
+                type.GetCustomAttributess(true).FirstOrDefault(x => x.GetType() == typeof(Display));
             if (typeAttribute != null)
             {
                 var display = typeAttribute as Display;

@@ -1,5 +1,5 @@
 ﻿using System.Data;
-using Kogel.Dapper.Extension.Entites;
+using Comman.Dapper.Linq.Extension.Entites;
 
 namespace Comman.Dapper.Linq.Extension.Core.Interfaces
 {

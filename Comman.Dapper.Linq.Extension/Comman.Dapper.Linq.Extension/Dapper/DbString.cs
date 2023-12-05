@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Data;
+using Kogel.Dapper.Extension;
 
-namespace Kogel.Dapper.Extension
+namespace Comman.Dapper.Linq.Extension.Dapper
 {
     /// <summary>
     ///     This class represents a SQL string, it can be used if you need to denote your parameter is a Char vs VarChar vs

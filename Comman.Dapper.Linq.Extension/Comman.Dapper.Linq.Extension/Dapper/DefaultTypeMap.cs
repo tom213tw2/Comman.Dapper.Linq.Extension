@@ -2,16 +2,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Kogel.Dapper.Extension;
 
-namespace Kogel.Dapper.Extension
+namespace Comman.Dapper.Linq.Extension.Dapper
 {
     /// <summary>
     ///     Represents default type mapping strategy used by Dapper
     /// </summary>
     public sealed class DefaultTypeMap : SqlMapper.ITypeMap
     {
-        private readonly List<FieldInfo> _fields;
-        private readonly Type _type;
+        private readonly List<FieldInfo> fields;
+        private readonly Type type;
 
         /// <summary>
         ///     Creates default type map
@@ -22,9 +23,9 @@ namespace Kogel.Dapper.Extension
             if (type == null)
                 throw new ArgumentNullException(nameof(type));
 
-            _fields = GetSettableFields(type);
+            fields = GetSettableFields(type);
             Properties = GetSettableProps(type);
-            _type = type;
+            this.type = type;
         }
 #if NETSTANDARD1_3
         private static bool IsParameterMatch(ParameterInfo[] x, ParameterInfo[] y)
@@ -79,7 +80,7 @@ namespace Kogel.Dapper.Extension
         public ConstructorInfo FindConstructor(string[] names, Type[] types)
         {
             var constructors =
-                _type.GetConstructors(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                type.GetConstructors(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
             foreach (var ctor in constructors.OrderBy(c => c.IsPublic ? 0 : c.IsPrivate ? 2 : 1)
                          .ThenBy(c => c.GetParameters().Length))
             {
@@ -120,7 +121,7 @@ namespace Kogel.Dapper.Extension
         public ConstructorInfo FindExplicitConstructor()
         {
             var constructors =
-                _type.GetConstructors(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                type.GetConstructors(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
 #if NETSTANDARD1_3
             var withAttr =
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        constructors.Where(c => c.CustomAttributes.Any(x => x.AttributeType == typeof(ExplicitConstructorAttribute))).ToList();
@@ -173,10 +174,10 @@ namespace Kogel.Dapper.Extension
 
             // preference order is:
             // exact match over underscre match, exact case over wrong case, backing fields over regular fields, match-inc-underscores over match-exc-underscores
-            var field = _fields.Find(p => string.Equals(p.Name, columnName, StringComparison.Ordinal))
-                        ?? _fields.Find(p => string.Equals(p.Name, backingFieldName, StringComparison.Ordinal))
-                        ?? _fields.Find(p => string.Equals(p.Name, columnName, StringComparison.OrdinalIgnoreCase))
-                        ?? _fields.Find(
+            var field = fields.Find(p => string.Equals(p.Name, columnName, StringComparison.Ordinal))
+                        ?? fields.Find(p => string.Equals(p.Name, backingFieldName, StringComparison.Ordinal))
+                        ?? fields.Find(p => string.Equals(p.Name, columnName, StringComparison.OrdinalIgnoreCase))
+                        ?? fields.Find(
                             p => string.Equals(p.Name, backingFieldName, StringComparison.OrdinalIgnoreCase));
 
             if (field == null && MatchNamesWithUnderscores)
@@ -184,11 +185,11 @@ namespace Kogel.Dapper.Extension
                 var effectiveColumnName = columnName.Replace("_", "");
                 backingFieldName = "<" + effectiveColumnName + ">k__BackingField";
 
-                field = _fields.Find(p => string.Equals(p.Name, effectiveColumnName, StringComparison.Ordinal))
-                        ?? _fields.Find(p => string.Equals(p.Name, backingFieldName, StringComparison.Ordinal))
-                        ?? _fields.Find(p =>
+                field = fields.Find(p => string.Equals(p.Name, effectiveColumnName, StringComparison.Ordinal))
+                        ?? fields.Find(p => string.Equals(p.Name, backingFieldName, StringComparison.Ordinal))
+                        ?? fields.Find(p =>
                             string.Equals(p.Name, effectiveColumnName, StringComparison.OrdinalIgnoreCase))
-                        ?? _fields.Find(
+                        ?? fields.Find(
                             p => string.Equals(p.Name, backingFieldName, StringComparison.OrdinalIgnoreCase));
             }
 

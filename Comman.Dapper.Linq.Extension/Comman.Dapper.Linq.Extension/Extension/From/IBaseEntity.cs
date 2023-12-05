@@ -1,6 +1,6 @@
 ﻿using Comman.Dapper.Linq.Extension.Attributes;
 
-namespace Kogel.Dapper.Extension
+namespace Comman.Dapper.Linq.Extension.Extension.From
 {
 	/// <summary>
 	///     父级实体类

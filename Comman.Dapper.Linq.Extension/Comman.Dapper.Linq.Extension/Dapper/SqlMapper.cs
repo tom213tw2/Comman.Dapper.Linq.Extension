@@ -20,13 +20,13 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Xml;
 using System.Xml.Linq;
-using Comman.Dapper.Linq.Extension;
+using Kogel.Dapper.Extension;
 using Microsoft.SqlServer.Server;
 #if NETSTANDARD1_3
 using DataException = System.InvalidOperationException;
 #endif
 
-namespace Kogel.Dapper.Extension
+namespace Comman.Dapper.Linq.Extension.Dapper
 {
     /// <summary>
     ///     Dapper, a light weight object mapper for ADO.NET
@@ -39,14 +39,14 @@ namespace Kogel.Dapper.Extension
 
         private const string ObsoleteInternalUsageOnly = "This method is for internal use only";
 
-        private static readonly ConcurrentDictionary<Identity, CacheInfo> _queryCache =
-            new ConcurrentDictionary<Identity, CacheInfo>();
+        private static readonly ConcurrentDictionary<SqlMapper.Identity, SqlMapper.CacheInfo> _queryCache =
+            new ConcurrentDictionary<SqlMapper.Identity, SqlMapper.CacheInfo>();
 
         private static int collect;
 
         private static Dictionary<Type, DbType> typeMap;
 
-        private static Dictionary<Type, ITypeHandler> typeHandlers;
+        private static Dictionary<Type, SqlMapper.ITypeHandler> typeHandlers;
 
         private static readonly int[] ErrTwoRows = new int[2], ErrZeroRows = new int[0];
 
@@ -89,7 +89,7 @@ namespace Kogel.Dapper.Extension
         ///     Gets type-map for the given type
         /// </summary>
         /// <returns>Type map instance, default is to create new instance of DefaultTypeMap</returns>
-        public static Func<Type, ITypeMap> TypeMapProvider = type => new DefaultTypeMap(type);
+        public static Func<Type, SqlMapper.ITypeMap> TypeMapProvider = type => new DefaultTypeMap(type);
 
         // use Hashtable to get free lockless reading
         private static readonly Hashtable _typeMaps = new Hashtable();
@@ -201,7 +201,7 @@ namespace Kogel.Dapper.Extension
             handler?.Invoke(null, EventArgs.Empty);
         }
 
-        private static void SetQueryCache(Identity key, CacheInfo value)
+        private static void SetQueryCache(SqlMapper.Identity key, SqlMapper.CacheInfo value)
         {
             if (Interlocked.Increment(ref collect) == COLLECT_PER_ITEMS) CollectCacheGarbage();
             _queryCache[key] = value;
@@ -222,7 +222,7 @@ namespace Kogel.Dapper.Extension
             }
         }
 
-        private static bool TryGetQueryCache(Identity key, out CacheInfo value)
+        private static bool TryGetQueryCache(SqlMapper.Identity key, out SqlMapper.CacheInfo value)
         {
             if (_queryCache.TryGetValue(key, out value))
             {
@@ -240,7 +240,7 @@ namespace Kogel.Dapper.Extension
         public static void PurgeQueryCache()
         {
             _queryCache.Clear();
-            TypeDeserializerCache.Purge();
+            SqlMapper.TypeDeserializerCache.Purge();
             OnQueryCachePurged();
         }
 
@@ -249,7 +249,7 @@ namespace Kogel.Dapper.Extension
             foreach (var entry in _queryCache)
                 if (entry.Key.type == type)
                     _queryCache.TryRemove(entry.Key, out var cache);
-            TypeDeserializerCache.Purge(type);
+            SqlMapper.TypeDeserializerCache.Purge(type);
         }
 
         /// <summary>
@@ -302,7 +302,7 @@ namespace Kogel.Dapper.Extension
 
         private static void ResetTypeHandlers(bool clone)
         {
-            typeHandlers = new Dictionary<Type, ITypeHandler>();
+            typeHandlers = new Dictionary<Type, SqlMapper.ITypeHandler>();
 #if !NETSTANDARD1_3
             AddTypeHandlerImpl(typeof(DataTable), new DataTableHandler(), clone);
 #endif
@@ -363,7 +363,7 @@ namespace Kogel.Dapper.Extension
         /// </summary>
         /// <param name="type">The type to handle.</param>
         /// <param name="handler">The handler to process the <paramref name="type" />.</param>
-        public static void AddTypeHandler(Type type, ITypeHandler handler)
+        public static void AddTypeHandler(Type type, SqlMapper.ITypeHandler handler)
         {
             AddTypeHandlerImpl(type, handler, true);
         }
@@ -379,7 +379,7 @@ namespace Kogel.Dapper.Extension
         /// <param name="type">The type to handle.</param>
         /// <param name="handler">The handler to process the <paramref name="type" />.</param>
         /// <param name="clone">Whether to clone the current type handler map.</param>
-        public static void AddTypeHandlerImpl(Type type, ITypeHandler handler, bool clone)
+        public static void AddTypeHandlerImpl(Type type, SqlMapper.ITypeHandler handler, bool clone)
         {
             if (type == null) throw new ArgumentNullException(nameof(type));
 
@@ -402,15 +402,15 @@ namespace Kogel.Dapper.Extension
             var snapshot = typeHandlers;
             if (snapshot.TryGetValue(type, out var oldValue) && handler == oldValue) return; // nothing to do
 
-            var newCopy = clone ? new Dictionary<Type, ITypeHandler>(snapshot) : snapshot;
+            var newCopy = clone ? new Dictionary<Type, SqlMapper.ITypeHandler>(snapshot) : snapshot;
 
 #pragma warning disable 618
-            typeof(TypeHandlerCache<>).MakeGenericType(type)
-                .GetMethod(nameof(TypeHandlerCache<int>.SetHandler), BindingFlags.Static | BindingFlags.NonPublic)
+            typeof(SqlMapper.TypeHandlerCache<>).MakeGenericType(type)
+                .GetMethod(nameof(SqlMapper.TypeHandlerCache<int>.SetHandler), BindingFlags.Static | BindingFlags.NonPublic)
                 .Invoke(null, new object[] { handler });
             if (secondary != null)
-                typeof(TypeHandlerCache<>).MakeGenericType(secondary)
-                    .GetMethod(nameof(TypeHandlerCache<int>.SetHandler), BindingFlags.Static | BindingFlags.NonPublic)
+                typeof(SqlMapper.TypeHandlerCache<>).MakeGenericType(secondary)
+                    .GetMethod(nameof(SqlMapper.TypeHandlerCache<int>.SetHandler), BindingFlags.Static | BindingFlags.NonPublic)
                     .Invoke(null, new object[] { handler });
 #pragma warning restore 618
             if (handler == null)
@@ -432,7 +432,7 @@ namespace Kogel.Dapper.Extension
         /// </summary>
         /// <typeparam name="T">The type to handle.</typeparam>
         /// <param name="handler">The handler for the type <typeparamref name="T" />.</param>
-        public static void AddTypeHandler<T>(TypeHandler<T> handler)
+        public static void AddTypeHandler<T>(SqlMapper.TypeHandler<T> handler)
         {
             AddTypeHandlerImpl(typeof(T), handler, true);
         }
@@ -465,7 +465,7 @@ namespace Kogel.Dapper.Extension
         [Browsable(false)]
 #endif
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static DbType LookupDbType(Type type, string name, bool demand, out ITypeHandler handler)
+        public static DbType LookupDbType(Type type, string name, bool demand, out SqlMapper.ITypeHandler handler)
         {
             handler = null;
             var nullUnderlyingType = Nullable.GetUnderlyingType(type);
@@ -474,19 +474,19 @@ namespace Kogel.Dapper.Extension
             if (typeMap.TryGetValue(type, out var dbType)) return dbType;
             if (type.FullName == LinqBinary) return DbType.Binary;
             if (typeHandlers.TryGetValue(type, out handler)) return DbType.Object;
-            if (typeof(IEnumerable).IsAssignableFrom(type)) return DynamicParameters.EnumerableMultiParameter;
+            if (typeof(IEnumerable).IsAssignableFrom(type)) return Comman.Dapper.Linq.Extension.Dapper.DynamicParameters.EnumerableMultiParameter;
 
 #if !NETSTANDARD1_3 && !NETSTANDARD2_0
             switch (type.FullName)
             {
                 case "Microsoft.SqlServer.Types.SqlGeography":
-                    AddTypeHandler(type, handler = new UdtTypeHandler("geography"));
+                    AddTypeHandler(type, handler = new SqlMapper.UdtTypeHandler("geography"));
                     return DbType.Object;
                 case "Microsoft.SqlServer.Types.SqlGeometry":
-                    AddTypeHandler(type, handler = new UdtTypeHandler("geometry"));
+                    AddTypeHandler(type, handler = new SqlMapper.UdtTypeHandler("geometry"));
                     return DbType.Object;
                 case "Microsoft.SqlServer.Types.SqlHierarchyId":
-                    AddTypeHandler(type, handler = new UdtTypeHandler("hierarchyid"));
+                    AddTypeHandler(type, handler = new SqlMapper.UdtTypeHandler("hierarchyid"));
                     return DbType.Object;
             }
 #endif
@@ -607,7 +607,7 @@ namespace Kogel.Dapper.Extension
             return param is IEnumerable
                    && !(param is string
                         || param is IEnumerable<KeyValuePair<string, object>>
-                        || param is IDynamicParameters)
+                        || param is SqlMapper.IDynamicParameters)
                 ? (IEnumerable)param
                 : null;
         }
@@ -616,15 +616,15 @@ namespace Kogel.Dapper.Extension
         {
             var param = command.Parameters;
             var multiExec = GetMultiExec(param);
-            Identity identity;
-            CacheInfo info = null;
+            SqlMapper.Identity identity;
+            SqlMapper.CacheInfo info = null;
             if (multiExec != null)
             {
                 Aop.InvokeExecuting(ref command);
 
                 if ((command.Flags & CommandFlags.Pipelined) != 0)
                     // this includes all the code for concurrent/overlapped query
-                    return ExecuteMultiImplAsync(command.Connection, command, multiExec).Result;
+                    return SqlMapper.ExecuteMultiImplAsync(command.Connection, command, multiExec).Result;
                 var isFirst = true;
                 var total = 0;
                 var wasClosed = command.Connection.State == ConnectionState.Closed;
@@ -640,7 +640,7 @@ namespace Kogel.Dapper.Extension
                             {
                                 masterSql = cmd.CommandText;
                                 isFirst = false;
-                                identity = new Identity(command.CommandText, cmd.CommandType, command.Connection, null,
+                                identity = new SqlMapper.Identity(command.CommandText, cmd.CommandType, command.Connection, null,
                                     obj.GetType(), null);
                                 info = GetCacheInfo(identity, obj, command.AddToCache);
                             }
@@ -670,7 +670,7 @@ namespace Kogel.Dapper.Extension
             // nice and simple
             if (param != null)
             {
-                identity = new Identity(command.CommandText, command.CommandType, command.Connection, null,
+                identity = new SqlMapper.Identity(command.CommandText, command.CommandType, command.Connection, null,
                     param.GetType(), null);
                 info = GetCacheInfo(identity, param, command.AddToCache);
             }
@@ -766,7 +766,7 @@ namespace Kogel.Dapper.Extension
             IDbTransaction transaction = null, bool buffered = true,
             int? commandTimeout = null, CommandType? commandType = null, bool isExcludeUnitOfWork = false)
         {
-            return Query<DapperRow>(cnn, sql, param, transaction, buffered, commandTimeout, commandType,
+            return Query<SqlMapper.DapperRow>(cnn, sql, param, transaction, buffered, commandTimeout, commandType,
                 isExcludeUnitOfWork);
         }
 
@@ -785,7 +785,7 @@ namespace Kogel.Dapper.Extension
             IDbTransaction transaction = null,
             int? commandTimeout = null, CommandType? commandType = null, bool isExcludeUnitOfWork = false)
         {
-            return QueryFirst<DapperRow>(cnn, sql, param, transaction, commandTimeout, commandType,
+            return QueryFirst<SqlMapper.DapperRow>(cnn, sql, param, transaction, commandTimeout, commandType,
                 isExcludeUnitOfWork);
         }
 
@@ -804,7 +804,7 @@ namespace Kogel.Dapper.Extension
             IDbTransaction transaction = null,
             int? commandTimeout = null, CommandType? commandType = null, bool isExcludeUnitOfWork = false)
         {
-            return QueryFirstOrDefault<DapperRow>(cnn, sql, param, transaction, commandTimeout, commandType,
+            return QueryFirstOrDefault<SqlMapper.DapperRow>(cnn, sql, param, transaction, commandTimeout, commandType,
                 isExcludeUnitOfWork);
         }
 
@@ -823,7 +823,7 @@ namespace Kogel.Dapper.Extension
             IDbTransaction transaction = null,
             int? commandTimeout = null, CommandType? commandType = null, bool isExcludeUnitOfWork = false)
         {
-            return QuerySingle<DapperRow>(cnn, sql, param, transaction, commandTimeout, commandType,
+            return QuerySingle<SqlMapper.DapperRow>(cnn, sql, param, transaction, commandTimeout, commandType,
                 isExcludeUnitOfWork);
         }
 
@@ -841,7 +841,7 @@ namespace Kogel.Dapper.Extension
             IDbTransaction transaction = null,
             int? commandTimeout = null, CommandType? commandType = null, bool isExcludeUnitOfWork = false)
         {
-            return QuerySingleOrDefault<DapperRow>(cnn, sql, param, transaction, commandTimeout, commandType,
+            return QuerySingleOrDefault<SqlMapper.DapperRow>(cnn, sql, param, transaction, commandTimeout, commandType,
                 isExcludeUnitOfWork);
         }
 
@@ -1204,7 +1204,7 @@ namespace Kogel.Dapper.Extension
         /// <param name="commandTimeout">Number of seconds before command execution timeout.</param>
         /// <param name="commandType">Is it a stored proc or a batch?</param>
         /// <param name="isExcludeUnitOfWork"></param>
-        public static GridReader QueryMultiple(this IDbConnection cnn, string sql, object param = null,
+        public static SqlMapper.GridReader QueryMultiple(this IDbConnection cnn, string sql, object param = null,
             IDbTransaction transaction = null,
             int? commandTimeout = null, CommandType? commandType = null, bool isExcludeUnitOfWork = false)
         {
@@ -1218,17 +1218,17 @@ namespace Kogel.Dapper.Extension
         /// </summary>
         /// <param name="cnn">The connection to query on.</param>
         /// <param name="command">The command to execute for this query.</param>
-        public static GridReader QueryMultiple(this IDbConnection cnn, CommandDefinition command)
+        public static SqlMapper.GridReader QueryMultiple(this IDbConnection cnn, CommandDefinition command)
         {
             return QueryMultipleImpl(cnn, ref command);
         }
 
-        private static GridReader QueryMultipleImpl(this IDbConnection cnn, ref CommandDefinition command)
+        private static SqlMapper.GridReader QueryMultipleImpl(this IDbConnection cnn, ref CommandDefinition command)
         {
             Aop.InvokeExecuting(ref command);
             var param = command.Parameters;
-            var identity = new Identity(command.CommandText, command.CommandType, command.Connection,
-                typeof(GridReader), param?.GetType(), null);
+            var identity = new SqlMapper.Identity(command.CommandText, command.CommandType, command.Connection,
+                typeof(SqlMapper.GridReader), param?.GetType(), null);
             var info = GetCacheInfo(identity, param, command.AddToCache);
 
             IDbCommand cmd = null;
@@ -1240,7 +1240,7 @@ namespace Kogel.Dapper.Extension
                 cmd = command.SetupCommand(command.Connection, info.ParamReader);
                 reader = ExecuteReaderWithFlagsFallback(cmd, wasClosed, CommandBehavior.SequentialAccess);
 
-                var result = new GridReader(cmd, reader, identity, command.Parameters as DynamicParameters,
+                var result = new SqlMapper.GridReader(cmd, reader, identity, command.Parameters as Comman.Dapper.Linq.Extension.Dapper.DynamicParameters,
                     command.AddToCache);
                 cmd = null; // now owned by result
                 wasClosed = false; // *if* the connection was closed and we got this far, then we now have a reader
@@ -1286,7 +1286,7 @@ namespace Kogel.Dapper.Extension
             catch (ArgumentException ex)
             {
                 // thanks, Sqlite!
-                if (Settings.DisableCommandBehaviorOptimizations(behavior, ex))
+                if (SqlMapper.Settings.DisableCommandBehaviorOptimizations(behavior, ex))
                     // we can retry; this time it will have different flags
                     return cmd.ExecuteReader(GetBehavior(wasClosed, behavior));
                 throw;
@@ -1298,7 +1298,7 @@ namespace Kogel.Dapper.Extension
         {
             Aop.InvokeExecuting(ref command);
             var param = command.Parameters;
-            var identity = new Identity(command.CommandText, command.CommandType, command.Connection, effectiveType,
+            var identity = new SqlMapper.Identity(command.CommandText, command.CommandType, command.Connection, effectiveType,
                 param?.GetType(), null);
             var info = GetCacheInfo(identity, param, command.AddToCache);
 
@@ -1324,7 +1324,7 @@ namespace Kogel.Dapper.Extension
                     if (reader.FieldCount == 0) //https://code.google.com/p/dapper-dot-net/issues/detail?id=57
                         yield break;
                     tuple = info.Deserializer =
-                        new DeserializerState(hash, GetDeserializer(effectiveType, reader, 0, -1, false));
+                        new SqlMapper.DeserializerState(hash, GetDeserializer(effectiveType, reader, 0, -1, false));
                     if (command.AddToCache) SetQueryCache(identity, info);
                 }
 
@@ -1411,7 +1411,7 @@ namespace Kogel.Dapper.Extension
         {
             Aop.InvokeExecuting(ref command);
             var param = command.Parameters;
-            var identity = new Identity(command.CommandText, command.CommandType, command.Connection, effectiveType,
+            var identity = new SqlMapper.Identity(command.CommandText, command.CommandType, command.Connection, effectiveType,
                 param?.GetType(), null);
             var info = GetCacheInfo(identity, param, command.AddToCache);
 
@@ -1441,7 +1441,7 @@ namespace Kogel.Dapper.Extension
                     if (tuple.Func == null || tuple.Hash != hash)
                     {
                         tuple = info.Deserializer =
-                            new DeserializerState(hash, GetDeserializer(effectiveType, reader, 0, -1, false));
+                            new SqlMapper.DeserializerState(hash, GetDeserializer(effectiveType, reader, 0, -1, false));
                         if (command.AddToCache) SetQueryCache(identity, info);
                     }
 
@@ -1530,7 +1530,7 @@ namespace Kogel.Dapper.Extension
             Func<TFirst, TSecond, TReturn> map, object param = null, IDbTransaction transaction = null,
             bool buffered = true, string splitOn = "Id", int? commandTimeout = null, CommandType? commandType = null)
         {
-            return MultiMap<TFirst, TSecond, DontMap, DontMap, DontMap, DontMap, DontMap, TReturn>(cnn, sql, map, param,
+            return MultiMap<TFirst, TSecond, SqlMapper.DontMap, SqlMapper.DontMap, SqlMapper.DontMap, SqlMapper.DontMap, SqlMapper.DontMap, TReturn>(cnn, sql, map, param,
                 transaction, buffered, splitOn, commandTimeout, commandType);
         }
 
@@ -1556,7 +1556,7 @@ namespace Kogel.Dapper.Extension
             Func<TFirst, TSecond, TThird, TReturn> map, object param = null, IDbTransaction transaction = null,
             bool buffered = true, string splitOn = "Id", int? commandTimeout = null, CommandType? commandType = null)
         {
-            return MultiMap<TFirst, TSecond, TThird, DontMap, DontMap, DontMap, DontMap, TReturn>(cnn, sql, map, param,
+            return MultiMap<TFirst, TSecond, TThird, SqlMapper.DontMap, SqlMapper.DontMap, SqlMapper.DontMap, SqlMapper.DontMap, TReturn>(cnn, sql, map, param,
                 transaction, buffered, splitOn, commandTimeout, commandType);
         }
 
@@ -1584,7 +1584,7 @@ namespace Kogel.Dapper.Extension
             IDbTransaction transaction = null, bool buffered = true, string splitOn = "Id", int? commandTimeout = null,
             CommandType? commandType = null)
         {
-            return MultiMap<TFirst, TSecond, TThird, TFourth, DontMap, DontMap, DontMap, TReturn>(cnn, sql, map, param,
+            return MultiMap<TFirst, TSecond, TThird, TFourth, SqlMapper.DontMap, SqlMapper.DontMap, SqlMapper.DontMap, TReturn>(cnn, sql, map, param,
                 transaction, buffered, splitOn, commandTimeout, commandType);
         }
 
@@ -1613,7 +1613,7 @@ namespace Kogel.Dapper.Extension
             object param = null, IDbTransaction transaction = null, bool buffered = true, string splitOn = "Id",
             int? commandTimeout = null, CommandType? commandType = null)
         {
-            return MultiMap<TFirst, TSecond, TThird, TFourth, TFifth, DontMap, DontMap, TReturn>(cnn, sql, map, param,
+            return MultiMap<TFirst, TSecond, TThird, TFourth, TFifth, SqlMapper.DontMap, SqlMapper.DontMap, TReturn>(cnn, sql, map, param,
                 transaction, buffered, splitOn, commandTimeout, commandType);
         }
 
@@ -1643,7 +1643,7 @@ namespace Kogel.Dapper.Extension
             object param = null, IDbTransaction transaction = null, bool buffered = true, string splitOn = "Id",
             int? commandTimeout = null, CommandType? commandType = null)
         {
-            return MultiMap<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, DontMap, TReturn>(cnn, sql, map, param,
+            return MultiMap<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, SqlMapper.DontMap, TReturn>(cnn, sql, map, param,
                 transaction, buffered, splitOn, commandTimeout, commandType);
         }
 
@@ -1721,12 +1721,12 @@ namespace Kogel.Dapper.Extension
 
         private static IEnumerable<TReturn> MultiMapImpl<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh,
             TReturn>(this IDbConnection cnn,
-            CommandDefinition command, Delegate map, string splitOn, IDataReader reader, Identity identity,
+            CommandDefinition command, Delegate map, string splitOn, IDataReader reader, SqlMapper.Identity identity,
             bool finalize)
         {
             Aop.InvokeExecuting(ref command);
             var param = command.Parameters;
-            identity = identity ?? new Identity(command.CommandText, command.CommandType, command.Connection,
+            identity = identity ?? new SqlMapper.Identity(command.CommandText, command.CommandType, command.Connection,
                 typeof(TFirst), param?.GetType(),
                 new[]
                 {
@@ -1750,7 +1750,7 @@ namespace Kogel.Dapper.Extension
                     reader = ownedReader;
                 }
 
-                var deserializer = default(DeserializerState);
+                var deserializer = default(SqlMapper.DeserializerState);
                 Func<IDataReader, object>[] otherDeserializers;
 
                 var hash = GetColumnHash(reader);
@@ -1763,7 +1763,7 @@ namespace Kogel.Dapper.Extension
                             typeof(TFirst), typeof(TSecond), typeof(TThird), typeof(TFourth), typeof(TFifth),
                             typeof(TSixth), typeof(TSeventh)
                         }, splitOn, reader);
-                    deserializer = cinfo.Deserializer = new DeserializerState(hash, deserializers[0]);
+                    deserializer = cinfo.Deserializer = new SqlMapper.DeserializerState(hash, deserializers[0]);
                     otherDeserializers = cinfo.OtherDeserializers = deserializers.Skip(1).ToArray();
                     if (command.AddToCache) SetQueryCache(identity, cinfo);
                 }
@@ -1804,18 +1804,18 @@ namespace Kogel.Dapper.Extension
 
         private static CommandBehavior GetBehavior(bool close, CommandBehavior @default)
         {
-            return (close ? @default | CommandBehavior.CloseConnection : @default) & Settings.AllowedCommandBehaviors;
+            return (close ? @default | CommandBehavior.CloseConnection : @default) & SqlMapper.Settings.AllowedCommandBehaviors;
         }
 
         private static IEnumerable<TReturn> MultiMapImpl<TReturn>(this IDbConnection cnn, CommandDefinition command,
-            Type[] types, Func<object[], TReturn> map, string splitOn, IDataReader reader, Identity identity,
+            Type[] types, Func<object[], TReturn> map, string splitOn, IDataReader reader, SqlMapper.Identity identity,
             bool finalize)
         {
             Aop.InvokeExecuting(ref command);
             if (types.Length < 1) throw new ArgumentException("you must provide at least one type to deserialize");
 
             var param = command.Parameters;
-            identity = identity ?? new Identity(command.CommandText, command.CommandType, command.Connection, types[0],
+            identity = identity ?? new SqlMapper.Identity(command.CommandText, command.CommandType, command.Connection, types[0],
                 param?.GetType(), types);
             var cinfo = GetCacheInfo(identity, param, command.AddToCache);
 
@@ -1834,7 +1834,7 @@ namespace Kogel.Dapper.Extension
                     reader = ownedReader;
                 }
 
-                DeserializerState deserializer;
+                SqlMapper.DeserializerState deserializer;
                 Func<IDataReader, object>[] otherDeserializers;
 
                 var hash = GetColumnHash(reader);
@@ -1842,7 +1842,7 @@ namespace Kogel.Dapper.Extension
                     (otherDeserializers = cinfo.OtherDeserializers) == null || hash != deserializer.Hash)
                 {
                     var deserializers = GenerateDeserializers(types, splitOn, reader);
-                    deserializer = cinfo.Deserializer = new DeserializerState(hash, deserializers[0]);
+                    deserializer = cinfo.Deserializer = new SqlMapper.DeserializerState(hash, deserializers[0]);
                     otherDeserializers = cinfo.OtherDeserializers = deserializers.Skip(1).ToArray();
                     SetQueryCache(identity, cinfo);
                 }
@@ -1947,7 +1947,7 @@ namespace Kogel.Dapper.Extension
                 var currentSplit = splits[splitIdx];
                 foreach (var type in types)
                 {
-                    if (type == typeof(DontMap)) break;
+                    if (type == typeof(SqlMapper.DontMap)) break;
 
                     var splitPoint = GetNextSplitDynamic(currentPos, currentSplit, reader);
                     if (isMultiSplit && splitIdx < splits.Length - 1) currentSplit = splits[++splitIdx];
@@ -1966,7 +1966,7 @@ namespace Kogel.Dapper.Extension
                 for (var typeIdx = types.Length - 1; typeIdx >= 0; --typeIdx)
                 {
                     var type = types[typeIdx];
-                    if (type == typeof(DontMap)) continue;
+                    if (type == typeof(SqlMapper.DontMap)) continue;
 
                     var splitPoint = 0;
                     if (typeIdx > 0)
@@ -2009,26 +2009,26 @@ namespace Kogel.Dapper.Extension
             throw MultiMapException(reader);
         }
 
-        internal static CacheInfo GetCacheInfo(Identity identity, object exampleParameters, bool addToCache)
+        internal static SqlMapper.CacheInfo GetCacheInfo(SqlMapper.Identity identity, object exampleParameters, bool addToCache)
         {
             if (!TryGetQueryCache(identity, out var info))
             {
                 if (GetMultiExec(exampleParameters) != null)
                     throw new InvalidOperationException(
                         "An enumerable sequence of parameters (arrays, lists, etc) is not allowed in this context");
-                info = new CacheInfo();
+                info = new SqlMapper.CacheInfo();
                 if (identity.parametersType != null)
                 {
                     Action<IDbCommand, object> reader;
-                    if (exampleParameters is IDynamicParameters)
+                    if (exampleParameters is SqlMapper.IDynamicParameters)
                     {
-                        reader = (cmd, obj) => ((IDynamicParameters)obj).AddParameters(cmd, identity);
+                        reader = (cmd, obj) => ((SqlMapper.IDynamicParameters)obj).AddParameters(cmd, identity);
                     }
                     else if (exampleParameters is IEnumerable<KeyValuePair<string, object>>)
                     {
                         reader = (cmd, obj) =>
                         {
-                            IDynamicParameters mapped = new DynamicParameters(obj);
+                            SqlMapper.IDynamicParameters mapped = new Comman.Dapper.Linq.Extension.Dapper.DynamicParameters(obj);
                             mapped.AddParameters(cmd, identity);
                         };
                     }
@@ -2106,7 +2106,7 @@ namespace Kogel.Dapper.Extension
             int length, bool returnNullIfFirstMissing)
         {
             // dynamic is passed in as Object ... by c# design
-            if (type == typeof(object) || type == typeof(DapperRow))
+            if (type == typeof(object) || type == typeof(SqlMapper.DapperRow))
                 return GetDapperRowDeserializer(reader, startBound, length, returnNullIfFirstMissing);
             Type underlyingType = null;
             if (!(typeMap.ContainsKey(type) || type.IsEnum() || type.FullName == LinqBinary
@@ -2121,12 +2121,12 @@ namespace Kogel.Dapper.Extension
             return GetStructDeserializer(type, underlyingType ?? type, startBound);
         }
 
-        private static Func<IDataReader, object> GetHandlerDeserializer(ITypeHandler handler, Type type, int startBound)
+        private static Func<IDataReader, object> GetHandlerDeserializer(SqlMapper.ITypeHandler handler, Type type, int startBound)
         {
             return reader => handler.Parse(type, reader.GetValue(startBound));
         }
 
-        private static Exception MultiMapException(IDataRecord reader)
+        private static System.Exception MultiMapException(IDataRecord reader)
         {
             var hasFields = false;
             try
@@ -2155,7 +2155,7 @@ namespace Kogel.Dapper.Extension
 
             var effectiveFieldCount = Math.Min(fieldCount - startBound, length);
 
-            DapperTable table = null;
+            SqlMapper.DapperTable table = null;
 
             return
                 r =>
@@ -2164,7 +2164,7 @@ namespace Kogel.Dapper.Extension
                     {
                         var names = new string[effectiveFieldCount];
                         for (var i = 0; i < effectiveFieldCount; i++) names[i] = r.GetName(i + startBound);
-                        table = new DapperTable(names);
+                        table = new SqlMapper.DapperTable(names);
                     }
 
                     var values = new object[effectiveFieldCount];
@@ -2193,7 +2193,7 @@ namespace Kogel.Dapper.Extension
                         }
                     }
 
-                    return new DapperRow(table, values);
+                    return new SqlMapper.DapperRow(table, values);
                 };
         }
 
@@ -2329,7 +2329,7 @@ namespace Kogel.Dapper.Extension
                 var isDbString = value is IEnumerable<DbString>;
                 DbType dbType = 0;
 
-                var splitAt = Settings.InListStringSplitCount;
+                var splitAt = SqlMapper.Settings.InListStringSplitCount;
                 var viaSplit = splitAt >= 0
                                && TryStringSplit(ref list, splitAt, namePrefix, command, byPosition);
 
@@ -2370,7 +2370,7 @@ namespace Kogel.Dapper.Extension
                         }
                     }
 
-                    if (Settings.PadListExpansions && !isDbString && lastValue != null)
+                    if (SqlMapper.Settings.PadListExpansions && !isDbString && lastValue != null)
                     {
                         var padCount = GetListPaddingExtraCount(count);
                         for (var i = 0; i < padCount; i++)
@@ -2563,7 +2563,7 @@ namespace Kogel.Dapper.Extension
         /// </summary>
         /// <param name="parameters">The parameter lookup to do replacements with.</param>
         /// <param name="command">The command to repalce parameters in.</param>
-        public static void ReplaceLiterals(this IParameterLookup parameters, IDbCommand command)
+        public static void ReplaceLiterals(this SqlMapper.IParameterLookup parameters, IDbCommand command)
         {
             var tokens = GetLiteralTokens(command.CommandText);
             if (tokens.Count != 0) ReplaceLiterals(parameters, command, tokens);
@@ -2639,8 +2639,8 @@ namespace Kogel.Dapper.Extension
             }
         }
 
-        internal static void ReplaceLiterals(IParameterLookup parameters, IDbCommand command,
-            IList<LiteralToken> tokens)
+        internal static void ReplaceLiterals(SqlMapper.IParameterLookup parameters, IDbCommand command,
+            IList<SqlMapper.LiteralToken> tokens)
         {
             var sql = command.CommandText;
             foreach (var token in tokens)
@@ -2655,21 +2655,21 @@ namespace Kogel.Dapper.Extension
             command.CommandText = sql;
         }
 
-        internal static IList<LiteralToken> GetLiteralTokens(string sql)
+        internal static IList<SqlMapper.LiteralToken> GetLiteralTokens(string sql)
         {
-            if (string.IsNullOrEmpty(sql)) return LiteralToken.None;
-            if (!literalTokens.IsMatch(sql)) return LiteralToken.None;
+            if (string.IsNullOrEmpty(sql)) return SqlMapper.LiteralToken.None;
+            if (!literalTokens.IsMatch(sql)) return SqlMapper.LiteralToken.None;
 
             var matches = literalTokens.Matches(sql);
             var found = new HashSet<string>(StringComparer.Ordinal);
-            var list = new List<LiteralToken>(matches.Count);
+            var list = new List<SqlMapper.LiteralToken>(matches.Count);
             foreach (Match match in matches)
             {
                 var token = match.Value;
-                if (found.Add(match.Value)) list.Add(new LiteralToken(token, match.Groups[1].Value));
+                if (found.Add(match.Value)) list.Add(new SqlMapper.LiteralToken(token, match.Groups[1].Value));
             }
 
-            return list.Count == 0 ? LiteralToken.None : list;
+            return list.Count == 0 ? SqlMapper.LiteralToken.None : list;
         }
 
         /// <summary>
@@ -2678,7 +2678,7 @@ namespace Kogel.Dapper.Extension
         /// <param name="identity">The identity of the generator.</param>
         /// <param name="checkForDuplicates">Whether to check for duplicates.</param>
         /// <param name="removeUnused">Whether to remove unused parameters.</param>
-        public static Action<IDbCommand, object> CreateParamInfoGenerator(Identity identity, bool checkForDuplicates,
+        public static Action<IDbCommand, object> CreateParamInfoGenerator(SqlMapper.Identity identity, bool checkForDuplicates,
             bool removeUnused)
         {
             return CreateParamInfoGenerator(identity, checkForDuplicates, removeUnused, GetLiteralTokens(identity.sql));
@@ -2690,10 +2690,10 @@ namespace Kogel.Dapper.Extension
                    type.FullName.StartsWith("System.ValueTuple`", StringComparison.Ordinal);
         }
 
-        private static List<IMemberMap> GetValueTupleMembers(Type type, string[] names)
+        private static List<SqlMapper.IMemberMap> GetValueTupleMembers(Type type, string[] names)
         {
             var fields = type.GetFields(BindingFlags.Public | BindingFlags.Instance);
-            var result = new List<IMemberMap>(names.Length);
+            var result = new List<SqlMapper.IMemberMap>(names.Length);
             for (var i = 0; i < names.Length; i++)
             {
                 FieldInfo field = null;
@@ -2713,8 +2713,8 @@ namespace Kogel.Dapper.Extension
             return result;
         }
 
-        internal static Action<IDbCommand, object> CreateParamInfoGenerator(Identity identity, bool checkForDuplicates,
-            bool removeUnused, IList<LiteralToken> literals)
+        internal static Action<IDbCommand, object> CreateParamInfoGenerator(SqlMapper.Identity identity, bool checkForDuplicates,
+            bool removeUnused, IList<SqlMapper.LiteralToken> literals)
         {
             var type = identity.parametersType;
 
@@ -2820,21 +2820,21 @@ namespace Kogel.Dapper.Extension
             var callOpCode = isStruct ? OpCodes.Call : OpCodes.Callvirt;
             foreach (var prop in props)
             {
-                if (typeof(ICustomQueryParameter).IsAssignableFrom(prop.PropertyType))
+                if (typeof(SqlMapper.ICustomQueryParameter).IsAssignableFrom(prop.PropertyType))
                 {
                     il.Emit(OpCodes.Ldloc_0); // stack is now [parameters] [typed-param]
                     il.Emit(callOpCode, prop.GetGetMethod()); // stack is [parameters] [custom]
                     il.Emit(OpCodes.Ldarg_0); // stack is now [parameters] [custom] [command]
                     il.Emit(OpCodes.Ldstr, prop.Name); // stack is now [parameters] [custom] [command] [name]
                     il.EmitCall(OpCodes.Callvirt,
-                        prop.PropertyType.GetMethod(nameof(ICustomQueryParameter.AddParameter)),
+                        prop.PropertyType.GetMethod(nameof(SqlMapper.ICustomQueryParameter.AddParameter)),
                         null); // stack is now [parameters]
                     continue;
                 }
 #pragma warning disable 618
                 var dbType = LookupDbType(prop.PropertyType, prop.Name, true, out var handler);
 #pragma warning restore 618
-                if (dbType == DynamicParameters.EnumerableMultiParameter)
+                if (dbType == Comman.Dapper.Linq.Extension.Dapper.DynamicParameters.EnumerableMultiParameter)
                 {
                     // this actually represents special handling for list types;
                     il.Emit(OpCodes.Ldarg_0); // stack is now [parameters] [command]
@@ -3036,8 +3036,8 @@ namespace Kogel.Dapper.Extension
                 {
 #pragma warning disable 618
                     il.Emit(OpCodes.Call,
-                        typeof(TypeHandlerCache<>).MakeGenericType(prop.PropertyType)
-                            .GetMethod(nameof(TypeHandlerCache<int>
+                        typeof(SqlMapper.TypeHandlerCache<>).MakeGenericType(prop.PropertyType)
+                            .GetMethod(nameof(SqlMapper.TypeHandlerCache<int>
                                 .SetValue))); // stack is now [parameters] [[parameters]] [parameter]
 #pragma warning restore 618
                 }
@@ -3221,7 +3221,7 @@ namespace Kogel.Dapper.Extension
             var param = command.Parameters;
             if (param != null)
             {
-                var identity = new Identity(command.CommandText, command.CommandType, command.Connection, null,
+                var identity = new SqlMapper.Identity(command.CommandText, command.CommandType, command.Connection, null,
                     param.GetType(), null);
                 paramReader = GetCacheInfo(identity, command.Parameters, command.AddToCache).ParamReader;
             }
@@ -3277,13 +3277,13 @@ namespace Kogel.Dapper.Extension
         {
             var param = command.Parameters;
             var multiExec = GetMultiExec(param);
-            CacheInfo info = null;
+            SqlMapper.CacheInfo info = null;
             if (multiExec != null) throw new NotSupportedException("MultiExec is not supported by ExecuteReader");
 
             // nice and simple
             if (param != null)
             {
-                var identity = new Identity(command.CommandText, command.CommandType, command.Connection, null,
+                var identity = new SqlMapper.Identity(command.CommandText, command.CommandType, command.Connection, null,
                     param.GetType(), null);
                 info = GetCacheInfo(identity, param, command.AddToCache);
             }
@@ -3348,26 +3348,26 @@ namespace Kogel.Dapper.Extension
         /// </summary>
         /// <param name="type">The type to get a map for.</param>
         /// <returns>Type map implementation, DefaultTypeMap instance if no override present</returns>
-        public static ITypeMap GetTypeMap(Type type)
+        public static SqlMapper.ITypeMap GetTypeMap(Type type)
         {
             if (type == null) throw new ArgumentNullException(nameof(type));
             if (_temporaryTypeMaps == null) _temporaryTypeMaps = new Hashtable();
             //先从临时属性里获取
             lock (_temporaryTypeMaps)
             {
-                var temporaryMap = (ITypeMap)_temporaryTypeMaps[type];
+                var temporaryMap = (SqlMapper.ITypeMap)_temporaryTypeMaps[type];
                 if (temporaryMap != null)
                     return temporaryMap;
             }
 
             //再从全局缓存中获取
-            var map = (ITypeMap)_typeMaps[type];
+            var map = (SqlMapper.ITypeMap)_typeMaps[type];
             if (map == null)
                 lock (_typeMaps)
                 {
                     // double-checked; store this to avoid reflection next time we see this type
                     // since multiple queries commonly use the same domain-entity/DTO/view-model type
-                    map = (ITypeMap)_typeMaps[type];
+                    map = (SqlMapper.ITypeMap)_typeMaps[type];
 
                     if (map == null)
                     {
@@ -3385,7 +3385,7 @@ namespace Kogel.Dapper.Extension
         /// <param name="type">类型</param>
         /// <param name="map">映射列表</param>
         /// <param name="isTemporary">是否是临时属性</param>
-        public static void SetTypeMap(Type type, ITypeMap map, bool isTemporary = false)
+        public static void SetTypeMap(Type type, SqlMapper.ITypeMap map, bool isTemporary = false)
         {
             if (type == null)
                 throw new ArgumentNullException(nameof(type));
@@ -3432,7 +3432,7 @@ namespace Kogel.Dapper.Extension
             Type type, IDataReader reader, int startBound = 0, int length = -1, bool returnNullIfFirstMissing = false
         )
         {
-            return TypeDeserializerCache.GetReader(type, reader, startBound, length, returnNullIfFirstMissing);
+            return SqlMapper.TypeDeserializerCache.GetReader(type, reader, startBound, length, returnNullIfFirstMissing);
         }
 
         private static LocalBuilder GetTempLocal(ILGenerator il, ref Dictionary<Type, LocalBuilder> locals, Type type,
@@ -3565,7 +3565,7 @@ namespace Kogel.Dapper.Extension
             var first = true;
             var allDone = il.DefineLabel();
             int enumDeclareLocal = -1, valueCopyLocal = il.DeclareLocal(typeof(object)).LocalIndex;
-            var applyNullSetting = Settings.ApplyNullValues;
+            var applyNullSetting = SqlMapper.Settings.ApplyNullValues;
             foreach (var item in members)
             {
                 if (item != null)
@@ -3652,8 +3652,8 @@ namespace Kogel.Dapper.Extension
                                 {
 #pragma warning disable 618
                                     il.EmitCall(OpCodes.Call,
-                                        typeof(TypeHandlerCache<>).MakeGenericType(unboxType)
-                                            .GetMethod(nameof(TypeHandlerCache<int>.Parse)),
+                                        typeof(SqlMapper.TypeHandlerCache<>).MakeGenericType(unboxType)
+                                            .GetMethod(nameof(SqlMapper.TypeHandlerCache<int>.Parse)),
                                         null); // stack is now [target][target][typed-value]
 #pragma warning restore 618
                                 }
@@ -3762,7 +3762,7 @@ namespace Kogel.Dapper.Extension
             }
 
             il.MarkLabel(allDone);
-            il.BeginCatchBlock(typeof(Exception)); // stack is Exception
+            il.BeginCatchBlock(typeof(System.Exception)); // stack is Exception
             il.Emit(OpCodes.Ldloc_0); // stack is Exception, index
             il.Emit(OpCodes.Ldarg_0); // stack is Exception, index, reader
             LoadLocal(il, valueCopyLocal); // stack is Exception, index, reader, value
@@ -3970,9 +3970,9 @@ namespace Kogel.Dapper.Extension
         /// <param name="reader">The reader the exception occured in.</param>
         /// <param name="value">The value that caused the exception.</param>
         [Obsolete(ObsoleteInternalUsageOnly, false)]
-        public static void ThrowDataException(Exception ex, int index, IDataReader reader, object value)
+        public static void ThrowDataException(System.Exception ex, int index, IDataReader reader, object value)
         {
-            Exception toThrow;
+            System.Exception toThrow;
             try
             {
                 string name = "(n/a)", formattedValue = "(n/a)";
@@ -3987,7 +3987,7 @@ namespace Kogel.Dapper.Extension
                             formattedValue = Convert.ToString(value) + " - " +
                                              TypeExtensions.GetTypeCode(value.GetType());
                     }
-                    catch (Exception valEx)
+                    catch (System.Exception valEx)
                     {
                         formattedValue = valEx.Message;
                     }
@@ -4052,7 +4052,7 @@ namespace Kogel.Dapper.Extension
         /// </summary>
         /// <param name="list">The list of records to convert to TVPs.</param>
         /// <param name="typeName">The sql parameter type name.</param>
-        public static ICustomQueryParameter AsTableValuedParameter(this IEnumerable<SqlDataRecord> list,
+        public static SqlMapper.ICustomQueryParameter AsTableValuedParameter(this IEnumerable<SqlDataRecord> list,
             string typeName = null)
         {
             return new SqlDataRecordListTVPParameter(list, typeName);
@@ -4107,7 +4107,7 @@ namespace Kogel.Dapper.Extension
         /// </summary>
         /// <param name="table">The <see cref="DataTable" /> to create this parameter for.</param>
         /// <param name="typeName">The name of the type this parameter is for.</param>
-        public static ICustomQueryParameter AsTableValuedParameter(this DataTable table, string typeName = null)
+        public static SqlMapper.ICustomQueryParameter AsTableValuedParameter(this DataTable table, string typeName = null)
         {
             return new TableValuedParameter(table, typeName);
         }

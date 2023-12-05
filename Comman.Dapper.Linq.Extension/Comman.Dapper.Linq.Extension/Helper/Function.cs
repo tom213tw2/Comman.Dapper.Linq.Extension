@@ -1,4 +1,4 @@
-﻿namespace Kogel.Dapper.Extension
+﻿namespace Comman.Dapper.Linq.Extension.Helper
 {
     /// <summary>
     ///     函数列表

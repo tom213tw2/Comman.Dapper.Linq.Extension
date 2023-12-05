@@ -5,11 +5,12 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
+using Kogel.Dapper.Extension;
 #if NETSTANDARD1_3
 using ApplicationException = System.InvalidOperationException;
 #endif
 
-namespace Kogel.Dapper.Extension
+namespace Comman.Dapper.Linq.Extension.Dapper
 {
     /// <summary>
     ///     A bag of parameters that can be passed to the Dapper Query and Execute methods
@@ -22,7 +23,8 @@ namespace Kogel.Dapper.Extension
         private static readonly Dictionary<SqlMapper.Identity, Action<IDbCommand, object>> paramReaderCache =
             new Dictionary<SqlMapper.Identity, Action<IDbCommand, object>>();
 
-        private readonly Dictionary<string, ParamInfo> parameters = new Dictionary<string, ParamInfo>();
+        private readonly Dictionary<string, DynamicParameters.ParamInfo> parameters =
+            new Dictionary<string, DynamicParameters.ParamInfo>();
         private List<object> templates;
 
         /// <summary>
@@ -112,7 +114,7 @@ namespace Kogel.Dapper.Extension
         public void Add(string name, object value, DbType? dbType, ParameterDirection? direction, int? size,
             bool isForever = false)
         {
-            parameters[Clean(name)] = new ParamInfo
+            parameters[Clean(name)] = new DynamicParameters.ParamInfo
             {
                 Name = name,
                 Value = value,
@@ -137,7 +139,7 @@ namespace Kogel.Dapper.Extension
         public void Add(string name, object value = null, DbType? dbType = null, ParameterDirection? direction = null,
             int? size = null, byte? precision = null, byte? scale = null, bool isForever = false)
         {
-            parameters[Clean(name)] = new ParamInfo
+            parameters[Clean(name)] = new DynamicParameters.ParamInfo
             {
                 Name = name,
                 Value = value,
@@ -200,7 +202,7 @@ namespace Kogel.Dapper.Extension
                     // then explicitly adds a parameter of a matching name,
                     // it will already exist in 'parameters'.
                     if (!parameters.ContainsKey(param.ParameterName))
-                        parameters.Add(param.ParameterName, new ParamInfo
+                        parameters.Add(param.ParameterName, new DynamicParameters.ParamInfo
                         {
                             AttachedParam = param,
                             CameFromTemplate = true,
@@ -307,15 +309,12 @@ namespace Kogel.Dapper.Extension
             var paramInfo = parameters[Clean(name)];
             var attachedParam = paramInfo.AttachedParam;
             var val = attachedParam == null ? paramInfo.Value : attachedParam.Value;
-            if (val == DBNull.Value)
-            {
-                if (default(T) != null)
-                    throw new ApplicationException(
-                        "Attempting to cast a DBNull to a non nullable type! Note that out/return parameters will not have updated values until the data stream completes (after the 'foreach' for Query(..., buffered: false), or after the GridReader has been disposed for QueryMultiple)");
-                return default;
-            }
+            if (val != DBNull.Value) return (T)val;
+            if (default(T) != null)
+                throw new ApplicationException(
+                    "Attempting to cast a DBNull to a non nullable type! Note that out/return parameters will not have updated values until the data stream completes (after the 'foreach' for Query(..., buffered: false), or after the GridReader has been disposed for QueryMultiple)");
+            return default;
 
-            return (T)val;
         }
 
         /// <summary>
@@ -377,10 +376,9 @@ namespace Kogel.Dapper.Extension
 
             var dynamicParamName = string.Concat(names.ToArray());
 
-            // Before we get all emitty...
             var lookup = string.Join("|", names.ToArray());
 
-            var cache = CachedOutputSetters<T>.Cache;
+            var cache = DynamicParameters.CachedOutputSetters<T>.Cache;
             var setter = (Action<object, DynamicParameters>)cache[lookup];
             if (setter != null) goto MAKECALLBACK;
 
@@ -410,14 +408,14 @@ namespace Kogel.Dapper.Extension
             }
 
             var paramGetter = GetType().GetMethod("Get", new[] { typeof(string) })
-                .MakeGenericMethod(lastMemberAccess.Type);
+                ?.MakeGenericMethod(lastMemberAccess?.Type);
 
             il.Emit(OpCodes.Ldarg_1); // [target] [DynamicParameters]
             il.Emit(OpCodes.Ldstr, dynamicParamName); // [target] [DynamicParameters] [ParamName]
             il.Emit(OpCodes.Callvirt, paramGetter); // [target] [value], it's already typed thanks to generic method
 
             // GET READY
-            var lastMember = lastMemberAccess.Member;
+            var lastMember = lastMemberAccess?.Member;
             if (lastMember is PropertyInfo)
             {
                 var set = ((PropertyInfo)lastMember).GetSetMethod(true);

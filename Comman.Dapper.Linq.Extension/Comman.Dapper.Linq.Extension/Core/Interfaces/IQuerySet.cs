@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Linq.Expressions;
-using Kogel.Dapper.Extension.Entites;
+using Comman.Dapper.Linq.Extension.Entites;
 
 namespace Comman.Dapper.Linq.Extension.Core.Interfaces
 {
@@ -65,16 +65,17 @@ namespace Comman.Dapper.Linq.Extension.Core.Interfaces
         /// <typeparam name="TInner">副表</typeparam>
         /// <param name="exp"></param>
         /// <param name="joinMode">连表方式</param>
-        /// <param name="IsDisField">是否显示字段</param>
+        /// <param name="isDisField">是否显示字段</param>
         /// <returns></returns>
         IQuerySet<T> Join<TWhere, TInner>(Expression<Func<TWhere, TInner, bool>> exp, JoinMode joinMode = JoinMode.LEFT,
-            bool IsDisField = true);
+            bool isDisField = true);
 
         /// <summary>
         ///     连表查询
         /// </summary>
         /// <typeparam name="TWhere"></typeparam>
         /// <typeparam name="TInner"></typeparam>
+        /// <typeparam name="TWhere2"></typeparam>
         /// <param name="expression"></param>
         /// <param name="joinMode"></param>
         /// <param name="isDisField"></param>
@@ -99,7 +100,6 @@ namespace Comman.Dapper.Linq.Extension.Core.Interfaces
         /// <summary>
         ///     连表查询(通过sql连接，不指定表实体不增加该表显示字段)
         /// </summary>
-        /// <param name="SqlJoin"></param>
         /// <returns></returns>
         IQuerySet<T> Join(string sqlJoin);
 

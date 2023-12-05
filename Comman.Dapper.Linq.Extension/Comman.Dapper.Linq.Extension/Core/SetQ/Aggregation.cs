@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Data;
 using System.Linq.Expressions;
-using Comman.Dapper.Linq.Extension;
 using Comman.Dapper.Linq.Extension.Core.Interfaces;
-using Kogel.Dapper.Extension.Core.Interfaces;
+using Comman.Dapper.Linq.Extension.Dapper;
+using Kogel.Dapper.Extension;
 
-namespace Kogel.Dapper.Extension.Core.SetQ
+namespace Comman.Dapper.Linq.Extension.Core.SetQ
 {
     /// <summary>
     ///     聚合

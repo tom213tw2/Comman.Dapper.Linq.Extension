@@ -5,7 +5,7 @@ using System.Dynamic;
 using System.Linq;
 using System.Linq.Expressions;
 
-namespace Kogel.Dapper.Extension
+namespace Comman.Dapper.Linq.Extension.Dapper
 {
     public static partial class SqlMapper
     {
@@ -14,10 +14,10 @@ namespace Kogel.Dapper.Extension
                 , IDictionary<string, object>
                 , IReadOnlyDictionary<string, object>
         {
-            private readonly DapperTable table;
+            private readonly SqlMapper.DapperTable table;
             private object[] values;
 
-            public DapperRow(DapperTable table, object[] values)
+            public DapperRow(SqlMapper.DapperTable table, object[] values)
             {
                 this.table = table ?? throw new ArgumentNullException(nameof(table));
                 this.values = values ?? throw new ArgumentNullException(nameof(values));
@@ -75,7 +75,7 @@ namespace Kogel.Dapper.Extension
             DynamicMetaObject IDynamicMetaObjectProvider.GetMetaObject(
                 Expression parameter)
             {
-                return new DapperRowMetaObject(parameter, BindingRestrictions.Empty, this);
+                return new SqlMapper.DapperRowMetaObject(parameter, BindingRestrictions.Empty, this);
             }
 
             public override string ToString()
@@ -91,7 +91,7 @@ namespace Kogel.Dapper.Extension
                         sb.Append(" = NULL");
                 }
 
-                return sb.Append('}').__ToStringRecycle();
+                return Comman.Dapper.Linq.Extension.Dapper.SqlMapper.__ToStringRecycle(sb.Append('}'));
             }
 
             private sealed class DeadValue

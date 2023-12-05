@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 
-namespace Kogel.Dapper.Extension.Expressions
+namespace Comman.Dapper.Linq.Extension.Expressions
 {
     public class NavigationExpression : ExpressionVisitor
     {
@@ -20,7 +20,7 @@ namespace Kogel.Dapper.Extension.Expressions
         /// <summary>
         ///     参数
         /// </summary>
-        public DynamicParameters Param { get; set; }
+        public Comman.Dapper.Linq.Extension.Dapper.DynamicParameters Param { get; set; }
 
         /// <summary>
         ///     返回类型
