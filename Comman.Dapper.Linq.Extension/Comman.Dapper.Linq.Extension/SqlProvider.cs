@@ -1,24 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq.Expressions;
-using System.Text;
-using System.Linq;
-using Kogel.Dapper.Extension;
-using Kogel.Dapper.Extension.Extension;
-using Kogel.Dapper.Extension.Entites;
-using Kogel.Dapper.Extension.Attributes;
-using Kogel.Dapper.Extension.Core.Interfaces;
-using Kogel.Dapper.Extension.Helper;
-using Kogel.Dapper.Extension;
 using System.Data;
-using Kogel.Dapper.Extension.Expressions;
+using System.Linq;
+using System.Linq.Expressions;
+using Comman.Dapper.Linq.Extension.Core.Interfaces;
+using Comman.Dapper.Linq.Extension.Entites;
+using Comman.Dapper.Linq.Extension.Exception;
+using Comman.Dapper.Linq.Extension.Expressions;
+using Comman.Dapper.Linq.Extension.Helper;
+using Comman.Dapper.Linq.Extension.Helper.Cache;
+using DynamicParameters = Comman.Dapper.Linq.Extension.Dapper.DynamicParameters;
 
-namespace Kogel.Dapper.Extension
+namespace Comman.Dapper.Linq.Extension
 {
+    /// <summary>
+    /// 提供 SQL 查詢和命令生成的抽象基類。
+    /// </summary>
     public abstract class SqlProvider
     {
-        public AbstractDataBaseContext Context { get; set; }
-
         protected SqlProvider()
         {
             Params = new DynamicParameters();
@@ -27,70 +26,65 @@ namespace Kogel.Dapper.Extension
         }
 
         /// <summary>
-        /// 工具方
+        /// 數據庫上下文。
         /// </summary>
-        public abstract IProviderOption ProviderOption { get; set; }
+        public AbstractDataBaseContext Context { get; set; }
 
         /// <summary>
-        /// 解析者
+        /// 數據庫提供者選項。
         /// </summary>
-        public abstract IResolveExpression ResolveExpression { get; set; }
+        public abstract ProviderOption ProviderOption { get; set; }
 
         /// <summary>
-        /// 生成的sql
+        /// 表達式解析器。
+        /// </summary>
+        public abstract ResolveExpression ResolveExpression { get; set; }
+
+        /// <summary>
+        /// 生成的 SQL 字串。
         /// </summary>
         public string SqlString { get; set; }
 
         /// <summary>
-        /// 连接对象集合
+        /// 連接對象集合。
         /// </summary>
         public List<JoinAssTable> JoinList { get; set; }
 
         /// <summary>
-        /// 参数对象
+        /// 參數對象。
         /// </summary>
         public DynamicParameters Params { get; set; }
 
         /// <summary>
-        /// 重命名目录
+        /// 重命名目錄。
         /// </summary>
         public Dictionary<Type, string> AsTableNameDic { get; set; }
 
         /// <summary>
-        /// 是否排除在工作单元外
+        /// 是否排除在工作單位外。
         /// </summary>
         public bool IsExcludeUnitOfWork { get; set; }
 
+        /// <summary>
+        /// 條件是否需要加上 as 名稱（一般修改和刪除時不需要）。
+        /// </summary>
+        public bool IsAppendAsName { get; set; } = true;
+
         public abstract SqlProvider FormatGet<T>();
-
         public abstract SqlProvider FormatToList<T>();
-
         public abstract SqlProvider FormatToPageList<T>(int pageIndex, int pageSize);
-
         public abstract SqlProvider FormatCount();
-
         public abstract SqlProvider FormatDelete();
-
         public abstract SqlProvider FormatInsert<T>(T entity, string[] excludeFields);
-
         public abstract SqlProvider FormatInsert<T>(IEnumerable<T> entitys, string[] excludeFields);
-
         public abstract SqlProvider FormatInsertIdentity<T>(T entity, string[] excludeFields);
-
         public abstract SqlProvider FormatUpdate<T>(Expression<Func<T, T>> updateExpression);
-
         public abstract SqlProvider FormatUpdate<T>(T entity, string[] excludeFields);
-
         public abstract SqlProvider FormatUpdate<T>(IEnumerable<T> entity, string[] excludeFields);
-
         public abstract SqlProvider FormatSum(LambdaExpression sumExpression);
-
         public abstract SqlProvider FormatMin(LambdaExpression MinExpression);
-
         public abstract SqlProvider FormatMax(LambdaExpression MaxExpression);
-
         public abstract SqlProvider FormatUpdateSelect<T>(Expression<Func<T, T>> updator);
-
         public abstract SqlProvider Create();
 
         public virtual SqlProvider Clear()
@@ -102,211 +96,168 @@ namespace Kogel.Dapper.Extension
         }
 
         /// <summary>
-        /// 条件是否需要加上asname（一般修改和删除时不需要）
+        /// 獲取表名稱。
         /// </summary>
-        public bool IsAppendAsName { get; set; } = true;
-
-        /// <summary>
-        /// 获取表名称
-        /// </summary>
-        /// <param name="isNeedFrom"></param>
-        /// <param name="isAsName"></param>
-        /// <param name="tableType">连接查询时会用到</param>
-        /// <returns></returns>
-
+        /// <param name="isNeedFrom">是否需要加上 FROM 語句。</param>
+        /// <param name="isAsName">是否需要使用別名。</param>
+        /// <param name="tableType">連接查詢時會用到的表類型。</param>
+        /// <returns>格式化後的表名稱字串。</returns>
         public virtual string FormatTableName(bool isNeedFrom = true, bool isAsName = true, Type tableType = null)
         {
-            //实体解析类型
-            var entity = EntityCache.QueryEntity(tableType == null ? Context.Set.TableType : tableType);
-            string schema = string.IsNullOrEmpty(entity.Schema) ? "" : ProviderOption.CombineFieldName(entity.Schema) + ".";
-            string fromName = entity.Name;
-            //函数AsTableName优先级大于一切
-            string asTableName;
-            if (AsTableNameDic.TryGetValue(entity.Type, out asTableName))
-            {
+            // 實體解析類型
+            var entity = EntityCache.QueryEntity(tableType ?? Context.Set.TableType);
+            var schema = string.IsNullOrEmpty(entity.Schema)
+                ? ""
+                : ProviderOption.CombineFieldName(entity.Schema) + ".";
+            var fromName = entity.Name;
+            // 函數 AsTableName 優先級大於一切
+            if (AsTableNameDic.TryGetValue(entity.Type, out var asTableName))
                 fromName = asTableName;
-            }
-            //是否存在实体特性中的AsName标记
+            // 是否存在實體特性中的 AsName 標記
             if (isAsName)
             {
-                if (entity.AsName.Equals(fromName))
-                {
-                    fromName = ProviderOption.CombineFieldName(fromName);
-                }
-                else
-                {
-                    //加上as标记
-                    fromName = $"{ProviderOption.CombineFieldName(fromName)} {entity.AsName}";
-                }
+                fromName = entity.AsName.Equals(fromName)
+                    ? ProviderOption.CombineFieldName(fromName)
+                    : $"{ProviderOption.CombineFieldName(fromName)} {entity.AsName}";
             }
             else
             {
                 fromName = ProviderOption.CombineFieldName(fromName);
             }
-            string sqlString = $" {schema}{fromName} ";
-            //是否需要FROM
+
+            var sqlString = $" {schema}{fromName} ";
+            // 是否需要 FROM
             if (isNeedFrom)
                 sqlString = $" FROM {sqlString}";
             return sqlString;
         }
 
         /// <summary>
-        /// 
+        /// 獲取資料庫上下文。
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        protected DataBaseContext<T> DataBaseContext<T>() => (DataBaseContext<T>)Context;
+        /// <typeparam name="T">實體類型。</typeparam>
+        /// <returns>資料庫上下文實例。</returns>
+        protected DataBaseContext<T> DataBaseContext<T>()
+        {
+            return (DataBaseContext<T>)Context;
+        }
 
         /// <summary>
-        /// 根据主键获取条件
+        /// 根據主鍵獲取條件。
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="entity"></param>
-        /// <returns></returns>
-        public virtual string GetIdentityWhere<T>(T entite, DynamicParameters param = null)
+        /// <typeparam name="T">實體類型。</typeparam>
+        /// <param name="entity">實體對象。</param>
+        /// <param name="param">動態參數。</param>
+        /// <returns>構造的 WHERE 條件字串。</returns>
+        public virtual string GetIdentityWhere<T>(T entity, DynamicParameters param = null)
         {
             var entityObject = EntityCache.QueryEntity(typeof(T));
             if (string.IsNullOrEmpty(entityObject.Identitys))
-                throw new DapperExtensionException("主键不存在!请前往实体类使用[Identity]特性设置主键。");
+                throw new DapperExtensionException("主鍵不存在!請前往實體類使用 [Identity] 特性設置主鍵。");
 
-            //设置参数
-            if (param != null)
-            {
-                //获取主键数据
-                var id = entityObject.EntityFieldList
-                    .FirstOrDefault(x => x.FieldName == entityObject.Identitys)
-                    .PropertyInfo
-                    .GetValue(entite);
-                param.Add(entityObject.Identitys, id);
-            }
+            // 設置參數
+            if (param == null)
+                return $" AND {entityObject.Identitys}={ProviderOption.ParameterPrefix}{entityObject.Identitys} ";
+            // 獲取主鍵數據
+            var id = entityObject.EntityFieldList
+                .FirstOrDefault(x => x.FieldName == entityObject.Identitys)
+                ?.PropertyInfo
+                .GetValue(entity);
+            param.Add(entityObject.Identitys, id);
+
             return $" AND {entityObject.Identitys}={ProviderOption.ParameterPrefix}{entityObject.Identitys} ";
         }
 
-        /// <summary>
-        /// 根据主键获取条件
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="entity"></param>
-        /// <returns></returns>
-        public virtual string GetIdentityWhere<T>(IEnumerable<T> entites, DynamicParameters param = null)
-        {
-            var entityObject = EntityCache.QueryEntity(typeof(T));
-            if (string.IsNullOrEmpty(entityObject.Identitys))
-                throw new DapperExtensionException("主键不存在!请前往实体类使用[Identity]特性设置主键。");
-
-            //设置参数
-            if (param != null)
-            {
-                List<object> idList = new List<object>();
-                foreach (var entite in entites)
-                {
-                    //获取主键数据
-                    var id = entityObject.EntityFieldList
-                        .FirstOrDefault(x => x.FieldName == entityObject.Identitys)
-                        .PropertyInfo
-                        .GetValue(entite);
-                    idList.Add(id);
-                }
-                param.Add(entityObject.Identitys, idList);
-            }
-            return $" AND {entityObject.Identitys} IN {ProviderOption.ParameterPrefix}{entityObject.Identitys} ";
-        }
 
         /// <summary>
-        /// 根据主键获取条件
+        /// 根據主鍵獲取查詢條件。
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="id"></param>
-        /// <param name="param"></param>
-        /// <returns></returns>
+        /// <typeparam name="T">實體類型。</typeparam>
+        /// <param name="id">主鍵的值。</param>
+        /// <param name="param">動態參數，用於添加查詢條件。</param>
+        /// <returns>構造的 WHERE 條件字串。</returns>
         public virtual string GetIdentityWhere<T>(object id, DynamicParameters param = null)
         {
             var entityObject = EntityCache.QueryEntity(typeof(T));
             if (string.IsNullOrEmpty(entityObject.Identitys))
-                throw new DapperExtensionException("主键不存在!请前往实体类使用[Identity]特性设置主键。");
+                throw new DapperExtensionException("主鍵不存在!請前往實體類使用 [Identity] 特性設置主鍵。");
 
             //设置参数
-            if (param != null)
-            {
-                param.Add(entityObject.Identitys, id);
-            }
+            if (param != null) param.Add(entityObject.Identitys, id);
             return $" AND {entityObject.Identitys}={ProviderOption.ParameterPrefix}{entityObject.Identitys} ";
         }
 
         /// <summary>
-        /// 自定义条件生成表达式
+        /// 自定義條件生成表達式。
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="dynamicTree"></param>
-        /// <returns></returns>
-        public virtual IEnumerable<LambdaExpression> FormatDynamicTreeWhereExpression<T>(Dictionary<string, DynamicTree> dynamicTree)
+        /// <typeparam name="T">實體類型。</typeparam>
+        /// <param name="dynamicTree">動態樹字典，包含用於構造查詢條件的資訊。</param>
+        /// <returns>包含構造好的 Lambda 表達式的集合。</returns>
+        public virtual IEnumerable<LambdaExpression> FormatDynamicTreeWhereExpression<T>(
+            Dictionary<string, DynamicTree> dynamicTree)
         {
             foreach (var key in dynamicTree.Keys)
             {
-                DynamicTree tree = dynamicTree[key];
+                var tree = dynamicTree[key];
                 if (tree != null && !string.IsNullOrEmpty(tree.Value))
                 {
-                    Type tableType = typeof(T);
-                    if (!string.IsNullOrEmpty(tree.Table))
-                    {
-                        tableType = EntityCache.QueryEntity(tree.Table).Type;
-                    }
-                    //如果不存在对应表就使用默认表
-                    ParameterExpression param = Expression.Parameter(tableType, "param");
+                    var tableType = typeof(T);
+                    if (!string.IsNullOrEmpty(tree.Table)) tableType = EntityCache.QueryEntity(tree.Table).Type;
+                    //如果不存在對應表就使用預設表
+                    var param = Expression.Parameter(tableType, "param");
                     object value = tree.Value;
                     if (value == null)
                     {
                         continue;
                     }
-                    else if (tree.ValueType == DbType.DateTime)
+
+                    if (tree.ValueType == DbType.DateTime)
                     {
                         value = Convert.ToDateTime(value);
                     }
                     else if (tree.ValueType == DbType.String)
                     {
                         value = Convert.ToString(value);
-                        if ("" == value.ToString())
-                        {
-                            continue;
-                        }
+                        if ("" == value.ToString()) continue;
                     }
                     else if (tree.ValueType == DbType.Int32)
                     {
-                        int number = Convert.ToInt32(value);
+                        var number = Convert.ToInt32(value);
                         value = number;
-                        if (0 == number)
-                        {
-                            continue;
-                        }
+                        if (0 == number) continue;
                     }
                     else if (tree.ValueType == DbType.Boolean)
                     {
-                        if (value.ToString() == "")
-                        {
-                            continue;
-                        }
+                        if (value.ToString() == "") continue;
                         value = Convert.ToBoolean(value);
                     }
+
                     Expression whereExpress = null;
                     switch (tree.Operators)
                     {
-                        case ExpressionType.Equal://等于
-                            whereExpress = Expression.Equal(Expression.Property(param, tree.Field), Expression.Constant(value));
+                        case ExpressionType.Equal: //等于
+                            whereExpress = Expression.Equal(Expression.Property(param, tree.Field),
+                                Expression.Constant(value));
                             break;
-                        case ExpressionType.GreaterThanOrEqual://大于等于
-                            whereExpress = Expression.GreaterThanOrEqual(Expression.Property(param, tree.Field), Expression.Constant(value));
+                        case ExpressionType.GreaterThanOrEqual: //大于等于
+                            whereExpress = Expression.GreaterThanOrEqual(Expression.Property(param, tree.Field),
+                                Expression.Constant(value));
                             break;
-                        case ExpressionType.LessThanOrEqual://小于等于
-                            whereExpress = Expression.LessThanOrEqual(Expression.Property(param, tree.Field), Expression.Constant(value));
+                        case ExpressionType.LessThanOrEqual: //小于等于
+                            whereExpress = Expression.LessThanOrEqual(Expression.Property(param, tree.Field),
+                                Expression.Constant(value));
                             break;
-                        case ExpressionType.Call://模糊查询
+                        case ExpressionType.Call: //模糊查询
                             var method = typeof(string).GetMethodss().FirstOrDefault(x => x.Name.Equals("Contains"));
-                            whereExpress = Expression.Call(Expression.Property(param, tree.Field), method, new Expression[] { Expression.Constant(value) });
+                            whereExpress = Expression.Call(Expression.Property(param, tree.Field), method,
+                                Expression.Constant(value));
                             break;
                         default:
-                            whereExpress = Expression.Equal(Expression.Property(param, tree.Field), Expression.Constant(value));
+                            whereExpress = Expression.Equal(Expression.Property(param, tree.Field),
+                                Expression.Constant(value));
                             break;
                     }
+
                     var lambdaExp = Expression.Lambda(TrimExpression.Trim(whereExpress), param);
                     //WhereExpressionList.Add();
                     yield return lambdaExp;

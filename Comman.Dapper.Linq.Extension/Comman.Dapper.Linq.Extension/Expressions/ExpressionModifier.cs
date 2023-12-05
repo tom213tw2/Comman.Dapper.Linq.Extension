@@ -1,21 +1,21 @@
 ﻿using System.Linq.Expressions;
 
-namespace Kogel.Dapper.Extension.Expressions
+namespace Comman.Dapper.Linq.Extension.Expressions
 {
     internal class ExpressionModifier : ExpressionVisitor
     {
+        private readonly Expression newExpression;
+        private readonly Expression oldExpression;
+
         public ExpressionModifier(Expression newExpression, Expression oldExpression)
         {
-            _newExpression = newExpression;
-            _oldExpression = oldExpression;
+            this.newExpression = newExpression;
+            this.oldExpression = oldExpression;
         }
-
-        private readonly Expression _newExpression;
-        private readonly Expression _oldExpression;
 
         public Expression Replace(Expression node)
         {
-            return Visit(node == _oldExpression ? _newExpression : node);
+            return Visit(node == oldExpression ? newExpression : node);
         }
 
         public static Expression Replace(Expression node, Expression oldExpression, Expression newExpression)
@@ -23,5 +23,4 @@ namespace Kogel.Dapper.Extension.Expressions
             return new ExpressionModifier(newExpression, oldExpression).Replace(node);
         }
     }
-
 }

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Data;
 
-namespace Kogel.Dapper.Extension
+namespace Comman.Dapper.Linq.Extension.Dapper
 {
     public partial class DynamicParameters
     {
@@ -13,16 +13,17 @@ namespace Kogel.Dapper.Extension
             public DbType? DbType { get; set; }
             public int? Size { get; set; }
             public IDbDataParameter AttachedParam { get; set; }
-            internal Action<object, DynamicParameters> OutputCallback { get; set; }
+            internal Action<object, Comman.Dapper.Linq.Extension.Dapper.DynamicParameters> OutputCallback { get; set; }
             internal object OutputTarget { get; set; }
             internal bool CameFromTemplate { get; set; }
 
             public byte? Precision { get; set; }
             public byte? Scale { get; set; }
+
             /// <summary>
-            /// 是否永存
+            ///     是否永存
             /// </summary>
-            public bool IsForever { get; set; } = false;
+            public bool IsForever { get; set; }
         }
     }
 }

@@ -1,12 +1,11 @@
-﻿using Kogel.Dapper.Extension.Core.SetC;
-using Kogel.Dapper.Extension.Core.SetQ;
-using Kogel.Dapper.Extension.Entites;
+﻿using Comman.Dapper.Linq.Extension.Core.Interfaces;
+using Comman.Dapper.Linq.Extension.Core.SetC;
 
-namespace Kogel.Dapper.Extension
+namespace Comman.Dapper.Linq.Extension.Entites
 {
     public class DataBaseContext<T> : AbstractDataBaseContext
     {
-        public QuerySet<T> QuerySet => (QuerySet<T>)Set;
+        public Comman.Dapper.Linq.Extension.Core.SetQ.QuerySet<T> QuerySet => (Comman.Dapper.Linq.Extension.Core.SetQ.QuerySet<T>)Set;
 
         public CommandSet<T> CommandSet => (CommandSet<T>)Set;
     }

@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using Kogel.Dapper.Extension.Entites;
+using Comman.Dapper.Linq.Extension.Entites;
+using Kogel.Dapper.Extension;
 
-namespace Kogel.Dapper.Extension.Core.Interfaces
+namespace Comman.Dapper.Linq.Extension.Core.Interfaces
 {
     public interface IQuery<T>
     {
@@ -15,7 +16,8 @@ namespace Kogel.Dapper.Extension.Core.Interfaces
 
         TReturn Get<TReturn>(Expression<Func<T, TReturn>> select);
 
-        TReturn Get<TReturn>(bool where, Expression<Func<T, TReturn>> trueSelect, Expression<Func<T, TReturn>> falseSelect);
+        TReturn Get<TReturn>(bool where, Expression<Func<T, TReturn>> trueSelect,
+            Expression<Func<T, TReturn>> falseSelect);
 
         Task<T> GetAsync();
 
@@ -23,7 +25,8 @@ namespace Kogel.Dapper.Extension.Core.Interfaces
 
         Task<TReturn> GetAsync<TReturn>(Expression<Func<T, TReturn>> select);
 
-        Task<TReturn> GetAsync<TReturn>(bool where, Expression<Func<T, TReturn>> trueSelect, Expression<Func<T, TReturn>> falseSelect);
+        Task<TReturn> GetAsync<TReturn>(bool where, Expression<Func<T, TReturn>> trueSelect,
+            Expression<Func<T, TReturn>> falseSelect);
 
         IEnumerable<T> ToIEnumerable();
 
@@ -31,7 +34,8 @@ namespace Kogel.Dapper.Extension.Core.Interfaces
 
         IEnumerable<TReturn> ToIEnumerable<TReturn>(Expression<Func<T, TReturn>> select);
 
-        IEnumerable<TReturn> ToIEnumerable<TReturn>(bool where, Expression<Func<T, TReturn>> trueSelect, Expression<Func<T, TReturn>> falseSelect);
+        IEnumerable<TReturn> ToIEnumerable<TReturn>(bool where, Expression<Func<T, TReturn>> trueSelect,
+            Expression<Func<T, TReturn>> falseSelect);
 
         Task<IEnumerable<T>> ToIEnumerableAsync();
 
@@ -39,7 +43,8 @@ namespace Kogel.Dapper.Extension.Core.Interfaces
 
         Task<IEnumerable<TReturn>> ToIEnumerableAsync<TReturn>(Expression<Func<T, TReturn>> select);
 
-        Task<IEnumerable<TReturn>> ToIEnumerableAsync<TReturn>(bool where, Expression<Func<T, TReturn>> trueSelect, Expression<Func<T, TReturn>> falseSelect);
+        Task<IEnumerable<TReturn>> ToIEnumerableAsync<TReturn>(bool where, Expression<Func<T, TReturn>> trueSelect,
+            Expression<Func<T, TReturn>> falseSelect);
 
         List<T> ToList();
 
@@ -47,7 +52,8 @@ namespace Kogel.Dapper.Extension.Core.Interfaces
 
         List<TReturn> ToList<TReturn>(Expression<Func<T, TReturn>> select);
 
-        List<TReturn> ToList<TReturn>(bool where, Expression<Func<T, TReturn>> trueSelect, Expression<Func<T, TReturn>> falseSelect);
+        List<TReturn> ToList<TReturn>(bool where, Expression<Func<T, TReturn>> trueSelect,
+            Expression<Func<T, TReturn>> falseSelect);
 
         Task<List<T>> ToListAsync();
 
@@ -55,7 +61,8 @@ namespace Kogel.Dapper.Extension.Core.Interfaces
 
         Task<List<TReturn>> ToListAsync<TReturn>(Expression<Func<T, TReturn>> select);
 
-        Task<List<TReturn>> ToListAsync<TReturn>(bool where, Expression<Func<T, TReturn>> trueSelect, Expression<Func<T, TReturn>> falseSelect);
+        Task<List<TReturn>> ToListAsync<TReturn>(bool where, Expression<Func<T, TReturn>> trueSelect,
+            Expression<Func<T, TReturn>> falseSelect);
 
         List<T> Page(int pageIndex, int pageSize);
 
@@ -63,7 +70,8 @@ namespace Kogel.Dapper.Extension.Core.Interfaces
 
         List<TReturn> Page<TReturn>(int pageIndex, int pageSize, Expression<Func<T, TReturn>> select);
 
-        List<TReturn> Page<TReturn>(int pageIndex, int pageSize, bool where, Expression<Func<T, TReturn>> trueSelect, Expression<Func<T, TReturn>> falseSelect);
+        List<TReturn> Page<TReturn>(int pageIndex, int pageSize, bool where, Expression<Func<T, TReturn>> trueSelect,
+            Expression<Func<T, TReturn>> falseSelect);
 
         Task<List<T>> PageAsync(int pageIndex, int pageSize);
 
@@ -71,7 +79,8 @@ namespace Kogel.Dapper.Extension.Core.Interfaces
 
         Task<List<TReturn>> PageAsync<TReturn>(int pageIndex, int pageSize, Expression<Func<T, TReturn>> select);
 
-        Task<List<TReturn>> PageAsync<TReturn>(int pageIndex, int pageSize, bool where, Expression<Func<T, TReturn>> trueSelect, Expression<Func<T, TReturn>> falseSelect);
+        Task<List<TReturn>> PageAsync<TReturn>(int pageIndex, int pageSize, bool where,
+            Expression<Func<T, TReturn>> trueSelect, Expression<Func<T, TReturn>> falseSelect);
 
         PageList<T> PageList(int pageIndex, int pageSize);
 
@@ -79,27 +88,32 @@ namespace Kogel.Dapper.Extension.Core.Interfaces
 
         PageList<TReturn> PageList<TReturn>(int pageIndex, int pageSize, Expression<Func<T, TReturn>> select);
 
-        PageList<TReturn> PageList<TReturn>(int pageIndex, int pageSize, bool where, Expression<Func<T, TReturn>> trueSelect, Expression<Func<T, TReturn>> falseSelect);
+        PageList<TReturn> PageList<TReturn>(int pageIndex, int pageSize, bool where,
+            Expression<Func<T, TReturn>> trueSelect, Expression<Func<T, TReturn>> falseSelect);
 
         Task<PageList<T>> PageListAsync(int pageIndex, int pageSize);
 
         Task<PageList<TSource>> PageListAsync<TSource>(int pageIndex, int pageSize);
 
-        Task<PageList<TReturn>> PageListAsync<TReturn>(int pageIndex, int pageSize, Expression<Func<T, TReturn>> select);
+        Task<PageList<TReturn>>
+            PageListAsync<TReturn>(int pageIndex, int pageSize, Expression<Func<T, TReturn>> select);
 
-        Task<PageList<TReturn>> PageListAsync<TReturn>(int pageIndex, int pageSize, bool where, Expression<Func<T, TReturn>> trueSelect, Expression<Func<T, TReturn>> falseSelect);
+        Task<PageList<TReturn>> PageListAsync<TReturn>(int pageIndex, int pageSize, bool where,
+            Expression<Func<T, TReturn>> trueSelect, Expression<Func<T, TReturn>> falseSelect);
 
         DataSet ToDataSet(IDbDataAdapter dataAdapter = null);
 
         DataSet ToDataSet<TReturn>(Expression<Func<T, TReturn>> select, IDbDataAdapter dataAdapter = null);
 
-        DataSet ToDataSet<TReturn>(bool where, Expression<Func<T, TReturn>> trueSelect, Expression<Func<T, TReturn>> falseSelect, IDbDataAdapter dataAdapter = null);
+        DataSet ToDataSet<TReturn>(bool where, Expression<Func<T, TReturn>> trueSelect,
+            Expression<Func<T, TReturn>> falseSelect, IDbDataAdapter dataAdapter = null);
 
         Task<DataSet> ToDataSetAsync(IDbDataAdapter dataAdapter = null);
 
         Task<DataSet> ToDataSetAsync<TReturn>(Expression<Func<T, TReturn>> select, IDbDataAdapter dataAdapter = null);
 
-        Task<DataSet> ToDataSetAsync<TReturn>(bool where, Expression<Func<T, TReturn>> trueSelect, Expression<Func<T, TReturn>> falseSelect, IDbDataAdapter dataAdapter = null);
+        Task<DataSet> ToDataSetAsync<TReturn>(bool where, Expression<Func<T, TReturn>> trueSelect,
+            Expression<Func<T, TReturn>> falseSelect, IDbDataAdapter dataAdapter = null);
     }
 
 

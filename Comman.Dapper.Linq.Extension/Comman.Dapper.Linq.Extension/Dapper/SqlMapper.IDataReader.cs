@@ -1,15 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Globalization;
 
-namespace Kogel.Dapper.Extension
+namespace Comman.Dapper.Linq.Extension.Dapper
 {
     public static partial class SqlMapper
     {
         /// <summary>
-        /// Parses a data reader to a sequence of data of the supplied type. Used for deserializing a reader without a connection, etc.
+        ///     Parses a data reader to a sequence of data of the supplied type. Used for deserializing a reader without a
+        ///     connection, etc.
         /// </summary>
-        /// <typeparam name="T">The type to parse from the <paramref name="reader"/>.</typeparam>
+        /// <typeparam name="T">The type to parse from the <paramref name="reader" />.</typeparam>
         /// <param name="reader">The data reader to parse results from.</param>
         public static IEnumerable<T> Parse<T>(this IDataReader reader)
         {
@@ -20,24 +22,21 @@ namespace Kogel.Dapper.Extension
                 var convertToType = Nullable.GetUnderlyingType(effectiveType) ?? effectiveType;
                 do
                 {
-                    object val = deser(reader);
+                    var val = deser(reader);
                     if (val == null || val is T)
-                    {
                         yield return (T)val;
-                    }
                     else
-                    {
-                        yield return (T)Convert.ChangeType(val, convertToType, System.Globalization.CultureInfo.InvariantCulture);
-                    }
+                        yield return (T)Convert.ChangeType(val, convertToType, CultureInfo.InvariantCulture);
                 } while (reader.Read());
             }
         }
 
         /// <summary>
-        /// Parses a data reader to a sequence of data of the supplied type (as object). Used for deserializing a reader without a connection, etc.
+        ///     Parses a data reader to a sequence of data of the supplied type (as object). Used for deserializing a reader
+        ///     without a connection, etc.
         /// </summary>
         /// <param name="reader">The data reader to parse results from.</param>
-        /// <param name="type">The type to parse from the <paramref name="reader"/>.</param>
+        /// <param name="type">The type to parse from the <paramref name="reader" />.</param>
         public static IEnumerable<object> Parse(this IDataReader reader, Type type)
         {
             if (reader.Read())
@@ -51,7 +50,7 @@ namespace Kogel.Dapper.Extension
         }
 
         /// <summary>
-        /// Parses a data reader to a sequence of dynamic. Used for deserializing a reader without a connection, etc.
+        ///     Parses a data reader to a sequence of dynamic. Used for deserializing a reader without a connection, etc.
         /// </summary>
         /// <param name="reader">The data reader to parse results from.</param>
         public static IEnumerable<dynamic> Parse(this IDataReader reader)
@@ -67,8 +66,9 @@ namespace Kogel.Dapper.Extension
         }
 
         /// <summary>
-        /// Gets the row parser for a specific row on a data reader. This allows for type switching every row based on, for example, a TypeId column.
-        /// You could return a collection of the base type but have each more specific.
+        ///     Gets the row parser for a specific row on a data reader. This allows for type switching every row based on, for
+        ///     example, a TypeId column.
+        ///     You could return a collection of the base type but have each more specific.
         /// </summary>
         /// <param name="reader">The data reader to get the parser for the current row from</param>
         /// <param name="type">The type to get the parser for</param>
@@ -83,8 +83,9 @@ namespace Kogel.Dapper.Extension
         }
 
         /// <summary>
-        /// Gets the row parser for a specific row on a data reader. This allows for type switching every row based on, for example, a TypeId column.
-        /// You could return a collection of the base type but have each more specific.
+        ///     Gets the row parser for a specific row on a data reader. This allows for type switching every row based on, for
+        ///     example, a TypeId column.
+        ///     You could return a collection of the base type but have each more specific.
         /// </summary>
         /// <typeparam name="T">The type of results to return.</typeparam>
         /// <param name="reader">The data reader to get the parser for the current row from.</param>
@@ -94,46 +95,45 @@ namespace Kogel.Dapper.Extension
         /// <param name="returnNullIfFirstMissing">Return null if we can't find the first column? (default: false).</param>
         /// <returns>A parser for this specific object from this row.</returns>
         /// <example>
-        /// var result = new List&lt;BaseType&gt;();
-        /// using (var reader = connection.ExecuteReader(@"
-        ///   select 'abc' as Name, 1 as Type, 3.0 as Value
-        ///   union all
-        ///   select 'def' as Name, 2 as Type, 4.0 as Value"))
-        /// {
+        ///     var result = new List&lt;BaseType&gt;();
+        ///     using (var reader = connection.ExecuteReader(@"
+        ///     select 'abc' as Name, 1 as Type, 3.0 as Value
+        ///     union all
+        ///     select 'def' as Name, 2 as Type, 4.0 as Value"))
+        ///     {
         ///     if (reader.Read())
         ///     {
-        ///         var toFoo = reader.GetRowParser&lt;BaseType&gt;(typeof(Foo));
-        ///         var toBar = reader.GetRowParser&lt;BaseType&gt;(typeof(Bar));
-        ///         var col = reader.GetOrdinal("Type");
-        ///         do
-        ///         {
-        ///             switch (reader.GetInt32(col))
-        ///             {
-        ///                 case 1:
-        ///                     result.Add(toFoo(reader));
-        ///                     break;
-        ///                 case 2:
-        ///                     result.Add(toBar(reader));
-        ///                     break;
-        ///             }
-        ///         } while (reader.Read());
+        ///     var toFoo = reader.GetRowParser&lt;BaseType&gt;(typeof(Foo));
+        ///     var toBar = reader.GetRowParser&lt;BaseType&gt;(typeof(Bar));
+        ///     var col = reader.GetOrdinal("Type");
+        ///     do
+        ///     {
+        ///     switch (reader.GetInt32(col))
+        ///     {
+        ///     case 1:
+        ///     result.Add(toFoo(reader));
+        ///     break;
+        ///     case 2:
+        ///     result.Add(toBar(reader));
+        ///     break;
         ///     }
-        /// }
-        ///  
-        /// abstract class BaseType
-        /// {
+        ///     } while (reader.Read());
+        ///     }
+        ///     }
+        ///     abstract class BaseType
+        ///     {
         ///     public abstract int Type { get; }
-        /// }
-        /// class Foo : BaseType
-        /// {
+        ///     }
+        ///     class Foo : BaseType
+        ///     {
         ///     public string Name { get; set; }
         ///     public override int Type =&gt; 1;
-        /// }
-        /// class Bar : BaseType
-        /// {
+        ///     }
+        ///     class Bar : BaseType
+        ///     {
         ///     public float Value { get; set; }
         ///     public override int Type =&gt; 2;
-        /// }
+        ///     }
         /// </example>
         public static Func<IDataReader, T> GetRowParser<T>(this IDataReader reader, Type concreteType = null,
             int startIndex = 0, int length = -1, bool returnNullIfFirstMissing = false)
@@ -141,13 +141,8 @@ namespace Kogel.Dapper.Extension
             concreteType = concreteType ?? typeof(T);
             var func = GetDeserializer(concreteType, reader, startIndex, length, returnNullIfFirstMissing);
             if (concreteType.IsValueType())
-            {
                 return _ => (T)func(_);
-            }
-            else
-            {
-                return (Func<IDataReader, T>)(Delegate)func;
-            }
+            return (Func<IDataReader, T>)(Delegate)func;
         }
     }
 }

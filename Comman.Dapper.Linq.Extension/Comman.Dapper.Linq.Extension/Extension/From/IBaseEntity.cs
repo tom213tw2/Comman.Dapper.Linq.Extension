@@ -1,40 +1,40 @@
-﻿using Kogel.Dapper.Extension.Attributes;
-using System;
+﻿using Comman.Dapper.Linq.Extension.Attributes;
 
-namespace Kogel.Dapper.Extension
+namespace Comman.Dapper.Linq.Extension.Extension.From
 {
 	/// <summary>
-	/// 父级实体类
+	///     父级实体类
 	/// </summary>
 	/// <typeparam name="TEntity"></typeparam>
 	/// <typeparam name="TKey"></typeparam>
 	public abstract class IBaseEntity<TEntity, TKey> : IBaseEntity
-	{
-		/// <summary>
-		/// 主键id
-		/// </summary>
-		[Identity]
-		public virtual TKey Id { get; set; }
-		/// <summary>
-		/// 获取主键值
-		/// </summary>
-		/// <returns></returns>
-		public object GetId()
-		{
-			return this.Id;
-		}
-	}
+    {
+	    /// <summary>
+	    ///     主键id
+	    /// </summary>
+	    [Identity]
+        public virtual TKey Id { get; set; }
 
-	public interface IBaseEntity
-	{
-		object GetId();
-	}
+	    /// <summary>
+	    ///     获取主键值
+	    /// </summary>
+	    /// <returns></returns>
+	    public object GetId()
+        {
+            return Id;
+        }
+    }
 
-	public class IBaseEntityDto : IBaseEntity
-	{
-		public object GetId()
-		{
-			return null;
-		}
-	}
+    public interface IBaseEntity
+    {
+        object GetId();
+    }
+
+    public class IBaseEntityDto : IBaseEntity
+    {
+        public object GetId()
+        {
+            return null;
+        }
+    }
 }

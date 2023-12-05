@@ -1,44 +1,51 @@
 ﻿using System;
 using System.Reflection;
+using Kogel.Dapper.Extension;
 
-namespace Kogel.Dapper.Extension
+namespace Comman.Dapper.Linq.Extension.Dapper
 {
     /// <summary>
-    /// Implements custom property mapping by user provided criteria (usually presence of some custom attribute with column to member mapping)
+    ///     Implements custom property mapping by user provided criteria (usually presence of some custom attribute with column
+    ///     to member mapping)
     /// </summary>
     public sealed class CustomPropertyTypeMap : SqlMapper.ITypeMap
     {
-        private readonly Type _type;
-        private readonly Func<Type, string, PropertyInfo> _propertySelector;
+        private readonly Func<Type, string, PropertyInfo> propertySelector;
+        private readonly Type type;
 
         /// <summary>
-        /// Creates custom property mapping
+        ///     Creates custom property mapping
         /// </summary>
         /// <param name="type">Target entity type</param>
         /// <param name="propertySelector">Property selector based on target type and DataReader column name</param>
         public CustomPropertyTypeMap(Type type, Func<Type, string, PropertyInfo> propertySelector)
         {
-            _type = type ?? throw new ArgumentNullException(nameof(type));
-            _propertySelector = propertySelector ?? throw new ArgumentNullException(nameof(propertySelector));
+            this.type = type ?? throw new ArgumentNullException(nameof(type));
+            this.propertySelector = propertySelector ?? throw new ArgumentNullException(nameof(propertySelector));
         }
 
         /// <summary>
-        /// Always returns default constructor
+        ///     Always returns default constructor
         /// </summary>
         /// <param name="names">DataReader column names</param>
         /// <param name="types">DataReader column types</param>
         /// <returns>Default constructor</returns>
-        public ConstructorInfo FindConstructor(string[] names, Type[] types) =>
-            _type.GetConstructor(new Type[0]);
+        public ConstructorInfo FindConstructor(string[] names, Type[] types)
+        {
+            return type.GetConstructor(new Type[0]);
+        }
 
         /// <summary>
-        /// Always returns null
+        ///     Always returns null
         /// </summary>
         /// <returns></returns>
-        public ConstructorInfo FindExplicitConstructor() => null;
+        public ConstructorInfo FindExplicitConstructor()
+        {
+            return null;
+        }
 
         /// <summary>
-        /// Not implemented as far as default constructor used for all cases
+        ///     Not implemented as far as default constructor used for all cases
         /// </summary>
         /// <param name="constructor"></param>
         /// <param name="columnName"></param>
@@ -49,13 +56,13 @@ namespace Kogel.Dapper.Extension
         }
 
         /// <summary>
-        /// Returns property based on selector strategy
+        ///     Returns property based on selector strategy
         /// </summary>
         /// <param name="columnName">DataReader column name</param>
         /// <returns>Poperty member map</returns>
         public SqlMapper.IMemberMap GetMember(string columnName)
         {
-            var prop = _propertySelector(_type, columnName);
+            var prop = propertySelector(type, columnName);
             return prop != null ? new SimpleMemberMap(columnName, prop) : null;
         }
     }

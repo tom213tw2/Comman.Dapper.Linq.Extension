@@ -1,12 +1,18 @@
 ﻿using System;
 using System.Data;
 
-namespace Kogel.Dapper.Extension
+namespace Comman.Dapper.Linq.Extension.Dapper
 {
     internal class WrappedReader : IWrappedDataReader
     {
-        private IDataReader reader;
         private IDbCommand cmd;
+        private IDataReader reader;
+
+        public WrappedReader(IDbCommand cmd, IDataReader reader)
+        {
+            this.cmd = cmd;
+            this.reader = reader;
+        }
 
         public IDataReader Reader
         {
@@ -28,23 +34,29 @@ namespace Kogel.Dapper.Extension
             }
         }
 
-        public WrappedReader(IDbCommand cmd, IDataReader reader)
+        void IDataReader.Close()
         {
-            this.cmd = cmd;
-            this.reader = reader;
+            reader?.Close();
         }
-
-        void IDataReader.Close() => reader?.Close();
 
         int IDataReader.Depth => Reader.Depth;
 
-        DataTable IDataReader.GetSchemaTable() => Reader.GetSchemaTable();
+        DataTable IDataReader.GetSchemaTable()
+        {
+            return Reader.GetSchemaTable();
+        }
 
         bool IDataReader.IsClosed => reader?.IsClosed ?? true;
 
-        bool IDataReader.NextResult() => Reader.NextResult();
+        bool IDataReader.NextResult()
+        {
+            return Reader.NextResult();
+        }
 
-        bool IDataReader.Read() => Reader.Read();
+        bool IDataReader.Read()
+        {
+            return Reader.Read();
+        }
 
         int IDataReader.RecordsAffected => Reader.RecordsAffected;
 
@@ -59,51 +71,115 @@ namespace Kogel.Dapper.Extension
 
         int IDataRecord.FieldCount => Reader.FieldCount;
 
-        bool IDataRecord.GetBoolean(int i) => Reader.GetBoolean(i);
+        bool IDataRecord.GetBoolean(int i)
+        {
+            return Reader.GetBoolean(i);
+        }
 
-        byte IDataRecord.GetByte(int i) => Reader.GetByte(i);
+        byte IDataRecord.GetByte(int i)
+        {
+            return Reader.GetByte(i);
+        }
 
-        long IDataRecord.GetBytes(int i, long fieldOffset, byte[] buffer, int bufferoffset, int length) =>
-            Reader.GetBytes(i, fieldOffset, buffer, bufferoffset, length);
+        long IDataRecord.GetBytes(int i, long fieldOffset, byte[] buffer, int bufferoffset, int length)
+        {
+            return Reader.GetBytes(i, fieldOffset, buffer, bufferoffset, length);
+        }
 
-        char IDataRecord.GetChar(int i) => Reader.GetChar(i);
+        char IDataRecord.GetChar(int i)
+        {
+            return Reader.GetChar(i);
+        }
 
-        long IDataRecord.GetChars(int i, long fieldoffset, char[] buffer, int bufferoffset, int length) =>
-            Reader.GetChars(i, fieldoffset, buffer, bufferoffset, length);
+        long IDataRecord.GetChars(int i, long fieldoffset, char[] buffer, int bufferoffset, int length)
+        {
+            return Reader.GetChars(i, fieldoffset, buffer, bufferoffset, length);
+        }
 
-        IDataReader IDataRecord.GetData(int i) => Reader.GetData(i);
+        IDataReader IDataRecord.GetData(int i)
+        {
+            return Reader.GetData(i);
+        }
 
-        string IDataRecord.GetDataTypeName(int i) => Reader.GetDataTypeName(i);
+        string IDataRecord.GetDataTypeName(int i)
+        {
+            return Reader.GetDataTypeName(i);
+        }
 
-        DateTime IDataRecord.GetDateTime(int i) => Reader.GetDateTime(i);
+        DateTime IDataRecord.GetDateTime(int i)
+        {
+            return Reader.GetDateTime(i);
+        }
 
-        decimal IDataRecord.GetDecimal(int i) => Reader.GetDecimal(i);
+        decimal IDataRecord.GetDecimal(int i)
+        {
+            return Reader.GetDecimal(i);
+        }
 
-        double IDataRecord.GetDouble(int i) => Reader.GetDouble(i);
+        double IDataRecord.GetDouble(int i)
+        {
+            return Reader.GetDouble(i);
+        }
 
-        Type IDataRecord.GetFieldType(int i) => Reader.GetFieldType(i);
+        Type IDataRecord.GetFieldType(int i)
+        {
+            return Reader.GetFieldType(i);
+        }
 
-        float IDataRecord.GetFloat(int i) => Reader.GetFloat(i);
+        float IDataRecord.GetFloat(int i)
+        {
+            return Reader.GetFloat(i);
+        }
 
-        Guid IDataRecord.GetGuid(int i) => Reader.GetGuid(i);
+        Guid IDataRecord.GetGuid(int i)
+        {
+            return Reader.GetGuid(i);
+        }
 
-        short IDataRecord.GetInt16(int i) => Reader.GetInt16(i);
+        short IDataRecord.GetInt16(int i)
+        {
+            return Reader.GetInt16(i);
+        }
 
-        int IDataRecord.GetInt32(int i) => Reader.GetInt32(i);
+        int IDataRecord.GetInt32(int i)
+        {
+            return Reader.GetInt32(i);
+        }
 
-        long IDataRecord.GetInt64(int i) => Reader.GetInt64(i);
+        long IDataRecord.GetInt64(int i)
+        {
+            return Reader.GetInt64(i);
+        }
 
-        string IDataRecord.GetName(int i) => Reader.GetName(i);
+        string IDataRecord.GetName(int i)
+        {
+            return Reader.GetName(i);
+        }
 
-        int IDataRecord.GetOrdinal(string name) => Reader.GetOrdinal(name);
+        int IDataRecord.GetOrdinal(string name)
+        {
+            return Reader.GetOrdinal(name);
+        }
 
-        string IDataRecord.GetString(int i) => Reader.GetString(i);
+        string IDataRecord.GetString(int i)
+        {
+            return Reader.GetString(i);
+        }
 
-        object IDataRecord.GetValue(int i) => Reader.GetValue(i);
+        object IDataRecord.GetValue(int i)
+        {
+            return Reader.GetValue(i);
+        }
 
-        int IDataRecord.GetValues(object[] values) => Reader.GetValues(values);
+        int IDataRecord.GetValues(object[] values)
+        {
+            return Reader.GetValues(values);
+        }
 
-        bool IDataRecord.IsDBNull(int i) => Reader.IsDBNull(i);
+        bool IDataRecord.IsDBNull(int i)
+        {
+            return Reader.IsDBNull(i);
+        }
 
         object IDataRecord.this[string name] => Reader[name];
 

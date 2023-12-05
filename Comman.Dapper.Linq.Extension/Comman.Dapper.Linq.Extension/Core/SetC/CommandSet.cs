@@ -3,20 +3,19 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq.Expressions;
 using System.Text;
-using Kogel.Dapper.Extension;
-using Kogel.Dapper.Extension.Core.Interfaces;
-using Kogel.Dapper.Extension.Helper;
-using Kogel.Dapper.Extension.Entites;
+using Comman.Dapper.Linq.Extension.Core.Interfaces;
+using Comman.Dapper.Linq.Extension.Entites;
+using DynamicParameters = Comman.Dapper.Linq.Extension.Dapper.DynamicParameters;
 
-namespace Kogel.Dapper.Extension.Core.SetC
+namespace Comman.Dapper.Linq.Extension.Core.SetC
 {
-    /// <summary>
-    /// 指令集
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    public class CommandSet<T> : Command<T>, ICommandSet<T>
+	/// <summary>
+	///     指令集
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	public abstract class CommandSet<T> : Command<T>, ICommandSet<T>
     {
-        public CommandSet(IDbConnection conn, SqlProvider sqlProvider) : base(conn, sqlProvider)
+        protected CommandSet(IDbConnection conn, SqlProvider sqlProvider) : base(conn, sqlProvider)
         {
             TableType = typeof(T);
             SetContext = new DataBaseContext<T>
@@ -30,9 +29,10 @@ namespace Kogel.Dapper.Extension.Core.SetC
             WhereExpressionList = new List<LambdaExpression>();
             WhereBuilder = new StringBuilder();
             Params = new DynamicParameters();
-		}
+        }
 
-        public CommandSet(IDbConnection conn, SqlProvider sqlProvider, IDbTransaction dbTransaction) : base(conn, sqlProvider, dbTransaction)
+        protected CommandSet(IDbConnection conn, SqlProvider sqlProvider, IDbTransaction dbTransaction) : base(conn,
+            sqlProvider, dbTransaction)
         {
             TableType = typeof(T);
             SetContext = new DataBaseContext<T>
@@ -46,9 +46,10 @@ namespace Kogel.Dapper.Extension.Core.SetC
             WhereExpressionList = new List<LambdaExpression>();
             WhereBuilder = new StringBuilder();
             Params = new DynamicParameters();
-		}
+        }
 
-        internal CommandSet(IDbConnection conn, SqlProvider sqlProvider, Type tableType, LambdaExpression whereExpression) : base(conn, sqlProvider)
+        internal CommandSet(IDbConnection conn, SqlProvider sqlProvider, Type tableType,
+            LambdaExpression whereExpression) : base(conn, sqlProvider)
         {
             TableType = tableType;
             //WhereExpression = whereExpression;
@@ -60,8 +61,7 @@ namespace Kogel.Dapper.Extension.Core.SetC
 
             sqlProvider.Context = SetContext;
             sqlProvider.IsAppendAsName = false;
-            WhereExpressionList = new List<LambdaExpression>();
-            WhereExpressionList.Add(whereExpression);
+            WhereExpressionList = new List<LambdaExpression> { whereExpression };
             WhereBuilder = new StringBuilder();
             Params = new DynamicParameters();
         }
@@ -71,45 +71,41 @@ namespace Kogel.Dapper.Extension.Core.SetC
             SqlProvider.AsTableNameDic.Add(type, tableName);
             return this;
         }
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="predicate"></param>
-		/// <returns></returns>
+
+        /// <summary>
+        /// </summary>
+        /// <param name="predicate"></param>
+        /// <returns></returns>
         public ICommandSet<T> Where(Expression<Func<T, bool>> predicate)
         {
             WhereExpressionList.Add(predicate);
             return this;
         }
-		/// <summary>
-		/// 使用sql查询条件
-		/// </summary>
-		/// <param name="sqlWhere"></param>
-		/// <param name="param"></param>
-		/// <returns></returns>
-		public ICommandSet<T> Where(string sqlWhere, object param = null)
-		{
-			WhereBuilder.Append(" AND " + sqlWhere);
-			if (param != null)
-			{
-				Params.AddDynamicParams(param);
-			}
-			return this;
-		}
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="where"></param>
-		/// <param name="truePredicate"></param>
-		/// <param name="falsePredicate"></param>
-		/// <returns></returns>
-		public ICommandSet<T> WhereIf(bool where, Expression<Func<T, bool>> truePredicate, Expression<Func<T, bool>> falsePredicate)
-		{
-			if (where)
-				WhereExpressionList.Add(truePredicate);
-			else
-				WhereExpressionList.Add(falsePredicate);
-			return this;
-		}
-	}
+
+        /// <summary>
+        ///     使用sql查询条件
+        /// </summary>
+        /// <param name="sqlWhere"></param>
+        /// <param name="param"></param>
+        /// <returns></returns>
+        public ICommandSet<T> Where(string sqlWhere, object param = null)
+        {
+            WhereBuilder.Append(" AND " + sqlWhere);
+            if (param != null) Params.AddDynamicParams(param);
+            return this;
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="where"></param>
+        /// <param name="truePredicate"></param>
+        /// <param name="falsePredicate"></param>
+        /// <returns></returns>
+        public ICommandSet<T> WhereIf(bool where, Expression<Func<T, bool>> truePredicate,
+            Expression<Func<T, bool>> falsePredicate)
+        {
+            WhereExpressionList.Add(where ? truePredicate : falsePredicate);
+            return this;
+        }
+    }
 }

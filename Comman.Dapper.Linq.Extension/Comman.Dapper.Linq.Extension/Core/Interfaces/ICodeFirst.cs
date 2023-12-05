@@ -1,37 +1,38 @@
 ﻿using System.Data;
-using Kogel.Dapper.Extension.Entites;
+using Comman.Dapper.Linq.Extension.Entites;
 
-namespace Kogel.Dapper.Extension.Core.Interfaces
+namespace Comman.Dapper.Linq.Extension.Core.Interfaces
 {
-	/// <summary>
-	/// 同步实体到数据库
-	/// </summary>
-	public interface ICodeFirst
-	{
-		/// <summary>
-		/// 同步字段(生成sql)
-		/// </summary>
-		/// <param name="typeEntity"></param>
-		/// <param name="field"></param>
-		string SyncField(EntityObject typeEntity, EntityField field);
+    /// <summary>
+    /// 同步實體到數據庫。
+    /// </summary>
+    public interface ICodeFirst
+    {
+        /// <summary>
+        /// 同步字段（生成 SQL）。
+        /// </summary>
+        /// <param name="typeEntity">實體對象。</param>
+        /// <param name="field">實體字段。</param>
+        /// <returns>生成的 SQL 字串。</returns>
+        string SyncField(EntityObject typeEntity, EntityField field);
 
-		/// <summary>
-		/// 同步单个表结构
-		/// </summary>
-		/// <param name="typeEntity"></param>
-		void SyncTable(EntityObject typeEntity);
+        /// <summary>
+        /// 同步單個表結構。
+        /// </summary>
+        /// <param name="typeEntity">實體對象。</param>
+        void SyncTable(EntityObject typeEntity);
 
-		/// <summary>
-		/// 同步整体实体结构
-		/// </summary>
-		void SyncStructure();
+        /// <summary>
+        /// 同步整體實體結構。
+        /// </summary>
+        void SyncStructure();
 
-		/// <summary>
-		/// 转换字段类型
-		/// </summary>
-		/// <param name="sqlDbType">字段类型</param>
-		/// <param name="length">长度</param>
-		/// <returns></returns>
-		string ConversionFieldType(SqlDbType sqlDbType, int length);
-	}
+        /// <summary>
+        /// 轉換字段類型。
+        /// </summary>
+        /// <param name="sqlDbType">SQL 字段類型。</param>
+        /// <param name="length">字段長度。</param>
+        /// <returns>轉換後的字段類型。</returns>
+        string ConversionFieldType(SqlDbType sqlDbType, int length);
+    }
 }

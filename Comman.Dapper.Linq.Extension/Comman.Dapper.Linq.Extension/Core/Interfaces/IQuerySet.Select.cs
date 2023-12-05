@@ -1,20 +1,20 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Kogel.Dapper.Extension.Core.Interfaces
+namespace Comman.Dapper.Linq.Extension.Core.Interfaces
 {
+    /// <summary>
+    /// 定義一個查詢集合接口，用於實現從 T 到 TReturn 的查詢。
+    /// </summary>
+    /// <typeparam name="T">源類型。</typeparam>
+    /// <typeparam name="TReturn">返回類型。</typeparam>
     public interface IQuerySet<T, TReturn> : IQuerySet<T>
     {
         /// <summary>
-        /// 
+        /// 定義一個選擇操作，用於將 T 轉換為 TReturn。
         /// </summary>
-        /// <typeparam name="TReturn"></typeparam>
-        /// <param name="select"></param>
-        /// <returns></returns>
+        /// <param name="select">選擇表達式，描述如何從 T 轉換為 TReturn。</param>
+        /// <returns>返回一個 IQuery 實例，它包含從 T 到 TReturn 的轉換邏輯。</returns>
         IQuery<T, TReturn> Select(Expression<Func<T, TReturn>> select);
     }
 }

@@ -1,38 +1,38 @@
-﻿using Kogel.Dapper.Extension.Core.SetQ;
-using Kogel.Dapper.Extension.Expressions;
-using System;
-using System.Linq.Expressions;
-using System.Linq;
-using Kogel.Dapper.Extension.Entites;
-using System.Text.RegularExpressions;
+﻿using System;
 using System.Collections.Generic;
-using Kogel.Dapper.Extension;
 using System.Data;
+using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
-using Kogel.Dapper.Extension.Core.Interfaces;
+using Comman.Dapper.Linq.Extension.Dapper;
+using Comman.Dapper.Linq.Extension.Entites;
 
-namespace Kogel.Dapper.Extension.Extension.From
+namespace Comman.Dapper.Linq.Extension.Extension.From
 {
     /// <summary>
-    /// 多表索引扩展
+    ///     多表索引扩展
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public class ISelect<T>
     {
-        protected QuerySet<T> QuerySet { get; }
-        public ISelect(QuerySet<T> querySet)
+        public ISelect(Comman.Dapper.Linq.Extension.Core.SetQ.QuerySet<T> querySet)
         {
-            this.QuerySet = querySet;
+            QuerySet = querySet;
         }
-        public IQuerySet<T> GetQuerySet()
+
+        protected Comman.Dapper.Linq.Extension.Core.SetQ.QuerySet<T> QuerySet { get; }
+
+        public Comman.Dapper.Linq.Extension.Core.Interfaces.IQuerySet<T> GetQuerySet()
         {
             return QuerySet;
         }
-        public QuerySet<T> Where(LambdaExpression exp)
+
+        public Comman.Dapper.Linq.Extension.Core.SetQ.QuerySet<T> Where(LambdaExpression exp)
         {
             QuerySet.WhereExpressionList.Add(exp);
             return QuerySet;
         }
+
         public ISelect<T> OrderBy<TProperty>(Expression<Func<TProperty, object>> field)
         {
             if (field != null)
@@ -115,7 +115,8 @@ namespace Kogel.Dapper.Extension.Extension.From
             QuerySet.SqlProvider.Context.Set.SelectExpression = exp;
             //查询总行数
             QuerySet.SqlProvider.FormatCount();
-            var pageTotal = QuerySet.DbCon.QuerySingle<int>(QuerySet.SqlProvider.SqlString, QuerySet.SqlProvider.Params);
+            var pageTotal =
+                QuerySet.DbCon.QuerySingle<int>(QuerySet.SqlProvider.SqlString, QuerySet.SqlProvider.Params);
             //查询数据
             List<TReturn> itemList;
             QuerySet.SqlProvider.Clear();
@@ -128,6 +129,7 @@ namespace Kogel.Dapper.Extension.Extension.From
             {
                 itemList = new List<TReturn>();
             }
+
             return new PageList<TReturn>(pageIndex, pageSize, pageTotal, itemList);
         }
 
@@ -136,7 +138,8 @@ namespace Kogel.Dapper.Extension.Extension.From
             QuerySet.SqlProvider.Context.Set.SelectExpression = exp;
             //查询总行数
             QuerySet.SqlProvider.FormatCount();
-            var pageTotal = await QuerySet.DbCon.QuerySingleAsync<int>(QuerySet.SqlProvider.SqlString, QuerySet.SqlProvider.Params);
+            var pageTotal =
+                await QuerySet.DbCon.QuerySingleAsync<int>(QuerySet.SqlProvider.SqlString, QuerySet.SqlProvider.Params);
             //查询数据
             List<TReturn> itemList;
             QuerySet.SqlProvider.Clear();
@@ -149,15 +152,15 @@ namespace Kogel.Dapper.Extension.Extension.From
             {
                 itemList = new List<TReturn>();
             }
+
             return new PageList<TReturn>(pageIndex, pageSize, pageTotal, itemList);
         }
-
     }
+
     public class ISelectFrom<T, T1, T2> : ISelect<T>
     {
-        public ISelectFrom(QuerySet<T> querySet) : base(querySet)
+        public ISelectFrom(Comman.Dapper.Linq.Extension.Core.SetQ.QuerySet<T> querySet) : base(querySet)
         {
-
         }
 
         public ISelectFrom<T, T1, T2> Where(Expression<Func<T1, T2, bool>> exp)
@@ -166,7 +169,8 @@ namespace Kogel.Dapper.Extension.Extension.From
             return this;
         }
 
-        public ISelectFrom<T, T1, T2> WhereIf(bool where, Expression<Func<T1, T2, bool>> trueExp, Expression<Func<T1, T2, bool>> falseExp)
+        public ISelectFrom<T, T1, T2> WhereIf(bool where, Expression<Func<T1, T2, bool>> trueExp,
+            Expression<Func<T1, T2, bool>> falseExp)
         {
             if (where)
                 base.Where(trueExp);
@@ -175,7 +179,8 @@ namespace Kogel.Dapper.Extension.Extension.From
             return this;
         }
 
-        public ISelectFrom<T, T1, T2> Where(bool where, Expression<Func<T1, T2, bool>> trueExp, Expression<Func<T1, T2, bool>> falseExp)
+        public ISelectFrom<T, T1, T2> Where(bool where, Expression<Func<T1, T2, bool>> trueExp,
+            Expression<Func<T1, T2, bool>> falseExp)
         {
             if (where)
                 base.Where(trueExp);
@@ -189,12 +194,12 @@ namespace Kogel.Dapper.Extension.Extension.From
             return base.Get<TReturn>(select);
         }
 
-        public TReturn Get<TReturn>(bool where, Expression<Func<T1, T2, TReturn>> trueSelect, Expression<Func<T1, T2, TReturn>> falseSelect)
+        public TReturn Get<TReturn>(bool where, Expression<Func<T1, T2, TReturn>> trueSelect,
+            Expression<Func<T1, T2, TReturn>> falseSelect)
         {
             if (where)
                 return base.Get<TReturn>(trueSelect);
-            else
-                return base.Get<TReturn>(falseSelect);
+            return base.Get<TReturn>(falseSelect);
         }
 
         public Task<TReturn> GetAsync<TReturn>(Expression<Func<T1, T2, TReturn>> select)
@@ -202,12 +207,12 @@ namespace Kogel.Dapper.Extension.Extension.From
             return base.GetAsync<TReturn>(select);
         }
 
-        public Task<TReturn> GetAsync<TReturn>(bool where, Expression<Func<T1, T2, TReturn>> trueSelect, Expression<Func<T1, T2, TReturn>> falseSelect)
+        public Task<TReturn> GetAsync<TReturn>(bool where, Expression<Func<T1, T2, TReturn>> trueSelect,
+            Expression<Func<T1, T2, TReturn>> falseSelect)
         {
             if (where)
                 return base.GetAsync<TReturn>(trueSelect);
-            else
-                return base.GetAsync<TReturn>(falseSelect);
+            return base.GetAsync<TReturn>(falseSelect);
         }
 
         public List<TReturn> ToList<TReturn>(Expression<Func<T1, T2, TReturn>> select)
@@ -215,12 +220,12 @@ namespace Kogel.Dapper.Extension.Extension.From
             return base.ToList<TReturn>(select).ToList();
         }
 
-        public List<TReturn> ToList<TReturn>(bool where, Expression<Func<T1, T2, TReturn>> trueSelect, Expression<Func<T1, T2, TReturn>> falseSelect)
+        public List<TReturn> ToList<TReturn>(bool where, Expression<Func<T1, T2, TReturn>> trueSelect,
+            Expression<Func<T1, T2, TReturn>> falseSelect)
         {
             if (where)
                 return base.ToList<TReturn>(trueSelect).ToList();
-            else
-                return base.ToList<TReturn>(falseSelect).ToList();
+            return base.ToList<TReturn>(falseSelect).ToList();
         }
 
         public async Task<List<TReturn>> ToListAsync<TReturn>(Expression<Func<T1, T2, TReturn>> select)
@@ -228,12 +233,12 @@ namespace Kogel.Dapper.Extension.Extension.From
             return (await base.ToListAsync<TReturn>(select)).ToList();
         }
 
-        public async Task<List<TReturn>> ToListAsync<TReturn>(bool where, Expression<Func<T1, T2, TReturn>> trueSelect, Expression<Func<T1, T2, TReturn>> falseSelect)
+        public async Task<List<TReturn>> ToListAsync<TReturn>(bool where, Expression<Func<T1, T2, TReturn>> trueSelect,
+            Expression<Func<T1, T2, TReturn>> falseSelect)
         {
             if (where)
                 return (await base.ToListAsync<TReturn>(trueSelect)).ToList();
-            else
-                return (await base.ToListAsync<TReturn>(falseSelect)).ToList();
+            return (await base.ToListAsync<TReturn>(falseSelect)).ToList();
         }
 
         public DataSet ToDataSet<TReturn>(Expression<Func<T1, T2, TReturn>> select, IDbDataAdapter dataAdapter = null)
@@ -241,25 +246,26 @@ namespace Kogel.Dapper.Extension.Extension.From
             return base.ToDataSet<TReturn>(select, dataAdapter);
         }
 
-        public DataSet ToDataSet<TReturn>(bool where, Expression<Func<T1, T2, TReturn>> trueSelect, Expression<Func<T1, T2, TReturn>> falseSelect, IDbDataAdapter dataAdapter = null)
+        public DataSet ToDataSet<TReturn>(bool where, Expression<Func<T1, T2, TReturn>> trueSelect,
+            Expression<Func<T1, T2, TReturn>> falseSelect, IDbDataAdapter dataAdapter = null)
         {
             if (where)
                 return base.ToDataSet<TReturn>(trueSelect, dataAdapter);
-            else
-                return base.ToDataSet<TReturn>(falseSelect, dataAdapter);
+            return base.ToDataSet<TReturn>(falseSelect, dataAdapter);
         }
 
-        public Task<DataSet> ToDataSetAsync<TReturn>(Expression<Func<T1, T2, TReturn>> select, IDbDataAdapter dataAdapter = null)
+        public Task<DataSet> ToDataSetAsync<TReturn>(Expression<Func<T1, T2, TReturn>> select,
+            IDbDataAdapter dataAdapter = null)
         {
             return base.ToDataSetAsync<TReturn>(select, dataAdapter);
         }
 
-        public Task<DataSet> ToDataSetAsync<TReturn>(bool where, Expression<Func<T1, T2, TReturn>> trueSelect, Expression<Func<T1, T2, TReturn>> falseSelect, IDbDataAdapter dataAdapter = null)
+        public Task<DataSet> ToDataSetAsync<TReturn>(bool where, Expression<Func<T1, T2, TReturn>> trueSelect,
+            Expression<Func<T1, T2, TReturn>> falseSelect, IDbDataAdapter dataAdapter = null)
         {
             if (where)
                 return base.ToDataSetAsync<TReturn>(trueSelect, dataAdapter);
-            else
-                return base.ToDataSetAsync<TReturn>(falseSelect, dataAdapter);
+            return base.ToDataSetAsync<TReturn>(falseSelect, dataAdapter);
         }
 
         public new ISelectFrom<T, T1, T2> OrderBy<TProperty>(Expression<Func<TProperty, object>> field)
@@ -285,58 +291,61 @@ namespace Kogel.Dapper.Extension.Extension.From
             return base.Page<TReturn>(pageIndex, pageSize, select);
         }
 
-        public List<TReturn> Page<TReturn>(int pageIndex, int pageSize, bool where, Expression<Func<T1, T2, TReturn>> trueSelect, Expression<Func<T1, T2, TReturn>> falseSelect)
+        public List<TReturn> Page<TReturn>(int pageIndex, int pageSize, bool where,
+            Expression<Func<T1, T2, TReturn>> trueSelect, Expression<Func<T1, T2, TReturn>> falseSelect)
         {
             if (where)
                 return base.Page<TReturn>(pageIndex, pageSize, trueSelect);
-            else
-                return base.Page<TReturn>(pageIndex, pageSize, falseSelect);
+            return base.Page<TReturn>(pageIndex, pageSize, falseSelect);
         }
 
-        public Task<List<TReturn>> PageAsync<TReturn>(int pageIndex, int pageSize, Expression<Func<T1, T2, TReturn>> select)
+        public Task<List<TReturn>> PageAsync<TReturn>(int pageIndex, int pageSize,
+            Expression<Func<T1, T2, TReturn>> select)
         {
             return base.PageAsync<TReturn>(pageIndex, pageSize, select);
         }
 
-        public Task<List<TReturn>> PageAsync<TReturn>(int pageIndex, int pageSize, bool where, Expression<Func<T1, T2, TReturn>> trueSelect, Expression<Func<T1, T2, TReturn>> falseSelect)
+        public Task<List<TReturn>> PageAsync<TReturn>(int pageIndex, int pageSize, bool where,
+            Expression<Func<T1, T2, TReturn>> trueSelect, Expression<Func<T1, T2, TReturn>> falseSelect)
         {
             if (where)
                 return base.PageAsync<TReturn>(pageIndex, pageSize, trueSelect);
-            else
-                return base.PageAsync<TReturn>(pageIndex, pageSize, falseSelect);
+            return base.PageAsync<TReturn>(pageIndex, pageSize, falseSelect);
         }
 
-        public PageList<TReturn> PageList<TReturn>(int pageIndex, int pageSize, Expression<Func<T1, T2, TReturn>> select)
+        public PageList<TReturn> PageList<TReturn>(int pageIndex, int pageSize,
+            Expression<Func<T1, T2, TReturn>> select)
         {
             return base.PageList<TReturn>(pageIndex, pageSize, select);
         }
 
-        public PageList<TReturn> PageList<TReturn>(int pageIndex, int pageSize, bool where, Expression<Func<T1, T2, TReturn>> trueSelect, Expression<Func<T1, T2, TReturn>> falseSelect)
+        public PageList<TReturn> PageList<TReturn>(int pageIndex, int pageSize, bool where,
+            Expression<Func<T1, T2, TReturn>> trueSelect, Expression<Func<T1, T2, TReturn>> falseSelect)
         {
             if (where)
                 return base.PageList<TReturn>(pageIndex, pageSize, trueSelect);
-            else
-                return base.PageList<TReturn>(pageIndex, pageSize, falseSelect);
+            return base.PageList<TReturn>(pageIndex, pageSize, falseSelect);
         }
 
-        public Task<PageList<TReturn>> PageListAsync<TReturn>(int pageIndex, int pageSize, Expression<Func<T1, T2, TReturn>> select)
+        public Task<PageList<TReturn>> PageListAsync<TReturn>(int pageIndex, int pageSize,
+            Expression<Func<T1, T2, TReturn>> select)
         {
             return base.PageListAsync<TReturn>(pageIndex, pageSize, select);
         }
 
-        public Task<PageList<TReturn>> PageListAsync<TReturn>(int pageIndex, int pageSize, bool where, Expression<Func<T1, T2, TReturn>> trueSelect, Expression<Func<T1, T2, TReturn>> falseSelect)
+        public Task<PageList<TReturn>> PageListAsync<TReturn>(int pageIndex, int pageSize, bool where,
+            Expression<Func<T1, T2, TReturn>> trueSelect, Expression<Func<T1, T2, TReturn>> falseSelect)
         {
             if (where)
                 return base.PageListAsync<TReturn>(pageIndex, pageSize, trueSelect);
-            else
-                return base.PageListAsync<TReturn>(pageIndex, pageSize, falseSelect);
+            return base.PageListAsync<TReturn>(pageIndex, pageSize, falseSelect);
         }
     }
+
     public class ISelectFrom<T, T1, T2, T3> : ISelect<T>
     {
-        public ISelectFrom(QuerySet<T> querySet) : base(querySet)
+        public ISelectFrom(Comman.Dapper.Linq.Extension.Core.SetQ.QuerySet<T> querySet) : base(querySet)
         {
-
         }
 
         public ISelectFrom<T, T1, T2, T3> Where(Expression<Func<T1, T2, T3, bool>> exp)
@@ -345,7 +354,8 @@ namespace Kogel.Dapper.Extension.Extension.From
             return this;
         }
 
-        public ISelectFrom<T, T1, T2, T3> WhereIf(bool where, Expression<Func<T1, T2, T3, bool>> trueExp, Expression<Func<T1, T2, T3, bool>> falseExp)
+        public ISelectFrom<T, T1, T2, T3> WhereIf(bool where, Expression<Func<T1, T2, T3, bool>> trueExp,
+            Expression<Func<T1, T2, T3, bool>> falseExp)
         {
             if (where)
                 base.Where(trueExp);
@@ -359,12 +369,12 @@ namespace Kogel.Dapper.Extension.Extension.From
             return base.Get<TReturn>(select);
         }
 
-        public TReturn Get<TReturn>(bool where, Expression<Func<T1, T2, T3, TReturn>> trueSelect, Expression<Func<T1, T2, T3, TReturn>> falseSelect)
+        public TReturn Get<TReturn>(bool where, Expression<Func<T1, T2, T3, TReturn>> trueSelect,
+            Expression<Func<T1, T2, T3, TReturn>> falseSelect)
         {
             if (where)
                 return base.Get<TReturn>(trueSelect);
-            else
-                return base.Get<TReturn>(falseSelect);
+            return base.Get<TReturn>(falseSelect);
         }
 
         public Task<TReturn> GetAsync<TReturn>(Expression<Func<T1, T2, T3, TReturn>> select)
@@ -372,12 +382,12 @@ namespace Kogel.Dapper.Extension.Extension.From
             return base.GetAsync<TReturn>(select);
         }
 
-        public Task<TReturn> GetAsync<TReturn>(bool where, Expression<Func<T1, T2, T3, TReturn>> trueSelect, Expression<Func<T1, T2, T3, TReturn>> falseSelect)
+        public Task<TReturn> GetAsync<TReturn>(bool where, Expression<Func<T1, T2, T3, TReturn>> trueSelect,
+            Expression<Func<T1, T2, T3, TReturn>> falseSelect)
         {
             if (where)
                 return base.GetAsync<TReturn>(trueSelect);
-            else
-                return base.GetAsync<TReturn>(falseSelect);
+            return base.GetAsync<TReturn>(falseSelect);
         }
 
         public List<TReturn> ToList<TReturn>(Expression<Func<T1, T2, T3, TReturn>> select)
@@ -385,12 +395,12 @@ namespace Kogel.Dapper.Extension.Extension.From
             return base.ToList<TReturn>(select).ToList();
         }
 
-        public List<TReturn> ToList<TReturn>(bool where, Expression<Func<T1, T2, T3, TReturn>> trueSelect, Expression<Func<T1, T2, T3, TReturn>> falseSelect)
+        public List<TReturn> ToList<TReturn>(bool where, Expression<Func<T1, T2, T3, TReturn>> trueSelect,
+            Expression<Func<T1, T2, T3, TReturn>> falseSelect)
         {
             if (where)
                 return base.ToList<TReturn>(trueSelect).ToList();
-            else
-                return base.ToList<TReturn>(falseSelect).ToList();
+            return base.ToList<TReturn>(falseSelect).ToList();
         }
 
         public async Task<List<TReturn>> ToListAsync<TReturn>(Expression<Func<T1, T2, T3, TReturn>> select)
@@ -398,38 +408,40 @@ namespace Kogel.Dapper.Extension.Extension.From
             return (await base.ToListAsync<TReturn>(select)).ToList();
         }
 
-        public async Task<List<TReturn>> ToListAsync<TReturn>(bool where, Expression<Func<T1, T2, T3, TReturn>> trueSelect, Expression<Func<T1, T2, T3, TReturn>> falseSelect)
+        public async Task<List<TReturn>> ToListAsync<TReturn>(bool where,
+            Expression<Func<T1, T2, T3, TReturn>> trueSelect, Expression<Func<T1, T2, T3, TReturn>> falseSelect)
         {
             if (where)
                 return (await base.ToListAsync<TReturn>(trueSelect)).ToList();
-            else
-                return (await base.ToListAsync<TReturn>(falseSelect)).ToList();
+            return (await base.ToListAsync<TReturn>(falseSelect)).ToList();
         }
 
-        public DataSet ToDataSet<TReturn>(Expression<Func<T1, T2, T3, TReturn>> select, IDbDataAdapter dataAdapter = null)
+        public DataSet ToDataSet<TReturn>(Expression<Func<T1, T2, T3, TReturn>> select,
+            IDbDataAdapter dataAdapter = null)
         {
             return base.ToDataSet<TReturn>(select, dataAdapter);
         }
 
-        public DataSet ToDataSet<TReturn>(bool where, Expression<Func<T1, T2, T3, TReturn>> trueSelect, Expression<Func<T1, T2, T3, TReturn>> falseSelect, IDbDataAdapter dataAdapter = null)
+        public DataSet ToDataSet<TReturn>(bool where, Expression<Func<T1, T2, T3, TReturn>> trueSelect,
+            Expression<Func<T1, T2, T3, TReturn>> falseSelect, IDbDataAdapter dataAdapter = null)
         {
             if (where)
                 return base.ToDataSet<TReturn>(trueSelect, dataAdapter);
-            else
-                return base.ToDataSet<TReturn>(falseSelect, dataAdapter);
+            return base.ToDataSet<TReturn>(falseSelect, dataAdapter);
         }
 
-        public Task<DataSet> ToDataSetAsync<TReturn>(Expression<Func<T1, T2, T3, TReturn>> select, IDbDataAdapter dataAdapter = null)
+        public Task<DataSet> ToDataSetAsync<TReturn>(Expression<Func<T1, T2, T3, TReturn>> select,
+            IDbDataAdapter dataAdapter = null)
         {
             return base.ToDataSetAsync<TReturn>(select, dataAdapter);
         }
 
-        public Task<DataSet> ToDataSetAsync<TReturn>(bool where, Expression<Func<T1, T2, T3, TReturn>> trueSelect, Expression<Func<T1, T2, T3, TReturn>> falseSelect, IDbDataAdapter dataAdapter = null)
+        public Task<DataSet> ToDataSetAsync<TReturn>(bool where, Expression<Func<T1, T2, T3, TReturn>> trueSelect,
+            Expression<Func<T1, T2, T3, TReturn>> falseSelect, IDbDataAdapter dataAdapter = null)
         {
             if (where)
                 return base.ToDataSetAsync<TReturn>(trueSelect, dataAdapter);
-            else
-                return base.ToDataSetAsync<TReturn>(falseSelect, dataAdapter);
+            return base.ToDataSetAsync<TReturn>(falseSelect, dataAdapter);
         }
 
         public new ISelectFrom<T, T1, T2, T3> OrderBy<TProperty>(Expression<Func<TProperty, object>> field)
@@ -455,65 +467,71 @@ namespace Kogel.Dapper.Extension.Extension.From
             return base.Page<TReturn>(pageIndex, pageSize, select);
         }
 
-        public List<TReturn> Page<TReturn>(int pageIndex, int pageSize, bool where, Expression<Func<T1, T2, T3, TReturn>> trueSelect, Expression<Func<T1, T2, T3, TReturn>> falseSelect)
+        public List<TReturn> Page<TReturn>(int pageIndex, int pageSize, bool where,
+            Expression<Func<T1, T2, T3, TReturn>> trueSelect, Expression<Func<T1, T2, T3, TReturn>> falseSelect)
         {
             if (where)
                 return base.Page<TReturn>(pageIndex, pageSize, trueSelect);
-            else
-                return base.Page<TReturn>(pageIndex, pageSize, falseSelect);
+            return base.Page<TReturn>(pageIndex, pageSize, falseSelect);
         }
 
-        public Task<List<TReturn>> PageAsync<TReturn>(int pageIndex, int pageSize, Expression<Func<T1, T2, T3, TReturn>> select)
+        public Task<List<TReturn>> PageAsync<TReturn>(int pageIndex, int pageSize,
+            Expression<Func<T1, T2, T3, TReturn>> select)
         {
             return base.PageAsync<TReturn>(pageIndex, pageSize, select);
         }
 
-        public Task<List<TReturn>> PageAsync<TReturn>(int pageIndex, int pageSize, bool where, Expression<Func<T1, T2, T3, TReturn>> trueSelect, Expression<Func<T1, T2, T3, TReturn>> falseSelect)
+        public Task<List<TReturn>> PageAsync<TReturn>(int pageIndex, int pageSize, bool where,
+            Expression<Func<T1, T2, T3, TReturn>> trueSelect, Expression<Func<T1, T2, T3, TReturn>> falseSelect)
         {
             if (where)
                 return base.PageAsync<TReturn>(pageIndex, pageSize, trueSelect);
-            else
-                return base.PageAsync<TReturn>(pageIndex, pageSize, falseSelect);
+            return base.PageAsync<TReturn>(pageIndex, pageSize, falseSelect);
         }
 
-        public PageList<TReturn> PageList<TReturn>(int pageIndex, int pageSize, Expression<Func<T1, T2, T3, TReturn>> select)
+        public PageList<TReturn> PageList<TReturn>(int pageIndex, int pageSize,
+            Expression<Func<T1, T2, T3, TReturn>> select)
         {
             return base.PageList<TReturn>(pageIndex, pageSize, select);
         }
 
-        public PageList<TReturn> PageList<TReturn>(int pageIndex, int pageSize, bool where, Expression<Func<T1, T2, T3, TReturn>> trueSelect, Expression<Func<T1, T2, T3, TReturn>> falseSelect)
+        public PageList<TReturn> PageList<TReturn>(int pageIndex, int pageSize, bool where,
+            Expression<Func<T1, T2, T3, TReturn>> trueSelect, Expression<Func<T1, T2, T3, TReturn>> falseSelect)
         {
             if (where)
                 return base.PageList<TReturn>(pageIndex, pageSize, trueSelect);
-            else
-                return base.PageList<TReturn>(pageIndex, pageSize, falseSelect);
+            return base.PageList<TReturn>(pageIndex, pageSize, falseSelect);
         }
 
-        public Task<PageList<TReturn>> PageListAsync<TReturn>(int pageIndex, int pageSize, Expression<Func<T1, T2, T3, TReturn>> select)
+        public Task<PageList<TReturn>> PageListAsync<TReturn>(int pageIndex, int pageSize,
+            Expression<Func<T1, T2, T3, TReturn>> select)
         {
             return base.PageListAsync<TReturn>(pageIndex, pageSize, select);
         }
 
-        public Task<PageList<TReturn>> PageListAsync<TReturn>(int pageIndex, int pageSize, bool where, Expression<Func<T1, T2, T3, TReturn>> trueSelect, Expression<Func<T1, T2, T3, TReturn>> falseSelect)
+        public Task<PageList<TReturn>> PageListAsync<TReturn>(int pageIndex, int pageSize, bool where,
+            Expression<Func<T1, T2, T3, TReturn>> trueSelect, Expression<Func<T1, T2, T3, TReturn>> falseSelect)
         {
             if (where)
                 return base.PageListAsync<TReturn>(pageIndex, pageSize, trueSelect);
-            else
-                return base.PageListAsync<TReturn>(pageIndex, pageSize, falseSelect);
+            return base.PageListAsync<TReturn>(pageIndex, pageSize, falseSelect);
         }
     }
+
     public class ISelectFrom<T, T1, T2, T3, T4> : ISelect<T>
     {
-        public ISelectFrom(QuerySet<T> querySet) : base(querySet)
+        public ISelectFrom(Comman.Dapper.Linq.Extension.Core.SetQ.QuerySet<T> querySet) : base(querySet)
         {
-
         }
+
         public ISelectFrom<T, T1, T2, T3, T4> Where(Expression<Func<T1, T2, T3, T4, bool>> exp)
         {
             base.Where(exp);
             return this;
         }
-        public ISelectFrom<T, T1, T2, T3, T4> WhereIf(bool where, Expression<Func<T1, T2, T3, T4, bool>> trueExp, Expression<Func<T1, T2, T3, T4, bool>> falseExp)
+
+        public ISelectFrom<T, T1, T2, T3, T4> WhereIf(bool where, Expression<Func<T1, T2, T3, T4, bool>> trueExp,
+            Expression<Func<T1, T2, T3, T4, bool>> falseExp)
         {
             if (where)
                 base.Where(trueExp);
@@ -521,98 +539,119 @@ namespace Kogel.Dapper.Extension.Extension.From
                 base.Where(falseExp);
             return this;
         }
+
         public TReturn Get<TReturn>(Expression<Func<T1, T2, T3, T4, TReturn>> select)
         {
             return base.Get<TReturn>(select);
         }
-        public TReturn Get<TReturn>(bool where, Expression<Func<T1, T2, T3, T4, TReturn>> trueSelect, Expression<Func<T1, T2, T3, T4, TReturn>> falseSelect)
+
+        public TReturn Get<TReturn>(bool where, Expression<Func<T1, T2, T3, T4, TReturn>> trueSelect,
+            Expression<Func<T1, T2, T3, T4, TReturn>> falseSelect)
         {
             if (where)
                 return base.Get<TReturn>(trueSelect);
-            else
-                return base.Get<TReturn>(falseSelect);
+            return base.Get<TReturn>(falseSelect);
         }
+
         public List<TReturn> ToList<TReturn>(Expression<Func<T1, T2, T3, T4, TReturn>> select)
         {
             return base.ToList<TReturn>(select).ToList();
         }
-        public List<TReturn> ToList<TReturn>(bool where, Expression<Func<T1, T2, T3, T4, TReturn>> trueSelect, Expression<Func<T1, T2, T3, T4, TReturn>> falseSelect)
+
+        public List<TReturn> ToList<TReturn>(bool where, Expression<Func<T1, T2, T3, T4, TReturn>> trueSelect,
+            Expression<Func<T1, T2, T3, T4, TReturn>> falseSelect)
         {
             if (where)
                 return base.ToList<TReturn>(trueSelect).ToList();
-            else
-                return base.ToList<TReturn>(falseSelect).ToList();
+            return base.ToList<TReturn>(falseSelect).ToList();
         }
-        public DataSet ToDataSet<TReturn>(Expression<Func<T1, T2, T3, T4, TReturn>> select, IDbDataAdapter dataAdapter = null)
+
+        public DataSet ToDataSet<TReturn>(Expression<Func<T1, T2, T3, T4, TReturn>> select,
+            IDbDataAdapter dataAdapter = null)
         {
             return base.ToDataSet<TReturn>(select, dataAdapter);
         }
-        public DataSet ToDataSet<TReturn>(bool where, Expression<Func<T1, T2, T3, T4, TReturn>> trueSelect, Expression<Func<T1, T2, T3, T4, TReturn>> falseSelect, IDbDataAdapter dataAdapter = null)
+
+        public DataSet ToDataSet<TReturn>(bool where, Expression<Func<T1, T2, T3, T4, TReturn>> trueSelect,
+            Expression<Func<T1, T2, T3, T4, TReturn>> falseSelect, IDbDataAdapter dataAdapter = null)
         {
             if (where)
                 return base.ToDataSet<TReturn>(trueSelect, dataAdapter);
-            else
-                return base.ToDataSet<TReturn>(falseSelect, dataAdapter);
+            return base.ToDataSet<TReturn>(falseSelect, dataAdapter);
         }
+
         public new ISelectFrom<T, T1, T2, T3, T4> OrderBy<TProperty>(Expression<Func<TProperty, object>> field)
         {
             base.OrderBy(field);
             return this;
         }
+
         public new ISelectFrom<T, T1, T2, T3, T4> OrderBy(string orderBy)
         {
             base.OrderBy(orderBy);
             return this;
         }
+
         public new ISelectFrom<T, T1, T2, T3, T4> OrderByDescing<TProperty>(Expression<Func<TProperty, object>> field)
         {
             base.OrderByDescing(field);
             return this;
         }
-        public List<TReturn> Page<TReturn>(int pageIndex, int pageSize, Expression<Func<T1, T2, T3, T4, TReturn>> select)
+
+        public List<TReturn> Page<TReturn>(int pageIndex, int pageSize,
+            Expression<Func<T1, T2, T3, T4, TReturn>> select)
         {
             return base.Page<TReturn>(pageIndex, pageSize, select);
         }
-        public List<TReturn> Page<TReturn>(int pageIndex, int pageSize, bool where, Expression<Func<T1, T2, T3, T4, TReturn>> trueSelect, Expression<Func<T1, T2, T3, T4, TReturn>> falseSelect)
+
+        public List<TReturn> Page<TReturn>(int pageIndex, int pageSize, bool where,
+            Expression<Func<T1, T2, T3, T4, TReturn>> trueSelect, Expression<Func<T1, T2, T3, T4, TReturn>> falseSelect)
         {
             if (where)
                 return base.Page<TReturn>(pageIndex, pageSize, trueSelect);
-            else
-                return base.Page<TReturn>(pageIndex, pageSize, falseSelect);
+            return base.Page<TReturn>(pageIndex, pageSize, falseSelect);
         }
-        public async Task<List<TReturn>> PageAsync<TReturn>(int pageIndex, int pageSize, Expression<Func<T1, T2, T3, T4, TReturn>> select)
+
+        public async Task<List<TReturn>> PageAsync<TReturn>(int pageIndex, int pageSize,
+            Expression<Func<T1, T2, T3, T4, TReturn>> select)
         {
             return await base.PageAsync<TReturn>(pageIndex, pageSize, select);
         }
-        public async Task<List<TReturn>> PageAsync<TReturn>(int pageIndex, int pageSize, bool where, Expression<Func<T1, T2, T3, T4, TReturn>> trueSelect, Expression<Func<T1, T2, T3, T4, TReturn>> falseSelect)
+
+        public async Task<List<TReturn>> PageAsync<TReturn>(int pageIndex, int pageSize, bool where,
+            Expression<Func<T1, T2, T3, T4, TReturn>> trueSelect, Expression<Func<T1, T2, T3, T4, TReturn>> falseSelect)
         {
             if (where)
                 return await base.PageAsync<TReturn>(pageIndex, pageSize, trueSelect);
-            else
-                return await base.PageAsync<TReturn>(pageIndex, pageSize, falseSelect);
+            return await base.PageAsync<TReturn>(pageIndex, pageSize, falseSelect);
         }
 
-        public PageList<TReturn> PageList<TReturn>(int pageIndex, int pageSize, Expression<Func<T1, T2, T3, T4, TReturn>> select)
+        public PageList<TReturn> PageList<TReturn>(int pageIndex, int pageSize,
+            Expression<Func<T1, T2, T3, T4, TReturn>> select)
         {
             return base.PageList<TReturn>(pageIndex, pageSize, select);
         }
-        public PageList<TReturn> PageList<TReturn>(int pageIndex, int pageSize, bool where, Expression<Func<T1, T2, T3, T4, TReturn>> trueSelect, Expression<Func<T1, T2, T3, T4, TReturn>> falseSelect)
+
+        public PageList<TReturn> PageList<TReturn>(int pageIndex, int pageSize, bool where,
+            Expression<Func<T1, T2, T3, T4, TReturn>> trueSelect, Expression<Func<T1, T2, T3, T4, TReturn>> falseSelect)
         {
             if (where)
                 return base.PageList<TReturn>(pageIndex, pageSize, trueSelect);
-            else
-                return base.PageList<TReturn>(pageIndex, pageSize, falseSelect);
+            return base.PageList<TReturn>(pageIndex, pageSize, falseSelect);
         }
-        public async Task<PageList<TReturn>> PageListAsync<TReturn>(int pageIndex, int pageSize, Expression<Func<T1, T2, T3, T4, TReturn>> select)
+
+        public async Task<PageList<TReturn>> PageListAsync<TReturn>(int pageIndex, int pageSize,
+            Expression<Func<T1, T2, T3, T4, TReturn>> select)
         {
             return await base.PageListAsync<TReturn>(pageIndex, pageSize, select);
         }
-        public async Task<PageList<TReturn>> PageListAsync<TReturn>(int pageIndex, int pageSize, bool where, Expression<Func<T1, T2, T3, T4, TReturn>> trueSelect, Expression<Func<T1, T2, T3, T4, TReturn>> falseSelect)
+
+        public async Task<PageList<TReturn>> PageListAsync<TReturn>(int pageIndex, int pageSize, bool where,
+            Expression<Func<T1, T2, T3, T4, TReturn>> trueSelect, Expression<Func<T1, T2, T3, T4, TReturn>> falseSelect)
         {
             if (where)
                 return await base.PageListAsync<TReturn>(pageIndex, pageSize, trueSelect);
-            else
-                return await base.PageListAsync<TReturn>(pageIndex, pageSize, falseSelect);
+            return await base.PageListAsync<TReturn>(pageIndex, pageSize, falseSelect);
         }
     }
 }

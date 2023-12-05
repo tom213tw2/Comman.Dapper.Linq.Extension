@@ -1,22 +1,25 @@
 ﻿using System.Collections.Generic;
 using System.Data;
+using System.Data.SqlClient;
 using System.Linq;
+using Microsoft.SqlServer.Server;
 
-namespace Kogel.Dapper.Extension
+namespace Comman.Dapper.Linq.Extension.Dapper
 {
     /// <summary>
-    /// Used to pass a IEnumerable&lt;SqlDataRecord&gt; as a SqlDataRecordListTVPParameter
+    ///     Used to pass a IEnumerable&lt;SqlDataRecord&gt; as a SqlDataRecordListTVPParameter
     /// </summary>
     internal sealed class SqlDataRecordListTVPParameter : SqlMapper.ICustomQueryParameter
     {
-        private readonly IEnumerable<Microsoft.SqlServer.Server.SqlDataRecord> data;
+        private readonly IEnumerable<SqlDataRecord> data;
         private readonly string typeName;
+
         /// <summary>
-        /// Create a new instance of <see cref="SqlDataRecordListTVPParameter"/>.
+        ///     Create a new instance of <see cref="SqlDataRecordListTVPParameter" />.
         /// </summary>
         /// <param name="data">The data records to convert into TVPs.</param>
         /// <param name="typeName">The parameter type name.</param>
-        public SqlDataRecordListTVPParameter(IEnumerable<Microsoft.SqlServer.Server.SqlDataRecord> data, string typeName)
+        public SqlDataRecordListTVPParameter(IEnumerable<SqlDataRecord> data, string typeName)
         {
             this.data = data;
             this.typeName = typeName;
@@ -30,10 +33,10 @@ namespace Kogel.Dapper.Extension
             command.Parameters.Add(param);
         }
 
-        internal static void Set(IDbDataParameter parameter, IEnumerable<Microsoft.SqlServer.Server.SqlDataRecord> data, string typeName)
+        internal static void Set(IDbDataParameter parameter, IEnumerable<SqlDataRecord> data, string typeName)
         {
             parameter.Value = data != null && data.Any() ? data : null;
-            if (parameter is System.Data.SqlClient.SqlParameter sqlParam)
+            if (parameter is SqlParameter sqlParam)
             {
                 sqlParam.SqlDbType = SqlDbType.Structured;
                 sqlParam.TypeName = typeName;

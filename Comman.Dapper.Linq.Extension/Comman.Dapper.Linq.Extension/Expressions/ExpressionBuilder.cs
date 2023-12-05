@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 
-namespace Kogel.Dapper.Extension.Expressions
+namespace Comman.Dapper.Linq.Extension.Expressions
 {
     public static class ExpressionBuilder
     {
         /// <summary>
-        /// 默认True条件
+        ///     默认True条件
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
@@ -45,9 +45,9 @@ namespace Kogel.Dapper.Extension.Expressions
 
     internal class ParameterRebinder : ExpressionVisitor
     {
-        readonly Dictionary<ParameterExpression, ParameterExpression> _parameterMap;
+        private readonly Dictionary<ParameterExpression, ParameterExpression> _parameterMap;
 
-        ParameterRebinder(Dictionary<ParameterExpression, ParameterExpression> map)
+        private ParameterRebinder(Dictionary<ParameterExpression, ParameterExpression> map)
         {
             _parameterMap = map ?? new Dictionary<ParameterExpression, ParameterExpression>();
         }
@@ -60,10 +60,7 @@ namespace Kogel.Dapper.Extension.Expressions
 
         protected override Expression VisitParameter(ParameterExpression newParameters)
         {
-            if (_parameterMap.TryGetValue(newParameters, out var replacement))
-            {
-                newParameters = replacement;
-            }
+            if (_parameterMap.TryGetValue(newParameters, out var replacement)) newParameters = replacement;
 
             return base.VisitParameter(newParameters);
         }

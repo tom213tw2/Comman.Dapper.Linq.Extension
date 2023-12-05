@@ -1,19 +1,20 @@
 ﻿using System.Data;
 
-namespace Kogel.Dapper.Extension
+namespace Comman.Dapper.Linq.Extension.Dapper
 {
     /// <summary>
-    /// Describes a reader that controls the lifetime of both a command and a reader,
-    /// exposing the downstream command/reader as properties.
+    ///     Describes a reader that controls the lifetime of both a command and a reader,
+    ///     exposing the downstream command/reader as properties.
     /// </summary>
     public interface IWrappedDataReader : IDataReader
     {
         /// <summary>
-        /// Obtain the underlying reader
+        ///     Obtain the underlying reader
         /// </summary>
         IDataReader Reader { get; }
+
         /// <summary>
-        /// Obtain the underlying command
+        ///     Obtain the underlying command
         /// </summary>
         IDbCommand Command { get; }
     }

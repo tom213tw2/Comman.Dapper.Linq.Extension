@@ -1,17 +1,17 @@
 ﻿using System;
 using System.Linq.Expressions;
-using Kogel.Dapper.Extension.Extension;
-using Kogel.Dapper.Extension.Helper;
+using Comman.Dapper.Linq.Extension.Extension;
+using Comman.Dapper.Linq.Extension.Helper;
 
-namespace Kogel.Dapper.Extension.Expressions
+namespace Comman.Dapper.Linq.Extension.Expressions
 {
     /// <inheritdoc />
     /// <summary>
-    /// 修树[已弃用]
+    ///     修树[已弃用]
     /// </summary>
     public class TrimExpression : ExpressionVisitor
     {
-        private bool _isDeep;
+        private bool isDeep;
 
         public static Expression Trim(Expression expression)
         {
@@ -36,14 +36,12 @@ namespace Kogel.Dapper.Extension.Expressions
                         var value = mExpression.MemberToValue(root);
                         return Expression.Constant(value, type);
                     }
-                    else
-                    {
-                        if (_isDeep)
-                            return expression;
 
-                        _isDeep = true;
-                        return Expression.Equal(expression, Expression.Constant(true));
-                    }
+                    if (isDeep)
+                        return expression;
+
+                    isDeep = true;
+                    return Expression.Equal(expression, Expression.Constant(true));
 
                 case ExpressionType.Convert:
                     var u = (UnaryExpression)expression;
@@ -60,12 +58,11 @@ namespace Kogel.Dapper.Extension.Expressions
                         {
                             return expression;
                         }
-                        else
-                        {
-                            var value = Convert.ChangeType(mem.MemberToValue(), type);
-                            return Expression.Constant(value, type);
-                        }
+
+                        var value = Convert.ChangeType(mem.MemberToValue(), type);
+                        return Expression.Constant(value, type);
                     }
+
                     break;
 
                 case ExpressionType.Not:
@@ -74,7 +71,7 @@ namespace Kogel.Dapper.Extension.Expressions
                 case ExpressionType.AndAlso:
                 case ExpressionType.OrElse:
                     var b = (BinaryExpression)expression;
-                    _isDeep = true;
+                    isDeep = true;
                     if (b.Left.NodeType != b.Right.NodeType)
                     {
                         if (b.Left.NodeType == ExpressionType.MemberAccess && b.Left.Type.Name == "Boolean")
@@ -84,6 +81,7 @@ namespace Kogel.Dapper.Extension.Expressions
                             if (expression.NodeType == ExpressionType.OrElse)
                                 return Expression.OrElse(Expression.Equal(b.Left, Expression.Constant(true)), b.Right);
                         }
+
                         if (b.Right.NodeType == ExpressionType.MemberAccess && b.Right.Type.Name == "Boolean")
                         {
                             if (expression.NodeType == ExpressionType.AndAlso)
@@ -91,16 +89,19 @@ namespace Kogel.Dapper.Extension.Expressions
                             if (expression.NodeType == ExpressionType.OrElse)
                                 return Expression.OrElse(b.Left, Expression.Equal(b.Right, Expression.Constant(true)));
                         }
+
                         if (b.Left.NodeType == ExpressionType.Constant)
                             return b.Right;
                         if (b.Right.NodeType == ExpressionType.Constant)
                             return b.Left;
                     }
+
                     break;
                 default:
-                    _isDeep = true;
+                    isDeep = true;
                     return expression;
             }
+
             return expression;
         }
 

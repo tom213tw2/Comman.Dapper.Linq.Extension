@@ -1,63 +1,61 @@
-﻿using Kogel.Dapper.Extension.Entites;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
+using Comman.Dapper.Linq.Extension.Entites;
 
-namespace Kogel.Dapper.Extension.Core.Interfaces
+namespace Comman.Dapper.Linq.Extension.Core.Interfaces
 {
     public partial interface IQuerySet<T>
     {
         /// <summary>
-        /// 查询条件
+        ///     指定查詢條件。
         /// </summary>
-        /// <param name="predicate"></param>
-        /// <returns></returns>
+        /// <param name="predicate">查詢條件表達式。</param>
+        /// <returns>返回查詢集合。</returns>
         IQuerySet<T> Where(Expression<Func<T, bool>> predicate);
 
         /// <summary>
-        /// 查询条件
+        ///     指定查詢條件。
         /// </summary>
-        /// <typeparam name="TWhere"></typeparam>
-        /// <param name="predicate"></param>
-        /// <returns></returns>
+        /// <typeparam name="TWhere">條件表達式的型別。</typeparam>
+        /// <param name="predicate">查詢條件表達式。</param>
+        /// <returns>返回查詢集合。</returns>
         IQuerySet<T> Where<TWhere>(Expression<Func<TWhere, bool>> predicate);
 
         /// <summary>
-        /// 查询条件
+        ///     使用動態樹結構指定查詢條件。
         /// </summary>
-        /// <param name="dynamicTree"></param>
-        /// <returns></returns>
+        /// <param name="dynamicTree">動態樹結構條件。</param>
+        /// <returns>返回查詢集合。</returns>
         IQuerySet<T> Where(Dictionary<string, DynamicTree> dynamicTree);
 
         /// <summary>
-        /// 查询条件
+        ///     使用 SQL 語句指定查詢條件。
         /// </summary>
-        /// <param name="sqlWhere"></param>
-        /// <param name="param"></param>
-        /// <returns></returns>
+        /// <param name="sqlWhere">SQL 查詢條件。</param>
+        /// <param name="param">參數。</param>
+        /// <returns>返回查詢集合。</returns>
         IQuerySet<T> Where(string sqlWhere, object param = null);
 
         /// <summary>
-        /// 带前置条件的Where判断
+        ///     根據條件決定是否應用查詢條件。
         /// </summary>
-        /// <typeparam name="TWhere"></typeparam>
-        /// <param name="where"></param>
-        /// <param name="truePredicate"></param>
-        /// <param name="falsePredicate"></param>
-        /// <returns></returns>
-        IQuerySet<T> WhereIf(bool where, Expression<Func<T, bool>> truePredicate, Expression<Func<T, bool>> falsePredicate);
+        /// <param name="where">條件判斷。</param>
+        /// <param name="truePredicate">當條件為真時應用的查詢條件。</param>
+        /// <param name="falsePredicate">當條件為假時應用的查詢條件。</param>
+        /// <returns>返回查詢集合。</returns>
+        IQuerySet<T> WhereIf(bool where, Expression<Func<T, bool>> truePredicate,
+            Expression<Func<T, bool>> falsePredicate);
 
         /// <summary>
-        /// 带前置条件的Where判断
+        ///     根據條件決定是否應用查詢條件。
         /// </summary>
-        /// <typeparam name="TWhere"></typeparam>
-        /// <param name="where"></param>
-        /// <param name="truePredicate"></param>
-        /// <param name="falsePredicate"></param>
-        /// <returns></returns>
-        IQuerySet<T> WhereIf<TWhere>(bool where, Expression<Func<TWhere, bool>> truePredicate, Expression<Func<TWhere, bool>> falsePredicate);
+        /// <typeparam name="TWhere">條件表達式的型別。</typeparam>
+        /// <param name="where">條件判斷。</param>
+        /// <param name="truePredicate">當條件為真時應用的查詢條件。</param>
+        /// <param name="falsePredicate">當條件為假時應用的查詢條件。</param>
+        /// <returns>返回查詢集合。</returns>
+        IQuerySet<T> WhereIf<TWhere>(bool where, Expression<Func<TWhere, bool>> truePredicate,
+            Expression<Func<TWhere, bool>> falsePredicate);
     }
 }
