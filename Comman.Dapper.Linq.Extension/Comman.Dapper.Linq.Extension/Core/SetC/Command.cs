@@ -17,7 +17,7 @@ namespace Comman.Dapper.Linq.Extension.Core.SetC
     /// <typeparam name="T"></typeparam>
     public abstract class Command<T> : AbstractSet, ICommand<T>
     {
-        private readonly IDbConnection _dbCon;
+        public readonly IDbConnection _dbCon;
 
         protected Command(IDbConnection conn, SqlProvider sqlProvider)
         {
@@ -32,7 +32,7 @@ namespace Comman.Dapper.Linq.Extension.Core.SetC
             DbTransaction = dbTransaction;
         }
 
-        private IDbTransaction DbTransaction { get; }
+        public IDbTransaction DbTransaction { get; }
 
         protected DataBaseContext<T> SetContext { get; set; }
 

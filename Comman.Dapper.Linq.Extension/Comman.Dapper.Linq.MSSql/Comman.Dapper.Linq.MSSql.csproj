@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+       <TargetFrameworks>net46;net461;net462;net47;net471;net472;net48;netcoreapp3.1;net6.0</TargetFrameworks>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <Version>1.0.0.0</Version>
+        <Authors>TomKao</Authors>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Comman.Dapper.Linq.Extension\Comman.Dapper.Linq.Extension.csproj" />
+    </ItemGroup>
+
+</Project>

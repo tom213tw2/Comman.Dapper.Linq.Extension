@@ -1,0 +1,3 @@
+is_global = true
+build_property.RootNamespace = Comman.Dapper.Linq.MSSql
+build_property.ProjectDir = /Users/tomkao/Documents/Git/Comman.Dapper.Linq.Extension/Comman.Dapper.Linq.Extension/Comman.Dapper.Linq.MSSql/

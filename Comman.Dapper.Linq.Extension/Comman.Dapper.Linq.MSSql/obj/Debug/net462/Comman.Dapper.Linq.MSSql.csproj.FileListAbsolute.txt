@@ -1,0 +1,13 @@
+/Users/tomkao/Documents/Git/Comman.Dapper.Linq.Extension/Comman.Dapper.Linq.Extension/Comman.Dapper.Linq.MSSql/obj/Debug/net462/Comman.Dapper.Linq.MSSql.csproj.AssemblyReference.cache
+/Users/tomkao/Documents/Git/Comman.Dapper.Linq.Extension/Comman.Dapper.Linq.Extension/Comman.Dapper.Linq.MSSql/obj/Debug/net462/Comman.Dapper.Linq.MSSql.GeneratedMSBuildEditorConfig.editorconfig
+/Users/tomkao/Documents/Git/Comman.Dapper.Linq.Extension/Comman.Dapper.Linq.Extension/Comman.Dapper.Linq.MSSql/obj/Debug/net462/Comman.Dapper.Linq.MSSql.AssemblyInfoInputs.cache
+/Users/tomkao/Documents/Git/Comman.Dapper.Linq.Extension/Comman.Dapper.Linq.Extension/Comman.Dapper.Linq.MSSql/obj/Debug/net462/Comman.Dapper.Linq.MSSql.AssemblyInfo.cs
+/Users/tomkao/Documents/Git/Comman.Dapper.Linq.Extension/Comman.Dapper.Linq.Extension/Comman.Dapper.Linq.MSSql/obj/Debug/net462/Comman.Dapper.Linq.MSSql.csproj.CoreCompileInputs.cache
+/Users/tomkao/Documents/Git/Comman.Dapper.Linq.Extension/Comman.Dapper.Linq.Extension/Comman.Dapper.Linq.MSSql/bin/Debug/net462/Comman.Dapper.Linq.MSSql.dll
+/Users/tomkao/Documents/Git/Comman.Dapper.Linq.Extension/Comman.Dapper.Linq.Extension/Comman.Dapper.Linq.MSSql/bin/Debug/net462/Comman.Dapper.Linq.MSSql.pdb
+/Users/tomkao/Documents/Git/Comman.Dapper.Linq.Extension/Comman.Dapper.Linq.Extension/Comman.Dapper.Linq.MSSql/bin/Debug/net462/System.Data.SqlClient.dll
+/Users/tomkao/Documents/Git/Comman.Dapper.Linq.Extension/Comman.Dapper.Linq.Extension/Comman.Dapper.Linq.MSSql/bin/Debug/net462/Comman.Dapper.Linq.Extension.dll
+/Users/tomkao/Documents/Git/Comman.Dapper.Linq.Extension/Comman.Dapper.Linq.Extension/Comman.Dapper.Linq.MSSql/bin/Debug/net462/Comman.Dapper.Linq.Extension.pdb
+/Users/tomkao/Documents/Git/Comman.Dapper.Linq.Extension/Comman.Dapper.Linq.Extension/Comman.Dapper.Linq.MSSql/obj/Debug/net462/Comman.Dapper.Linq.MSSql.csproj.CopyComplete
+/Users/tomkao/Documents/Git/Comman.Dapper.Linq.Extension/Comman.Dapper.Linq.Extension/Comman.Dapper.Linq.MSSql/obj/Debug/net462/Comman.Dapper.Linq.MSSql.dll
+/Users/tomkao/Documents/Git/Comman.Dapper.Linq.Extension/Comman.Dapper.Linq.Extension/Comman.Dapper.Linq.MSSql/obj/Debug/net462/Comman.Dapper.Linq.MSSql.pdb

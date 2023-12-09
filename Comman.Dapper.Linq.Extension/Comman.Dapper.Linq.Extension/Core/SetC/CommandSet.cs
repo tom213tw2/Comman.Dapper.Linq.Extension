@@ -13,9 +13,9 @@ namespace Comman.Dapper.Linq.Extension.Core.SetC
 	///     指令集
 	/// </summary>
 	/// <typeparam name="T"></typeparam>
-	public abstract class CommandSet<T> : Command<T>, ICommandSet<T>
+	public  class CommandSet<T> : Command<T>, ICommandSet<T>
     {
-        protected CommandSet(IDbConnection conn, SqlProvider sqlProvider) : base(conn, sqlProvider)
+        public CommandSet(IDbConnection conn, SqlProvider sqlProvider) : base(conn, sqlProvider)
         {
             TableType = typeof(T);
             SetContext = new DataBaseContext<T>
@@ -31,7 +31,7 @@ namespace Comman.Dapper.Linq.Extension.Core.SetC
             Params = new DynamicParameters();
         }
 
-        protected CommandSet(IDbConnection conn, SqlProvider sqlProvider, IDbTransaction dbTransaction) : base(conn,
+        public CommandSet(IDbConnection conn, SqlProvider sqlProvider, IDbTransaction dbTransaction) : base(conn,
             sqlProvider, dbTransaction)
         {
             TableType = typeof(T);

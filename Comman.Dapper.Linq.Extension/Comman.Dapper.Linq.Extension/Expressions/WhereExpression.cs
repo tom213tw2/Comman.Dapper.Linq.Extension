@@ -6,7 +6,7 @@ namespace Comman.Dapper.Linq.Extension.Expressions
     /// <summary>
     ///     解析查询条件
     /// </summary>
-    public sealed class WhereExpression : WhereExpressionVisitor
+    public sealed class WhereExpression : BaseExpressionVisitor.WhereExpressionVisitor
     {
         /// <summary>
         ///     解析条件对象

@@ -4,64 +4,69 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 using Comman.Dapper.Linq.Extension.Attributes;
-using Comman.Dapper.Linq.Extension.Helper;
 using Comman.Dapper.Linq.Extension.Helper.Cache;
-using Kogel.Dapper.Extension;
 
 namespace Comman.Dapper.Linq.Extension.Entites
 {
+    /// <summary>
+    /// 實體物件類別，用於反映實體類的屬性和表關聯。
+    /// </summary>
     public class EntityObject
     {
+        /// <summary>
+        /// 透過實體類型初始化 EntityObject。
+        /// </summary>
+        /// <param name="type">實體的 Type。</param>
         public EntityObject(Type type)
         {
-            //反射表名称
+            // 反射獲取表名稱
             Name = type.Name;
-            //指定as名称
+            // 指定別名
             AsName = type.Name;
-            //获取是否有Display特性
+            // 獲取是否有 Display 屬性
             var typeAttribute =
-                type.GetCustomAttributess(true).FirstOrDefault(x => x.GetType() == typeof(Display));
+                type.GetCustomAttributes(true).FirstOrDefault(x => x.GetType() == typeof(Display));
             if (typeAttribute != null)
             {
                 var display = typeAttribute as Display;
-                //是否有重命名
+                // 是否有重命名
                 var rename = display.Rename;
                 if (!string.IsNullOrEmpty(rename)) Name = rename;
-                //是否有名称空间
+                // 是否有命名空間
                 var schema = display.Schema;
                 if (!string.IsNullOrEmpty(schema)) Schema = schema;
-                //是否有指定as名称
+                // 是否有指定別名
                 var asName = display.AsName;
                 if (!string.IsNullOrEmpty(asName))
                     AsName = asName;
                 else
-                    //防止rename有值，这样就不会出现bug
+                    // 防止 rename 有值時產生錯誤
                     AsName = Name;
             }
 
             Type = type;
             AssemblyString = type.FullName;
-            //反射实体类属性
+            // 反射獲取實體類屬性
             Properties = type.GetProperties();
-            var PropertyInfoList = new List<PropertyInfo>();
-            //字段字典
+            var propertyInfoList = new List<PropertyInfo>();
+            // 字段字典
             FieldPairs = new Dictionary<string, string>();
-            //导航列表
+            // 導航列表
             Navigations = new List<JoinAssTable>();
-            //字段列表
+            // 字段列表
             EntityFieldList = new List<EntityField>();
-            //反射实体类字段
+            // 反射獲取實體類字段
             foreach (var item in Properties)
             {
-                //子父类存在相同的字段
+                // 排除子父類相同的字段
                 if (FieldPairs.Any(x => x.Key == item.Name)) continue;
-                //当前字段是导航属性
+                // 判斷當前字段是否為導航屬性
                 var foreignKey = item.GetCustomAttributes(true)
                     .FirstOrDefault(x => x.GetType().Equals(typeof(ForeignKey)));
                 if (foreignKey != null)
                 {
                     var foreign = foreignKey as ForeignKey;
-                    //导航属性表
+                    // 導航屬性表
                     var navigationTable = !item.PropertyType.FullName.Contains("System.Collections.Generic")
                         ? item.PropertyType
                         : item.PropertyType.GenericTypeArguments[0];
@@ -75,28 +80,27 @@ namespace Comman.Dapper.Linq.Extension.Entites
                         LeftTabName = leftTab.Name,
                         LeftAssName = foreign.AssociatedField,
                         TableType = navigationTable,
-                        //PropertyType = item.PropertyType
                         PropertyInfo = item
                     });
-                    PropertyInfoList.Add(item);
+                    propertyInfoList.Add(item);
                     continue;
                 }
 
-                //当前字段属性设置
+                // 設置當前字段屬性
                 var fieldAttribute = item.GetCustomAttributes(true)
                     .FirstOrDefault(x => x.GetType().Equals(typeof(Display)));
                 if (fieldAttribute != null)
                 {
                     var display = fieldAttribute as Display;
-                    //获取是否是表关系隐射字段
+                    // 判斷是否為表關聯映射字段
                     if (display.IsField)
                     {
                         FieldPairs.Add(item.Name, item.Name);
-                        //获取是否有重命名
+                        // 獲取是否有重命名
                         if (!string.IsNullOrEmpty(display.Rename)) FieldPairs[item.Name] = display.Rename;
-                        PropertyInfoList.Add(item);
+                        propertyInfoList.Add(item);
                         var sqlDbType = GetSqlDbType(item.PropertyType, out var ifNull);
-                        //设置详细属性
+                        // 設置詳細屬性
                         EntityFieldList.Add(new EntityField
                         {
                             FieldName = FieldPairs[item.Name],
@@ -112,9 +116,9 @@ namespace Comman.Dapper.Linq.Extension.Entites
                 else
                 {
                     FieldPairs.Add(item.Name, item.Name);
-                    PropertyInfoList.Add(item);
+                    propertyInfoList.Add(item);
 
-                    //设置详细属性
+                    // 設置詳細屬性
                     EntityFieldList.Add(new EntityField
                     {
                         FieldName = item.Name,
@@ -125,10 +129,10 @@ namespace Comman.Dapper.Linq.Extension.Entites
                     });
                 }
 
-                //获取主键
+                // 獲取主鍵
                 if (string.IsNullOrEmpty(Identitys))
                 {
-                    //当前字段是主键
+                    // 判斷當前字段是否為主鍵
                     var identityAttribute = item.GetCustomAttributes(true)
                         .FirstOrDefault(x => x.GetType().Equals(typeof(Identity)));
                     if (identityAttribute != null)
@@ -141,178 +145,155 @@ namespace Comman.Dapper.Linq.Extension.Entites
                 }
             }
 
-            Properties = PropertyInfoList.ToArray();
+            Properties = propertyInfoList.ToArray();
         }
 
         /// <summary>
-        ///     主键名称
+        /// 主鍵名稱。
         /// </summary>
         public string Identitys { get; set; }
 
         /// <summary>
-        ///     类名(表名称)
+        /// 類名（表名稱）。
         /// </summary>
         public string Name { get; set; }
 
         /// <summary>
-        ///     名称空间
+        /// 命名空間。
         /// </summary>
         public string Schema { get; set; }
 
         /// <summary>
-        ///     指定as名称
+        /// 指定別名。
         /// </summary>
         public string AsName { get; set; }
 
         /// <summary>
-        ///     类型
+        /// 類型。
         /// </summary>
         public Type Type { get; set; }
 
         /// <summary>
-        ///     命名空间
+        /// 命名空間字串。
         /// </summary>
         public string AssemblyString { get; set; }
 
         /// <summary>
-        ///     类反射的属性实例
+        /// 類反映的屬性實例。
         /// </summary>
         public PropertyInfo[] Properties { get; set; }
 
         /// <summary>
-        ///     字段目录(属性名称和实体名称)
+        /// 字段目錄（屬性名稱和實體名稱）。
         /// </summary>
         public Dictionary<string, string> FieldPairs { get; set; }
 
         /// <summary>
-        ///     导航属性列表
+        /// 導航屬性列表。
         /// </summary>
         public List<JoinAssTable> Navigations { get; set; }
 
-        ///// <summary>
-        ///// 获取asname
-        ///// </summary>
-        ///// <param name="providerOption"></param>
-        ///// <param name="isAsName"></param>
-        ///// <param name="isSuffix"></param>
-        ///// <returns></returns>
-        //public string GetAsName(IProviderOption providerOption, bool isAsName = true, bool isSuffix = true)
-        //{
-        //	string asName = string.Empty;
-        //	if (isAsName)
-        //	{
-        //		asName = this.AsName;
-        //		//如果没有as name，则需要给表带上标记
-        //		if (asName.Equals(this.Name))
-        //			asName = providerOption.CombineFieldName(asName);
-        //		//是否需要后缀
-        //		if (isSuffix)
-        //			asName += ".";
-        //	}
-        //	return asName;
-        //}
-
         /// <summary>
-        ///     字段列表
+        /// 字段列表。
         /// </summary>
         public List<EntityField> EntityFieldList { get; set; }
 
+
         /// <summary>
-        ///     获取默认数据类型
+        /// 獲取預設的資料類型。
         /// </summary>
-        /// <param name="type"></param>
-        /// <param name="ifNull">是否可空</param>
-        /// <returns></returns>
+        /// <param name="type">類型</param>
+        /// <param name="ifNull">是否可以為空</param>
+        /// <returns>對應的 SqlDbType</returns>
         private SqlDbType GetSqlDbType(Type type, out bool ifNull)
         {
             ifNull = false;
-            //设置数据库字段类型
+            // 設置資料庫欄位類型
             var sqlDbType = SqlDbType.VarChar;
-            if (type == typeof(int))
+            switch (type)
             {
-                sqlDbType = SqlDbType.Int;
-            }
-            else if (type == typeof(long))
-            {
-                sqlDbType = SqlDbType.BigInt;
-            }
-            else if (type == typeof(Guid))
-            {
-                sqlDbType = SqlDbType.UniqueIdentifier;
-            }
-            else if (type == typeof(DateTime))
-            {
-                sqlDbType = SqlDbType.DateTime;
-            }
-            else if (type == typeof(decimal))
-            {
-                sqlDbType = SqlDbType.Decimal;
-            }
-            else if (type == typeof(bool))
-            {
-                sqlDbType = SqlDbType.Bit;
-            }
-            else
-            {
-                //可空类型
-                if (type.FullName?.Contains("System.Nullable") == true)
-                {
-                    ifNull = true;
-                    return GetSqlDbType(type.GenericTypeArguments[0], out ifNull);
-                }
+                case Type t when t == typeof(int):
+                    sqlDbType = SqlDbType.Int;
+                    break;
+                case Type t when t == typeof(long):
+                    sqlDbType = SqlDbType.BigInt;
+                    break;
+                case Type t when t == typeof(Guid):
+                    sqlDbType = SqlDbType.UniqueIdentifier;
+                    break;
+                case Type t when t == typeof(DateTime):
+                    sqlDbType = SqlDbType.DateTime;
+                    break;
+                case Type t when t == typeof(decimal):
+                    sqlDbType = SqlDbType.Decimal;
+                    break;
+                case Type t when t == typeof(bool):
+                    sqlDbType = SqlDbType.Bit;
+                    break;
+                default:
+                    // 處理可空類型
+                    if (type.FullName?.Contains("System.Nullable") == true)
+                    {
+                        ifNull = true;
+                        return GetSqlDbType(type.GenericTypeArguments[0], out ifNull);
+                    }
+
+                    break;
             }
 
             return sqlDbType;
         }
-    }
-
-    /// <summary>
-    ///     实体字段
-    /// </summary>
-    public class EntityField
-    {
-        /// <summary>
-        ///     是否是主键
-        /// </summary>
-        public bool IsIdentity { get; set; }
 
         /// <summary>
-        ///     是否自增
+        /// 實體欄位。
         /// </summary>
-        public bool IsIncrease { get; set; }
+        public class EntityField
+        {
+            /// <summary>
+            /// 是否為主鍵。
+            /// </summary>
+            public bool IsIdentity { get; set; }
 
-        /// <summary>
-        /// </summary>
-        public PropertyInfo PropertyInfo { get; set; }
+            /// <summary>
+            /// 是否自增。
+            /// </summary>
+            public bool IsIncrease { get; set; }
 
-        /// <summary>
-        ///     字段名称
-        /// </summary>
-        public string FieldName { get; set; }
+            /// <summary>
+            /// 屬性資訊。
+            /// </summary>
+            public PropertyInfo PropertyInfo { get; set; }
 
-        /// <summary>
-        ///     字段类型
-        /// </summary>
-        public SqlDbType SqlDbType { get; set; }
+            /// <summary>
+            /// 欄位名稱。
+            /// </summary>
+            public string FieldName { get; set; }
 
-        /// <summary>
-        ///     字段长度
-        /// </summary>
-        public int Length { get; set; }
+            /// <summary>
+            /// 欄位類型。
+            /// </summary>
+            public SqlDbType SqlDbType { get; set; }
 
-        /// <summary>
-        ///     字段描述
-        /// </summary>
-        public string Description { get; set; }
+            /// <summary>
+            /// 欄位長度。
+            /// </summary>
+            public int Length { get; set; }
 
-        /// <summary>
-        ///     是否允许为空
-        /// </summary>
-        public bool IfNull { get; set; }
+            /// <summary>
+            /// 欄位描述。
+            /// </summary>
+            public string Description { get; set; }
 
-        /// <summary>
-        ///     默认值
-        /// </summary>
-        public object DefaultValue { get; set; }
+            /// <summary>
+            /// 是否允許為空。
+            /// </summary>
+            public bool IfNull { get; set; }
+
+            /// <summary>
+            /// 預設值。
+            /// </summary>
+            public object DefaultValue { get; set; }
+        }
+
     }
 }

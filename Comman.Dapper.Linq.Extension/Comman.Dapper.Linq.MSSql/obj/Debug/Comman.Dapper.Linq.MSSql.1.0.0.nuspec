@@ -1,0 +1,49 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+  <metadata>
+    <id>Comman.Dapper.Linq.MSSql</id>
+    <version>1.0.0</version>
+    <authors>TomKao</authors>
+    <description>Package Description</description>
+    <dependencies>
+      <group targetFramework=".NETFramework4.6">
+        <dependency id="Comman.Dapper.Linq.Extension" version="1.0.0" exclude="Build,Analyzers" />
+      </group>
+      <group targetFramework=".NETFramework4.6.1">
+        <dependency id="Comman.Dapper.Linq.Extension" version="1.0.0" exclude="Build,Analyzers" />
+      </group>
+      <group targetFramework=".NETFramework4.6.2">
+        <dependency id="Comman.Dapper.Linq.Extension" version="1.0.0" exclude="Build,Analyzers" />
+      </group>
+      <group targetFramework=".NETFramework4.7">
+        <dependency id="Comman.Dapper.Linq.Extension" version="1.0.0" exclude="Build,Analyzers" />
+      </group>
+      <group targetFramework=".NETFramework4.7.1">
+        <dependency id="Comman.Dapper.Linq.Extension" version="1.0.0" exclude="Build,Analyzers" />
+      </group>
+      <group targetFramework=".NETFramework4.7.2">
+        <dependency id="Comman.Dapper.Linq.Extension" version="1.0.0" exclude="Build,Analyzers" />
+      </group>
+      <group targetFramework=".NETFramework4.8">
+        <dependency id="Comman.Dapper.Linq.Extension" version="1.0.0" exclude="Build,Analyzers" />
+      </group>
+      <group targetFramework=".NETCoreApp3.1">
+        <dependency id="Comman.Dapper.Linq.Extension" version="1.0.0" exclude="Build,Analyzers" />
+      </group>
+      <group targetFramework="net6.0">
+        <dependency id="Comman.Dapper.Linq.Extension" version="1.0.0" exclude="Build,Analyzers" />
+      </group>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="/Users/tomkao/Documents/Git/Comman.Dapper.Linq.Extension/Comman.Dapper.Linq.Extension/Comman.Dapper.Linq.MSSql/bin/Debug/net46/Comman.Dapper.Linq.MSSql.dll" target="lib/net46/Comman.Dapper.Linq.MSSql.dll" />
+    <file src="/Users/tomkao/Documents/Git/Comman.Dapper.Linq.Extension/Comman.Dapper.Linq.Extension/Comman.Dapper.Linq.MSSql/bin/Debug/net461/Comman.Dapper.Linq.MSSql.dll" target="lib/net461/Comman.Dapper.Linq.MSSql.dll" />
+    <file src="/Users/tomkao/Documents/Git/Comman.Dapper.Linq.Extension/Comman.Dapper.Linq.Extension/Comman.Dapper.Linq.MSSql/bin/Debug/net462/Comman.Dapper.Linq.MSSql.dll" target="lib/net462/Comman.Dapper.Linq.MSSql.dll" />
+    <file src="/Users/tomkao/Documents/Git/Comman.Dapper.Linq.Extension/Comman.Dapper.Linq.Extension/Comman.Dapper.Linq.MSSql/bin/Debug/net47/Comman.Dapper.Linq.MSSql.dll" target="lib/net47/Comman.Dapper.Linq.MSSql.dll" />
+    <file src="/Users/tomkao/Documents/Git/Comman.Dapper.Linq.Extension/Comman.Dapper.Linq.Extension/Comman.Dapper.Linq.MSSql/bin/Debug/net471/Comman.Dapper.Linq.MSSql.dll" target="lib/net471/Comman.Dapper.Linq.MSSql.dll" />
+    <file src="/Users/tomkao/Documents/Git/Comman.Dapper.Linq.Extension/Comman.Dapper.Linq.Extension/Comman.Dapper.Linq.MSSql/bin/Debug/net472/Comman.Dapper.Linq.MSSql.dll" target="lib/net472/Comman.Dapper.Linq.MSSql.dll" />
+    <file src="/Users/tomkao/Documents/Git/Comman.Dapper.Linq.Extension/Comman.Dapper.Linq.Extension/Comman.Dapper.Linq.MSSql/bin/Debug/net48/Comman.Dapper.Linq.MSSql.dll" target="lib/net48/Comman.Dapper.Linq.MSSql.dll" />
+    <file src="/Users/tomkao/Documents/Git/Comman.Dapper.Linq.Extension/Comman.Dapper.Linq.Extension/Comman.Dapper.Linq.MSSql/bin/Debug/net6.0/Comman.Dapper.Linq.MSSql.dll" target="lib/net6.0/Comman.Dapper.Linq.MSSql.dll" />
+    <file src="/Users/tomkao/Documents/Git/Comman.Dapper.Linq.Extension/Comman.Dapper.Linq.Extension/Comman.Dapper.Linq.MSSql/bin/Debug/netcoreapp3.1/Comman.Dapper.Linq.MSSql.dll" target="lib/netcoreapp3.1/Comman.Dapper.Linq.MSSql.dll" />
+  </files>
+</package>

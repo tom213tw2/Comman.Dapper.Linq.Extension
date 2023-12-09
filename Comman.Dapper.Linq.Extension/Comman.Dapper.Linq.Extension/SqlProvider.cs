@@ -33,12 +33,12 @@ namespace Comman.Dapper.Linq.Extension
         /// <summary>
         /// 數據庫提供者選項。
         /// </summary>
-        public abstract ProviderOption ProviderOption { get; set; }
+        public abstract IProviderOption ProviderOption { get; set; }
 
         /// <summary>
         /// 表達式解析器。
         /// </summary>
-        public abstract ResolveExpression ResolveExpression { get; set; }
+        public abstract IResolveExpression ResolveExpression { get; set; }
 
         /// <summary>
         /// 生成的 SQL 字串。

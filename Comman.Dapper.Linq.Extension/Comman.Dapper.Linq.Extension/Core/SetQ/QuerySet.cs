@@ -19,7 +19,7 @@ namespace Comman.Dapper.Linq.Extension.Core.SetQ
     /// <typeparam name="T"></typeparam>
     public partial class QuerySet<T> : Aggregation<T>, Comman.Dapper.Linq.Extension.Core.Interfaces.IQuerySet<T>
     {
-        protected QuerySet(IDbConnection conn, SqlProvider sqlProvider) : base(conn, sqlProvider)
+        public QuerySet(IDbConnection conn, SqlProvider sqlProvider) : base(conn, sqlProvider)
         {
             TableType = typeof(T);
             SetContext = new DataBaseContext<T>

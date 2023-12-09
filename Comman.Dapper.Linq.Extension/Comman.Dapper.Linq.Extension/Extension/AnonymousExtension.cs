@@ -163,7 +163,7 @@ namespace Comman.Dapper.Linq.Extension.Extension
         /// <param name="data"></param>
         /// <param name="dbCon"></param>
         /// <returns></returns>
-        private static T SetNavigation<T>(this T data, IDbConnection dbCon, ProviderOption providerOption)
+        private static T SetNavigation<T>(this T data, IDbConnection dbCon, IProviderOption providerOption)
         {
             if (providerOption.NavigationList.Any() && data != null)
                 foreach (var navigation in providerOption.NavigationList)
@@ -236,7 +236,7 @@ namespace Comman.Dapper.Linq.Extension.Extension
         /// <param name="DbCon"></param>
         /// <returns></returns>
         private static List<T> SetNavigationList<T>(this List<T> data, IDbConnection dbCon,
-            ProviderOption providerOption)
+            IProviderOption providerOption)
         {
             if (providerOption.NavigationList.Any() && data != null && data.Any())
                 foreach (var navigation in providerOption.NavigationList)

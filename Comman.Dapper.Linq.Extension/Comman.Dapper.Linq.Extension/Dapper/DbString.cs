@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Data;
-using Kogel.Dapper.Extension;
 
 namespace Comman.Dapper.Linq.Extension.Dapper
 {

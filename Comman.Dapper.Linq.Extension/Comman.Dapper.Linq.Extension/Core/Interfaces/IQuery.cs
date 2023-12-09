@@ -4,7 +4,6 @@ using System.Data;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Comman.Dapper.Linq.Extension.Entites;
-using Kogel.Dapper.Extension;
 
 namespace Comman.Dapper.Linq.Extension.Core.Interfaces
 {

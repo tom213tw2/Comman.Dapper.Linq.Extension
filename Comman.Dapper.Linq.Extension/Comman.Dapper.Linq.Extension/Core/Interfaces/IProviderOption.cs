@@ -9,9 +9,9 @@ namespace Comman.Dapper.Linq.Extension.Core.Interfaces
     /// <summary>
     /// 提供 SQL 語句的配置選項的抽象類。
     /// </summary>
-    public abstract class ProviderOption
+    public abstract class IProviderOption
     {
-        protected ProviderOption(string openQuote, string closeQuote, char parameterPrefix)
+        protected IProviderOption(string openQuote, string closeQuote, char parameterPrefix)
         {
             OpenQuote = openQuote;
             CloseQuote = closeQuote;

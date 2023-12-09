@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Data;
-using Kogel.Dapper.Extension;
 
 #if !NETSTANDARD1_3
 namespace Comman.Dapper.Linq.Extension.Dapper

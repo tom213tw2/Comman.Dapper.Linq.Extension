@@ -14,7 +14,7 @@ namespace Comman.Dapper.Linq.Extension.Core.Interfaces
         /// <param name="typeEntity">實體對象。</param>
         /// <param name="field">實體字段。</param>
         /// <returns>生成的 SQL 字串。</returns>
-        string SyncField(EntityObject typeEntity, EntityField field);
+        string SyncField(EntityObject typeEntity, EntityObject.EntityField field);
 
         /// <summary>
         /// 同步單個表結構。

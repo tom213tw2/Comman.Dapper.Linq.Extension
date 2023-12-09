@@ -3,7 +3,6 @@ using System.Data;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Threading;
-using Kogel.Dapper.Extension;
 
 namespace Comman.Dapper.Linq.Extension.Dapper
 {

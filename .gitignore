@@ -4,3 +4,11 @@ Comman.Dapper.Linq.Extension/Comman.Dapper.Linq.Extension/bin/
 Comman.Dapper.Linq.Extension/Comman.Dapper.Linq.Extension/obj/
 
 Comman.Dapper.Linq.Extension/.vs/
+
+Comman.Dapper.Linq.Extension/.DS_Store
+
+*.dll
+
+*.nupkg
+
+*.pdb
