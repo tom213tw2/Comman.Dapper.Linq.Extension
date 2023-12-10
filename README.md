@@ -140,3 +140,128 @@ using (var conn = new SqlConnection(mysqlConnection))
     transaction.Commit();
 }
 ```
+
+### Join 
+```
+var list = conn.QuerySet<users>()
+           .Where(x => x.code != "1")
+           .Join<users, project_Role>(x => x.roleId, y => y.id)
+           .ToList();
+```
+
+### 任何條件 Join
+```
+var list = conn.QuerySet<users>()
+           .Where(x => x.code != "1")
+           .Join<users, project_Role>((x,y)=>x.roleId==y.id)
+           .ToList();
+```
+
+### 設置Join 條件
+```
+var list = conn.QuerySet<users>()
+           .Where(x => x.code != "1")
+           .Join<users, project_Role>((x,y)=>x.roleId==y.id, JoinMode.LEFT)
+           .ToList();
+```
+
+### Join 返回多筆型態
+```
+var list = conn.QuerySet<Users>()
+               .WithNoLock()
+               .Join<Users, Orgs>(s => s.Org_Id,t => t.Id,JoinMode.RIGHT)
+               .From<Users, Orgs>()
+               .ToList((x, y) => new
+               {
+                   x.Id,
+                   x.Org_Id,
+                   x.Name1234,
+                   x.Birthday,
+                   x.Email,
+                   x.Account,
+                   x.Password,
+                   x.Status,
+                   x.Created_at,
+                   x.Updated_at,
+                   OrgId = y.Id,
+                   y.title,
+                   y.org_no,
+                   y.created_at,
+                   y.updated_at
+               });
+```
+
+### Join 多表條件塞選
+```
+var users = conn.QuerySet<users>()
+                       .Join<users, project_Role>((a, b) => a.roleId == b.id)
+                       .Where<users, project_Role>((a, b) => a.id == 3 && b.id == 3)
+                       .Get<dynamic>();
+```
+
+### Join 支持動態型別(dynamic)
+```
+var list = conn.QuerySet<users>()
+           .Where(x => x.code != "1")
+           .Join<users, project_Role>(x => x.roleId, y => y.id)
+           .ToList<dynamic>();
+```
+
+### 分頁查詢
+```
+var list = conn.QuerySet<users>()
+           .OrderBy(x => x.createDate)
+           .PageList(1, 10);
+```
+
+### Join 分頁查詢
+```
+var list = conn.QuerySet<Users>().Join<Users, Orgs>(s => s.Org_Id, t => t.Id).From<Users, Orgs>()
+.OrderBy<Users>(s => s.Id).PageList(1, 10, (s, t) => new
+{
+    s.Id,
+    s.Org_Id,
+    s.Name1234,
+    s.Birthday,
+    s.Email,
+    s.Account,
+    s.Password,
+    s.Status,
+    s.Created_at,
+    s.Updated_at,
+    t.org_no
+});
+```
+
+### 支持自定義查詢
+```
+var ContentList = conn.QuerySet<Comment>()
+                 .ToList(x => new CommentDto()
+                 {
+                     Id = x.Id,
+                     ArticleIds = x.ArticleId,
+                     count = conn.QuerySet<News>().Where(y => y.Id == x.ArticleId).Count(),
+                     NewsList = new QuerySet<News>().Where(y => y.Id == x.ArticleId).ToList(y => new NewsDto()
+                     {
+                         Id = y.Id,
+                         Contents = y.Content
+                     }).ToList()
+                 });
+```
+
+### 支持分組查詢
+```
+var commne = conn.QuerySet<Comment>()
+                    .Where(x => x.Id > 0 && array1.Contains(x.Id) && x.Content.Replace("1", "2") == x.Content)
+                    .Where(x => x.Id.In(array1))
+                    .GroupBy(x => new { x.ArticleId })
+                    .Having(x => Function.Sum(x.Id) >= 5)
+                    .ToList(x => new
+                    {
+                        x.ArticleId,
+                        test1 = Function.Sum(x.Id)
+                    });
+```
+
+
+
