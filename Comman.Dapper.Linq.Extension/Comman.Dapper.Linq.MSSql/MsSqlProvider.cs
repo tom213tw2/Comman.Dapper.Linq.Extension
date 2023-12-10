@@ -88,7 +88,7 @@ namespace Comman.Dapper.Linq.MSSql
 
             var whereSql = ResolveExpression.ResolveWhereList();
             
-            JoinList.ForEach(s=>s.NoLockString=nolockSql);
+           
 
             var joinSql = ResolveExpression.ResolveJoinSql(JoinList, ref selectSql);
 

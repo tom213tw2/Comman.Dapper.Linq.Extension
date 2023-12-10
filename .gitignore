@@ -12,3 +12,7 @@ Comman.Dapper.Linq.Extension/.DS_Store
 *.nupkg
 
 *.pdb
+
+Comman.Dapper.Linq.Extension/Comman.Dapper.Linq.Extension/.DS_Store
+
+Comman.Dapper.Linq.Extension/Comman.Dapper.Linq.MSSql/obj/

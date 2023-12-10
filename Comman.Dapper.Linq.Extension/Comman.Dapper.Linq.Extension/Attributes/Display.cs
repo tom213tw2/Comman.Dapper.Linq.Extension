@@ -22,7 +22,7 @@ namespace Comman.Dapper.Linq.Extension.Attributes
         /// <param name="defaultValue">欄位的預設值。</param>
         public Display(string name = null, string description = null, string rename = null, string schema = null,
                        string asName = null, bool isField = true, SqlDbType sqlDbType = SqlDbType.Structured,
-                       int length = 0, bool? isNull = default, object defaultValue = null)
+                       int length = 0, bool isNull = default, object defaultValue = null)
         {
             Name = name;
             Description = description;
