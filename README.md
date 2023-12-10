@@ -1,5 +1,6 @@
 # Comman.Dapper.Linq.Extension
 
+### 可以在Release 中找到對應的版本
 
 ## (一)Model
 可以使用Release 中[工具](https://github.com/tom213tw2/Comman.Dapper.Linq.Extension/releases/tag/工具)
