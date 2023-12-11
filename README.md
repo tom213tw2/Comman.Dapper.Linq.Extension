@@ -208,7 +208,7 @@ var list = conn.QuerySet<users>()
            .ToList<dynamic>();
 ```
 
-### Join 支持多表查詢(兩個Join以上，最多四個)
+### Join 支持多表查詢(兩個Join以上，最多三個Join,4個不同的表)
 ```
 var listData=conn.QuerySet<Users>().WithNoLock().Join<Users,Orgs>(s=>s.Org_Id,t=>t.Id)
 	.Join<Users,Apply_File>(s=>s.Id,t=>t.user_id)
