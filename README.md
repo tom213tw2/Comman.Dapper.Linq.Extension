@@ -208,6 +208,17 @@ var list = conn.QuerySet<users>()
            .ToList<dynamic>();
 ```
 
+### Join 支持多表查詢(兩個Join以上，最多四個)
+```
+var listData=conn.QuerySet<Users>().WithNoLock().Join<Users,Orgs>(s=>s.Org_Id,t=>t.Id)
+	.Join<Users,Apply_File>(s=>s.Id,t=>t.user_id)
+	.From<Users,Orgs,Apply_File>()
+	.Where((x, y, z) => x.Id == Guid.Parse("E7091115-0F26-49C3-95CF-1539E41750C4"))
+	.ToList((x, y, z) => new {
+	x.Id,x.Org_Id,x.Account,x.Birthday,x.Email,y.org_no,y.title,z.file_path
+	} );
+```
+
 ### 分頁查詢
 ```
 var list = conn.QuerySet<users>()
