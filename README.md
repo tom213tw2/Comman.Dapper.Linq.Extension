@@ -275,5 +275,21 @@ var commne = conn.QuerySet<Comment>()
                     });
 ```
 
+### 支持Join 多表的分組查詢 
+```
+var listData = conn.QuerySet<Users>().WithNoLock()
+			.Join<Users, OrgList>(x => x.OrgId, y => y.Id, JoinMode.INNER)
+			.GroupBy<Users>(s => new { s.OrgId})
+			.GroupBy<OrgList>(s => new {s.Id, s.OrgName, s.CreateDatetime, s.UpdateDatetime} )
+			.Having(s =>Function.Count(s.Id)>20 )
+			.From<OrgList, Users>().ToList((x, y) => new {
+			x.Id,
+			x.OrgName,
+			x.CreateDatetime,
+			x.UpdateDatetime,			
+			y.OrgId,			
+			Count=Function.Count(x.Id)
+			});
+```
 
 
