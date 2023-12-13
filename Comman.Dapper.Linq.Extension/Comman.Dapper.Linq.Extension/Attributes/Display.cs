@@ -20,9 +20,10 @@ namespace Comman.Dapper.Linq.Extension.Attributes
         /// <param name="length">欄位長度。</param>
         /// <param name="isNull">指示該欄位是否可為 null。</param>
         /// <param name="defaultValue">欄位的預設值。</param>
+        /// <param name="dbType"></param>
         public Display(string name = null, string description = null, string rename = null, string schema = null,
                        string asName = null, bool isField = true, SqlDbType sqlDbType = SqlDbType.Structured,
-                       int length = 0, bool isNull = default, object defaultValue = null)
+                       int length = 0, bool isNull = default, object defaultValue = null,DbType dbType=System.Data.DbType.Object)
         {
             Name = name;
             Description = description;
@@ -34,6 +35,7 @@ namespace Comman.Dapper.Linq.Extension.Attributes
             Length = length;
             IfNull = isNull;
             DefaultValue = defaultValue;
+            DbType = dbType;
         }
 
         /// <summary>
@@ -75,5 +77,7 @@ namespace Comman.Dapper.Linq.Extension.Attributes
         /// 獲取或設置此欄位的預設值。
         /// </summary>
         public object DefaultValue { get; set; }
+
+        public DbType DbType { get; set; }
     }
 }
