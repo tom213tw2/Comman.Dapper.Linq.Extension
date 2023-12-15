@@ -72,7 +72,7 @@ namespace Comman.Dapper.Linq.MSSql
             foreach (var item in dic.Values)
             {
                 sb.AppendLine();
-                sb.AppendFormat("@{0} : {1}", item["Name"], item["Value"]);
+                sb.AppendFormat("{0} : {1}", item["Name"], item["Value"]);
             }
 
             return sb.ToString();

@@ -500,7 +500,8 @@ namespace Comman.Dapper.Linq.Extension.Core.Interfaces
             var tableName = provider.FormatTableName(false, false); // entityProperties.Name;
             var isAppend = false;
 
-            foreach (var entityField in entityProperties.EntityFieldList)
+            int? size=0;
+            foreach (EntityObject.EntityField entityField in entityProperties.EntityFieldList)
             {
                 string fieldName = entityField.FieldName;
                 // 檢查是否為排除字段
@@ -522,12 +523,20 @@ namespace Comman.Dapper.Linq.Extension.Core.Interfaces
                     paramBuilder.Append(",");
                 }
 
+                if (entityField.Length==0)
+                {
+                    size = null;
+                }
+                else
+                {
+                    size = entityField.Length;
+                }
                 // 字段添加
                 fieldBuilder.Append($"{provider.ProviderOption.CombineFieldName(fieldName)}");
                 // 參數添加
                 paramBuilder.Append($"{provider.ProviderOption.ParameterPrefix}{fieldName}{index}");
                 parameters.Add($"{provider.ProviderOption.ParameterPrefix}{fieldName}{index}",
-                    entityField.PropertyInfo.GetValue(tValue));
+                    entityField.PropertyInfo.GetValue(tValue),entityField.DbType,size:size);
 
                 isAppend = true;
             }

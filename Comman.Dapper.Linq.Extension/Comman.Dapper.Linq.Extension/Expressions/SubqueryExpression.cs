@@ -364,7 +364,7 @@ namespace Comman.Dapper.Linq.Extension.Expressions
                 querySet.OrderbyExpressionList.Add(orderExpression, EOrderBy.Desc);
         }
 
-        #region Kogel对象
+       
 
         /// <summary>
         ///     查询对象
@@ -376,6 +376,6 @@ namespace Comman.Dapper.Linq.Extension.Expressions
         /// </summary>
         public List<LambdaExpression> WhereExpression { get; set; }
 
-        #endregion
+       
     }
 }

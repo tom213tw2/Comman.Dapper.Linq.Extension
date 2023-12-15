@@ -109,7 +109,8 @@ namespace Comman.Dapper.Linq.Extension.Entites
                             Length = display.Length,
                             Description = display.Description,
                             IfNull = display.IfNull.HasValue ? display.IfNull.Value : ifNull,
-                            DefaultValue = display.DefaultValue
+                            DefaultValue = display.DefaultValue,
+                            DbType = display.DbType
                         });
                     }
                 }
@@ -293,6 +294,8 @@ namespace Comman.Dapper.Linq.Extension.Entites
             /// 預設值。
             /// </summary>
             public object DefaultValue { get; set; }
+
+            public DbType DbType { get; set; }
         }
 
     }
