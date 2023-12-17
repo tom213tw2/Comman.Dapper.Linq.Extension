@@ -159,7 +159,7 @@ namespace Comman.Dapper.Linq.MSSql
 
             ProviderOption.IsAsName = false;
 
-            var whereSql = ResolveExpression.ResolveWhereList();
+            var whereSql = ResolveExpression.ResolveCommandWhereList();
 
             SqlString = $"DELETE {fromTableSql} {whereSql }";
 
@@ -190,7 +190,7 @@ namespace Comman.Dapper.Linq.MSSql
 
             ProviderOption.IsAsName = false;
 
-            var whereSql = ResolveExpression.ResolveWhereList();
+            var whereSql = ResolveExpression.ResolveCommandWhereList();
             Params.AddDynamicParams(update.Param);
 
             SqlString = $"UPDATE {FormatTableName(false, false)} {update.SqlCmd} {whereSql}";
@@ -204,7 +204,7 @@ namespace Comman.Dapper.Linq.MSSql
 
             ProviderOption.IsAsName = false;
 
-            var whereSql = ResolveExpression.ResolveWhereList();
+            var whereSql = ResolveExpression.ResolveCommandWhereList();
             //如果不存在条件，就用主键作为条件
             if (whereSql.Trim().Equals("WHERE 1=1"))
                 whereSql += GetIdentityWhere(entity, Params);

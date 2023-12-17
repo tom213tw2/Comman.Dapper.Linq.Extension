@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
@@ -25,8 +26,8 @@ namespace Comman.Dapper.Linq.MSSql
 		/// <returns></returns>
 		public override string ResolveSelect(int? topNum)
 		{
-			//添加需要连接的导航表
-			var masterEntity = EntityCache.QueryEntity(abstractSet.TableType);
+            //添加需要连接的导航表
+            EntityObject masterEntity = EntityCache.QueryEntity(abstractSet.TableType);
 			var navigationList = masterEntity.Navigations;
 			if (navigationList.Any())
 			{
@@ -143,5 +144,5 @@ namespace Comman.Dapper.Linq.MSSql
 
 			return selectSql;
 		}
-	}
+    }
 }

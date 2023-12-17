@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using Comman.Dapper.Linq.Extension.Extension;
@@ -44,6 +45,7 @@ namespace Comman.Dapper.Linq.Extension.Expressions
                         //值对象
                         Visit(memberInit.Expression);
                         var entityObject = EntityCache.QueryEntity(expression.ReturnType);
+                        
                         var fieldName = entityObject.FieldPairs[memberInit.Member.Name];
                         _sqlCmd.Append($" {provider.ProviderOption.CombineFieldName(fieldName)} = {SpliceField} ");
                         Param.AddDynamicParams(base.Param);

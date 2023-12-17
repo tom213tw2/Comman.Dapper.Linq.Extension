@@ -3,7 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
+using Comman.Dapper.Linq.Extension.Attributes;
 using Comman.Dapper.Linq.Extension.Dapper;
 using Comman.Dapper.Linq.Extension.Entites;
 using Comman.Dapper.Linq.Extension.Expressions;
@@ -77,22 +80,91 @@ namespace Comman.Dapper.Linq.Extension.Core.Interfaces
         {
             // 添加 LINQ 生成的 SQL 條件和參數
             List<LambdaExpression> lambdaExpressionList = abstractSet.WhereExpressionList;
+           
+            var aaa = new EntityObject(abstractSet.TableType);
+           var list= GetTableField(aaa).Split(',').Select(s => s.Split('.')[0].Replace("[","").Replace("]","")+"."+ s.Split('.')[1]).ToList();
+            
             StringBuilder builder = new StringBuilder("WHERE 1=1 ");
+          
             for (int i = 0; i < lambdaExpressionList.Count; i++)
             {
                 string wherePrefix = string.IsNullOrEmpty(prefix) ? $"{i}" : $"{prefix}{(i)}_";
-                var whereParam = new WhereExpression(lambdaExpressionList[i], wherePrefix, provider);
+                var whereParam = new WhereExpression(lambdaExpressionList[i], wherePrefix, provider);      
+                
                 builder.Append(whereParam.SqlCmd);
                 // 處理參數
                 foreach (var paramKey in whereParam.Param.ParameterNames)
                 {
-                    abstractSet.Params.Add(paramKey, whereParam.Param.Get<object>(paramKey));
+                    var  txt = whereParam.SqlCmd;
+
+                   for(int j=0;j< list.Count(); j++)
+                    {
+                        if (IsFieldAssociatedWithParam(txt, list[j], $"@{paramKey}"))
+                        {
+                            var config = aaa.EntityFieldList[j];
+                            int? size = 0;
+                            if (config.Length == 0)
+                                size = null;
+                            else
+                                size = config.Length;
+
+                            abstractSet.Params.Add(paramKey, whereParam.Param.Get<object>(paramKey), config.DbType, size: size);
+                        }
+                    }
                 }
             }
 
             // 添加自定義 SQL 生成的條件和參數
             if (abstractSet.WhereBuilder != null && abstractSet.WhereBuilder.Length != 0)
             {
+
+                // 添加自定義條件 SQL
+                builder.Append(abstractSet.WhereBuilder);
+            }
+
+            return builder.ToString();
+        }
+
+        public virtual string ResolveCommandWhereList(string prefix = null)
+        {
+            // 添加 LINQ 生成的 SQL 條件和參數
+            List<LambdaExpression> lambdaExpressionList = abstractSet.WhereExpressionList;
+           
+            var entityFields = new EntityObject(abstractSet.TableType).EntityFieldList;
+           
+            
+            StringBuilder builder = new StringBuilder("WHERE 1=1 ");
+          
+            for (int i = 0; i < lambdaExpressionList.Count; i++)
+            {
+                string wherePrefix = string.IsNullOrEmpty(prefix) ? $"{i}" : $"{prefix}{(i)}_";
+                var whereParam = new WhereExpression(lambdaExpressionList[i], wherePrefix, provider);      
+                
+                builder.Append(whereParam.SqlCmd);
+                // 處理參數
+                foreach (var paramKey in whereParam.Param.ParameterNames)
+                {
+                    var sqlCmd = whereParam.SqlCmd;
+                    var entityFieldList = entityFields.Where(s =>
+                        IsFieldAssociatedWithParam(sqlCmd, $"[{s.FieldName}]", $"@{paramKey}"));
+                   if (entityFieldList.Any())
+                   {
+                       var entityField = entityFieldList.Single();
+                       int? size = 0;
+                       if (entityField.Length == 0)
+                           size = null;
+                       else
+                           size = entityField.Length;
+
+                       abstractSet.Params.Add(paramKey, whereParam.Param.Get<object>(paramKey), entityField.DbType, size: size);
+                   }
+                }
+            }
+
+            // 添加自定義 SQL 生成的條件和參數
+            if (abstractSet.WhereBuilder != null && abstractSet.WhereBuilder.Length != 0)
+            {
+
                 // 添加自定義條件 SQL
                 builder.Append(abstractSet.WhereBuilder);
             }
@@ -248,9 +320,14 @@ namespace Comman.Dapper.Linq.Extension.Core.Interfaces
                     builder.Append(",");
                 }
 
+                int? size = 0;
+                if (entityField.Length == 0)
+                    size = null;
+                else
+                    size = entityField.Length;
                 string paramName = $"{providerOption.ParameterPrefix}U_{name}_{param.ParameterNames.Count()}";
                 builder.Append($"{providerOption.CombineFieldName(name)}={paramName}");
-                param.Add($"{paramName}", value);
+                param.Add($"{paramName}", value,entityField.DbType,size:size);
             }
 
             builder.Insert(0, " SET ");
@@ -545,6 +622,14 @@ namespace Comman.Dapper.Linq.Extension.Core.Interfaces
                 paramBuilder, parameters);
         }
 
-        
+        private bool IsFieldAssociatedWithParam(string query, string fieldName, string paramName)
+        {
+            string pattern = $@"{Regex.Escape(fieldName)}\s*=\s*{Regex.Escape(paramName)}";
+            Match match = Regex.Match(query, pattern);
+
+            return match.Success;
+        }
+
+
     }
 }

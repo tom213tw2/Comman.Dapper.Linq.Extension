@@ -103,6 +103,7 @@ namespace Comman.Dapper.Linq.Extension.Expressions
                             $"{providerOption.ParameterPrefix}Member_Param_{Index}_{Param.ParameterNames.Count()}";
                         // 獲取值
                         var nodeValue = node.ToConvertAndGetValue();
+                        
                         // 設置SQL
                         SpliceField.Append(paramName);
                         Param.Add(paramName, nodeValue);
