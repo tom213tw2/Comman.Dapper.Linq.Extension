@@ -150,11 +150,12 @@ namespace Comman.Dapper.Linq.Extension.Expressions
         /// <returns>表達式訪問結果</returns>
         protected override Expression VisitMethodCall(MethodCallExpression node)
         {
-            if (node.Method.DeclaringType.FullName.Contains("Kogel.Dapper.Extension.Function")) // 系統函數
+            
+            if (node.Method.DeclaringType.FullName.Contains("Comman.Dapper.Linq.Extension.Helper.Function")) // 系統函數
             {
                 Operation(node);
             }
-            else if (node.Method.DeclaringType.FullName.Contains("Kogel.Dapper.Extension"))
+            else if (node.Method.DeclaringType.FullName.Contains("Comman.Dapper.Linq.Extension"))
             {
                 var parameters = new DynamicParameters();
                 SpliceField.Append($"({node.MethodCallExpressionToSql(ref parameters, Index)})");
@@ -249,6 +250,19 @@ namespace Comman.Dapper.Linq.Extension.Expressions
                     SpliceField.Append(")");
                 }
                     break;
+                case "Substring" :
+                {
+                    SpliceField.Append("SUBSTRING(");
+                    Visit(node.Object);
+                    SpliceField.Append(",");
+                    var aa = Convert.ToInt32(node.Arguments[0].ToString()) + 1;
+                    Visit(Expression.Constant(aa, typeof(int)));
+                    SpliceField.Append(",");
+                    Visit(node.Arguments[1]);
+                    SpliceField.Append(")");
+                }
+                    break;
+                
                 case "Trim":
                 {
                     SpliceField.Append("Trim(");
