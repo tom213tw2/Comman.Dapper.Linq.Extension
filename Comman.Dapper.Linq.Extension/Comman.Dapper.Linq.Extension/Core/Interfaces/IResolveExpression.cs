@@ -81,8 +81,17 @@ namespace Comman.Dapper.Linq.Extension.Core.Interfaces
             // 添加 LINQ 生成的 SQL 條件和參數
             List<LambdaExpression> lambdaExpressionList = abstractSet.WhereExpressionList;
            
-            var aaa = new EntityObject(abstractSet.TableType);
-           var list= GetTableField(aaa).Split(',').Select(s => s.Split('.')[0].Replace("[","").Replace("]","")+"."+ s.Split('.')[1]).ToList();
+            var entityObject = new EntityObject(abstractSet.TableType);
+           var entityFields = GetTableField(entityObject)
+               .Split(',')
+               .Select(s => s.Split('.')[0]
+                                .Replace("[",
+                                    "")
+                                .Replace("]",
+                                    "") +
+                            "." +
+                            s.Split('.')[1])
+               .ToList();
             
             StringBuilder builder = new StringBuilder("WHERE 1=1 ");
           
@@ -95,13 +104,37 @@ namespace Comman.Dapper.Linq.Extension.Core.Interfaces
                 // 處理參數
                 foreach (var paramKey in whereParam.Param.ParameterNames)
                 {
-                    var  txt = whereParam.SqlCmd;
-
-                   for(int j=0;j< list.Count(); j++)
+                    var sqlCmd = whereParam.SqlCmd;
+                    var entityFieldList = entityFields.Where(s =>
+                        IsFieldAssociatedWithParam(sqlCmd, $"{s}", $"@{paramKey}")).Select((s,t)=>new
                     {
-                        if (IsFieldAssociatedWithParam(txt, list[j], $"@{paramKey}"))
+                        FieldName=s,
+                        Index=t
+                    });
+
+                    if (entityFieldList.Any())
+                    {
+                        var entityFieldIndex = entityFieldList.Single().Index;
+                        var config = entityObject.EntityFieldList[entityFieldIndex];
+                        int? size = 0;
+                        if (config.Length == 0)
+                            size = null;
+                        else
+                            size = config.Length;
+                        abstractSet.Params.Add(paramKey, whereParam.Param.Get<object>(paramKey), config.DbType, size: size);
+                        
+                    }
+                    else
+                    {
+                        abstractSet.Params.Add(paramKey, whereParam.Param.Get<object>(paramKey));
+                    }
+                    /*
+                   for(int j=0;j< entityFields.Count(); j++)
+                    {
+                        
+                        if (IsFieldAssociatedWithParam(sqlCmd, entityFields[j], $"@{paramKey}"))
                         {
-                            var config = aaa.EntityFieldList[j];
+                            var config = entityObject.EntityFieldList[j];
                             int? size = 0;
                             if (config.Length == 0)
                                 size = null;
@@ -110,7 +143,9 @@ namespace Comman.Dapper.Linq.Extension.Core.Interfaces
 
                             abstractSet.Params.Add(paramKey, whereParam.Param.Get<object>(paramKey), config.DbType, size: size);
                         }
+                       
                     }
+                    */
                 }
             }
 
@@ -158,6 +193,11 @@ namespace Comman.Dapper.Linq.Extension.Core.Interfaces
 
                        abstractSet.Params.Add(paramKey, whereParam.Param.Get<object>(paramKey), entityField.DbType, size: size);
                    }
+                   else
+                   {
+                       abstractSet.Params.Add(paramKey, whereParam.Param.Get<object>(paramKey));
+                   }
+                   
                 }
             }
 

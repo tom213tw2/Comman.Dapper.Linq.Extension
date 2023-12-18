@@ -391,15 +391,15 @@ namespace Comman.Dapper.Linq.Extension.Expressions
             {
                 var callName = node.Method.DeclaringType.FullName;
                 // 使用convert函數裡待執行的SQL數據
-                if (callName.Equals("Kogel.Dapper.Extension.ExpressExpansion")) // 自定義擴展方法
+                if (callName.Equals("Comman.Dapper.Linq.Extension.Extension.ExpressExpansion")) // 自定義擴展方法
                 {
                     Operation(node);
                 }
-                else if (callName.Contains("Kogel.Dapper.Extension.Function")) // 系統函數
+                else if (callName.Contains("Comman.Dapper.Linq.Extension.Helper.Function")) // 系統函數
                 {
                     Operation(node);
                 }
-                else if (callName.Contains("Kogel.Dapper.Extension"))
+                else if (callName.Contains("Comman.Dapper.Linq.Extension"))
                 {
                     base.VisitMethodCall(node);
                     SpliceField.Append(base.SpliceField);
@@ -789,6 +789,18 @@ protected override Expression VisitMember(MemberExpression node)
                         Visit(node.Object);
                         SpliceField.Append(",");
                         Visit(node.Arguments[0]);
+                        SpliceField.Append(",");
+                        Visit(node.Arguments[1]);
+                        SpliceField.Append(")");
+                    }
+                        break;
+                    case "Substring" :
+                    {
+                        SpliceField.Append("SUBSTRING(");
+                        Visit(node.Object);
+                        SpliceField.Append(",");
+                        var aa = Convert.ToInt32(node.Arguments[0].ToString()) + 1;
+                        Visit(Expression.Constant(aa, typeof(int)));
                         SpliceField.Append(",");
                         Visit(node.Arguments[1]);
                         SpliceField.Append(")");
