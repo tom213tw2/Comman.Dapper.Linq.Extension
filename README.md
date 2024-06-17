@@ -34,39 +34,68 @@ public class Users : IBaseEntity<Users, Guid>
 ```
 
 ## (二)使用情境
-**可通過```var conn = new SqlConnection(connectionString)```擴展方法**
+**可通過擴展方法DapperRepository 來使用**  
+**該類別一定要繼承IBaseEntity**
+```
+using (SqlConnection conn=new SqlConnection(connectionString))
+{
+  var repo = new DapperRepository<Users>(connectionString);
+}
+```
 
+### 想要查看執的Sql Script語法
+ **Query-查詢語法**
+```
+using (SqlConnection conn=new SqlConnection(connectionString))
+{
+    var repo=new DapperRepository<Users>(conn);	
+    repo.Query.Top(3).ToList();
+    //需加在執行之後	
+    var QuerySqlString=repo.QuerySqlString();	
+}
+```
+
+**Command-對DB資料異動語法**
+```
+using (SqlConnection conn=new SqlConnection(connectionString))
+{
+    var repo=new DapperRepository<Users>(conn);	
+    repo.Command.Delete();
+    //需加在執行之後	
+    var CommandSqlString=repo.CommandSqlString();
+}
+```
 ### 查詢單一筆資料
-```var users = conn.QuerySet<users>().Where(x => x.Name != "1").Get();```
+```var users = repo.Query.Where(x => x.Name != "1").Get();```
 
-```var users1 = conn.QuerySet<users>().Where(x => x.Name.Contains("Y")).Get();```
+```var users1 = repo.Query.Where(x => x.Name.Contains("Y")).Get();```
 
 ### 查詢一個範圍的資料
 ```
 int[] array = new int[] { 1, 2, 3 };
 //使用In
-var comment = conn.QuerySet<Comment>().Where(x => x.Id.In(array)).ToList();
+var comment = repo.Query.Where(x => x.Id.In(array)).ToList();
 //或者使用Contains
-var comment = conn.QuerySet<Comment>().Where(x => array.Contains(x.Id)).ToList();
+var comment = repo.Query.Where(x => array.Contains(x.Id)).ToList();
 ```
 
 ### 使用Sql 查詢
 ```
 DynamicParameters param = new DynamicParameters();
                 param.Add("Id", 1);
-var comment = conn.QuerySet<Comment>().Where("Id=@Id", param)
+var comment =  repo.Query.Where("Id=@Id", param)
                     .ToList();
 ```
 
 
 ### 使用With(NOLOCK) 查詢，避免鎖表
 ```
-var users = conn.QuerySet<Users>().WithNoLock().ToList();
+var users =  repo.Query.WithNoLock().ToList();
 ```
 
 ### 範圍尋找
 ```
-var comment = conn.QuerySet<Comment>().Where(x => x.Id.Between(1, 10)).ToList();
+var comment =  repo.Query.Where(x => x.Id.Between(1, 10)).ToList();
 ```
 
 
@@ -80,7 +109,7 @@ int result = conn.CommandSet<users>().Where(x => x.id == 4).Update(users);
 
 ### 自定義修改
 ```
-int result = conn.CommandSet<Comment>()
+int result = repo.Command
                     .Where(x => x.Content == "test")
                     .Update(x => new Comment
                     {
@@ -90,7 +119,7 @@ int result = conn.CommandSet<Comment>()
 
 ### 新增
 ```
-int result = conn.CommandSet<users>()
+int result = repo.Command
                  .Insert(new users() {
                        code = Guid.NewGuid().ToString(),
                        name = "test", createWay = 1,
@@ -101,7 +130,7 @@ int result = conn.CommandSet<users>()
 
 ### 新增返回Id
 ```
-int result = conn.CommandSet<users>()
+int result = repo.Command
                  .InsertIdentity(new users() {
                        code = Guid.NewGuid().ToString(),
                        name = "test", createWay = 1,
@@ -113,7 +142,7 @@ int result = conn.CommandSet<users>()
 
 ### 刪除
 ```
-int result = conn.CommandSet<users>()
+int result = repo.Command
               .Where(x => x.roleId == 2 && x.name == users2.name)
               .Delete();
 ```
@@ -127,10 +156,11 @@ using (var conn = new SqlConnection(mysqlConnection))
 
     // 建立交易處理對象
     var transaction = conn.BeginTransaction();
-
+    // 建立共用方法DapperRepository
+    var repo = new DapperRepository<Users>(conn,oTran);
     // 在交易中執行資料修改
     // 這裡以更新 Comment 表中 Id 為 1 的記錄為例
-    var result = conn.CommandSet<Comment>(transaction)
+    var result =repo.Command
         .Where(x => x.Id.Equals(1))
         .Update(x => new Comment()
         {
@@ -152,7 +182,7 @@ var list = conn.QuerySet<users>()
 
 ### 任何條件 Join
 ```
-var list = conn.QuerySet<users>()
+var list = repo.Query
            .Where(x => x.code != "1")
            .Join<users, project_Role>((x,y)=>x.roleId==y.id)
            .ToList();
@@ -160,7 +190,7 @@ var list = conn.QuerySet<users>()
 
 ### 設置Join 條件
 ```
-var list = conn.QuerySet<users>()
+var list = repo.Query
            .Where(x => x.code != "1")
            .Join<users, project_Role>((x,y)=>x.roleId==y.id, JoinMode.LEFT)
            .ToList();
@@ -168,7 +198,7 @@ var list = conn.QuerySet<users>()
 
 ### Join 返回多筆型態
 ```
-var list = conn.QuerySet<Users>()
+var list = repo.Query
                .WithNoLock()
                .Join<Users, Orgs>(s => s.Org_Id,t => t.Id,JoinMode.RIGHT)
                .From<Users, Orgs>()
@@ -194,7 +224,7 @@ var list = conn.QuerySet<Users>()
 
 ### Join 多表條件塞選
 ```
-var users = conn.QuerySet<users>()
+var users = repo.Query
                        .Join<users, project_Role>((a, b) => a.roleId == b.id)
                        .Where<users, project_Role>((a, b) => a.id == 3 && b.id == 3)
                        .Get<dynamic>();
@@ -202,7 +232,7 @@ var users = conn.QuerySet<users>()
 
 ### Join 支持動態型別(dynamic)
 ```
-var list = conn.QuerySet<users>()
+var list = repo.Query
            .Where(x => x.code != "1")
            .Join<users, project_Role>(x => x.roleId, y => y.id)
            .ToList<dynamic>();
@@ -210,7 +240,7 @@ var list = conn.QuerySet<users>()
 
 ### Join 支持多表查詢(兩個Join以上，最多三個Join,4個不同的表)
 ```
-var listData=conn.QuerySet<Users>().WithNoLock().Join<Users,Orgs>(s=>s.Org_Id,t=>t.Id)
+var listData=repo.Query.WithNoLock().Join<Users,Orgs>(s=>s.Org_Id,t=>t.Id)
 	.Join<Users,Apply_File>(s=>s.Id,t=>t.user_id)
 	.From<Users,Orgs,Apply_File>()
 	.Where((x, y, z) => x.Id == Guid.Parse("E7091115-0F26-49C3-95CF-1539E41750C4"))
@@ -221,14 +251,14 @@ var listData=conn.QuerySet<Users>().WithNoLock().Join<Users,Orgs>(s=>s.Org_Id,t=
 
 ### 分頁查詢
 ```
-var list = conn.QuerySet<users>()
+var list = repo.Query
            .OrderBy(x => x.createDate)
            .PageList(1, 10);
 ```
 
 ### Join 分頁查詢
 ```
-var list = conn.QuerySet<Users>().Join<Users, Orgs>(s => s.Org_Id, t => t.Id).From<Users, Orgs>()
+var list =repo.Query.Join<Users, Orgs>(s => s.Org_Id, t => t.Id).From<Users, Orgs>()
 .OrderBy<Users>(s => s.Id).PageList(1, 10, (s, t) => new
 {
     s.Id,
@@ -247,7 +277,7 @@ var list = conn.QuerySet<Users>().Join<Users, Orgs>(s => s.Org_Id, t => t.Id).Fr
 
 ### 支持自定義查詢
 ```
-var ContentList = conn.QuerySet<Comment>()
+var ContentList = repo.Query
                  .ToList(x => new CommentDto()
                  {
                      Id = x.Id,
@@ -263,7 +293,7 @@ var ContentList = conn.QuerySet<Comment>()
 
 ### 支持分組查詢
 ```
-var commne = conn.QuerySet<Comment>()
+var commne = repo.Query
                     .Where(x => x.Id > 0 && array1.Contains(x.Id) && x.Content.Replace("1", "2") == x.Content)
                     .Where(x => x.Id.In(array1))
                     .GroupBy(x => new { x.ArticleId })
@@ -277,7 +307,7 @@ var commne = conn.QuerySet<Comment>()
 
 ### 支持Join 多表的分組查詢 
 ```
-var listData = conn.QuerySet<Users>().WithNoLock()
+var listData = repo.Query.WithNoLock()
 			.Join<Users, OrgList>(x => x.OrgId, y => y.Id, JoinMode.INNER)
 			.GroupBy<Users>(s => new { s.OrgId})
 			.GroupBy<OrgList>(s => new {s.Id, s.OrgName, s.CreateDatetime, s.UpdateDatetime} )
