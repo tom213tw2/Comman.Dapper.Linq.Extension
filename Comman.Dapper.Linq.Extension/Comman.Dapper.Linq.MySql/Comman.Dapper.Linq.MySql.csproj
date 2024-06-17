@@ -3,9 +3,18 @@
     <PropertyGroup>
         <TargetFrameworks>net46;net461;net462;net47;net471;net472;net48;netcoreapp3.1;net6.0</TargetFrameworks>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <Version>1.0.0.0</Version>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <DocumentationFile>$(OutputPath)$(AssemblyName).xml</DocumentationFile>
+        <AssemblyTitle>Comman.Dapper.Linq.MySql</AssemblyTitle>
+        <PackageId>Comman.Dapper.Linq.MySql</PackageId>
+        <Version>1.0.0</Version>
         <Authors>TomKao</Authors>
-        <LangVersion>8.0</LangVersion>
+        <Description>內部共用</Description>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageProjectUrl>https://github.com/tom213tw2/Comman.Dapper.Linq.Extension</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/tom213tw2/Comman.Dapper.Linq.Extension</RepositoryUrl>
+        <ReleaseNotes>This is the release note for version 1.0.0</ReleaseNotes>
+        <Copyright>Copyright © TomKao 2024</Copyright>
     </PropertyGroup>
 
     <ItemGroup>
@@ -14,6 +23,27 @@
 
     <ItemGroup>
       <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Update="Comman.Dapper.Linq.Extension.dll">
+            <Pack>true</Pack>
+            <PackagePath>lib/net6.0/</PackagePath>
+        </None>
+
+        <None Update="Comman.Dapper.Linq.Extension.xml">
+            <Pack>true</Pack>
+            <PackagePath>lib/net6.0/</PackagePath>
+        </None>
+
+        <None Update="Comman.Dapper.Linq.MySql.dll">
+            <Pack>true</Pack>
+            <PackagePath>lib/net6.0/</PackagePath>
+        </None>
+        <None Update="Comman.Dapper.Linq.MySql.xml">
+            <Pack>true</Pack>
+            <PackagePath>lib/net6.0/</PackagePath>
+        </None>
     </ItemGroup>
 
 </Project>

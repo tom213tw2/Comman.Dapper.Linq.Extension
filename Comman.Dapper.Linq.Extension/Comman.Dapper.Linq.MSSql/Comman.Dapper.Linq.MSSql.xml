@@ -1,0 +1,168 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Comman.Dapper.Linq.MSSql</name>
+    </assembly>
+    <members>
+        <member name="M:Comman.Dapper.Linq.MSSql.DataBase.QuerySet``1(System.Data.IDbConnection)">
+            <summary>
+            查询
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="sqlConnection"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Comman.Dapper.Linq.MSSql.DataBase.QuerySet``1(System.Data.IDbConnection,System.Data.IDbTransaction)">
+            <summary>
+            查询(带事务)
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="sqlConnection"></param>
+            <param name="dbTransaction"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Comman.Dapper.Linq.MSSql.DataBase.CommandSet``1(System.Data.IDbConnection)">
+            <summary>
+            编辑
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="sqlConnection"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Comman.Dapper.Linq.MSSql.DataBase.CommandSet``1(System.Data.IDbConnection,System.Data.IDbTransaction)">
+            <summary>
+            编辑(带事务)
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="sqlConnection"></param>
+            <param name="dbTransaction"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Comman.Dapper.Linq.MSSql.Extension.CodeFirst">
+            <summary>
+            同步实体到数据库 UseAutoSyncStructure
+            </summary>
+        </member>
+        <member name="M:Comman.Dapper.Linq.MSSql.Extension.CodeFirst.SyncField(Comman.Dapper.Linq.Extension.Entites.EntityObject,Comman.Dapper.Linq.Extension.Entites.EntityObject.EntityField)">
+            <summary>
+            同步字段
+            </summary>
+            <param name="typeEntity"></param>
+            <param name="field"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Comman.Dapper.Linq.MSSql.Extension.CodeFirst.SyncStructure">
+            <summary>
+            同步整体实体结构
+            </summary>
+        </member>
+        <member name="M:Comman.Dapper.Linq.MSSql.Extension.CodeFirst.SyncTable(Comman.Dapper.Linq.Extension.Entites.EntityObject)">
+            <summary>
+            同步单个表结构
+            </summary>
+            <param name="typeEntity"></param>
+        </member>
+        <member name="M:Comman.Dapper.Linq.MSSql.Extension.ProviderOption.GetDate">
+            <summary>
+            获取当前时间
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Comman.Dapper.Linq.MSSql.Extension.ProviderOption.CombineConvert(Comman.Dapper.Linq.Extension.Core.Interfaces.ConvertOption,System.Text.StringBuilder,System.Action)">
+            <summary>
+            结合转换处理
+            </summary>
+            <param name="convertOption"></param>
+            <param name="spliceField"></param>
+            <param name="fieldInkove"></param>
+        </member>
+        <member name="M:Comman.Dapper.Linq.MSSql.Extension.ProviderOption.CombineDate(Comman.Dapper.Linq.Extension.Core.Interfaces.DateOption,System.Text.StringBuilder,System.Action,System.Action)">
+            <summary>
+            时间转义
+            </summary>
+            <param name="dateOption"></param>
+            <param name="table"></param>
+            <param name="field"></param>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Comman.Dapper.Linq.MSSql.Extension.ProviderOption.FuzzyEscaping(System.Object,System.String@,Comman.Dapper.Linq.Extension.Entites.EFuzzyLocation)">
+            <summary>
+            模糊转义
+            </summary>
+            <param name="value"></param>
+            <param name="param"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Comman.Dapper.Linq.MSSql.Extension.ProviderOption.IfNull">
+            <summary>
+            is null 函数
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Comman.Dapper.Linq.MSSql.Extension.QueryExtension.UpdateSelect``1(Comman.Dapper.Linq.Extension.Core.Interfaces.ICommandSet{``0},System.Linq.Expressions.Expression{System.Func{``0,``0}})">
+            <summary>
+            
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="query"></param>
+            <param name="updator"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Comman.Dapper.Linq.MSSql.Extension.QueryExtension.UpdateSelect``1(Comman.Dapper.Linq.Extension.Core.SetC.CommandSet{``0},System.Linq.Expressions.Expression{System.Func{``0,``0}})">
+            <summary>
+            
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="query"></param>
+            <param name="updator"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Comman.Dapper.Linq.MSSql.Extension.QueryExtension.UpdateSelectAsync``1(Comman.Dapper.Linq.Extension.Core.Interfaces.ICommandSet{``0},System.Linq.Expressions.Expression{System.Func{``0,``0}})">
+            <summary>
+            
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="query"></param>
+            <param name="updator"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Comman.Dapper.Linq.MSSql.Extension.QueryExtension.UpdateSelectAsync``1(Comman.Dapper.Linq.Extension.Core.SetC.CommandSet{``0},System.Linq.Expressions.Expression{System.Func{``0,``0}})">
+            <summary>
+            
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="query"></param>
+            <param name="updator"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Comman.Dapper.Linq.MSSql.ResolveExpression.ResolveSelect(System.Nullable{System.Int32})">
+            <summary>
+            解析查询字段
+            </summary>
+            <param name="topNum"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Comman.Dapper.Linq.MSSql.ResolveExpression.ResolveSum(System.Linq.Expressions.LambdaExpression)">
+            <summary>
+            解析查询总和
+            </summary>
+            <param name="selector"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Comman.Dapper.Linq.MSSql.ResolveExpression.ResolveMax(System.Linq.Expressions.LambdaExpression)">
+            <summary>
+            解析查询最大值
+            </summary>
+            <param name="selector"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Comman.Dapper.Linq.MSSql.ResolveExpression.ResolveMin(System.Linq.Expressions.LambdaExpression)">
+            <summary>
+            解析查询最小值
+            </summary>
+            <param name="selector"></param>
+            <returns></returns>
+        </member>
+    </members>
+</doc>

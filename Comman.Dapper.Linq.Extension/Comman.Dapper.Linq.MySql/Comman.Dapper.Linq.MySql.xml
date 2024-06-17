@@ -1,0 +1,132 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Comman.Dapper.Linq.MySql</name>
+    </assembly>
+    <members>
+        <member name="M:Comman.Dapper.Linq.MySql.DataBase.QuerySet``1(System.Data.IDbConnection)">
+            <summary>
+            查询
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="sqlConnection"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Comman.Dapper.Linq.MySql.DataBase.QuerySet``1(System.Data.IDbConnection,System.Data.IDbTransaction)">
+            <summary>
+            查询(带事务)
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="sqlConnection"></param>
+            <param name="dbTransaction"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Comman.Dapper.Linq.MySql.DataBase.CommandSet``1(System.Data.IDbConnection)">
+            <summary>
+            编辑
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="sqlConnection"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Comman.Dapper.Linq.MySql.DataBase.CommandSet``1(System.Data.IDbConnection,System.Data.IDbTransaction)">
+            <summary>
+            编辑(带事务)
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="sqlConnection"></param>
+            <param name="dbTransaction"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Comman.Dapper.Linq.MySql.Extension.CodeFirst">
+            <summary>
+            同步实体到数据库 UseAutoSyncStructure
+            </summary>
+        </member>
+        <member name="M:Comman.Dapper.Linq.MySql.Extension.CodeFirst.ConversionFieldType(System.Data.SqlDbType,System.Int32)">
+            <summary>
+            转换字段类型
+            </summary>
+            <param name="sqlDbType"></param>
+            <param name="length"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Comman.Dapper.Linq.MySql.Extension.CodeFirst.SyncField(Comman.Dapper.Linq.Extension.Entites.EntityObject,Comman.Dapper.Linq.Extension.Entites.EntityObject.EntityField)">
+            <summary>
+            同步字段
+            </summary>
+            <param name="typeEntity"></param>
+            <param name="field"></param>
+        </member>
+        <member name="M:Comman.Dapper.Linq.MySql.Extension.CodeFirst.SyncStructure">
+            <summary>
+            同步整体实体结构
+            </summary>
+        </member>
+        <member name="M:Comman.Dapper.Linq.MySql.Extension.CodeFirst.SyncTable(Comman.Dapper.Linq.Extension.Entites.EntityObject)">
+            <summary>
+            同步单个表结构
+            </summary>
+            <param name="typeEntity"></param>
+        </member>
+        <member name="M:Comman.Dapper.Linq.MySql.Extension.ProviderOption.CombineConvert(Comman.Dapper.Linq.Extension.Core.Interfaces.ConvertOption,System.Text.StringBuilder,System.Action)">
+            <summary>
+            結合轉換處理
+            </summary>
+            <param name="convertOption"></param>
+            <param name="spliceField"></param>
+            <param name="fieldInkove"></param>
+        </member>
+        <member name="M:Comman.Dapper.Linq.MySql.Extension.ProviderOption.CombineDate(Comman.Dapper.Linq.Extension.Core.Interfaces.DateOption,System.Text.StringBuilder,System.Action,System.Action)">
+            <summary>
+            結合時間處理
+            </summary>
+            <param name="dateOption"></param>
+            <param name="spliceField"></param>
+            <param name="fieldInkove"></param>
+            <param name="valueInkove"></param>
+        </member>
+        <member name="M:Comman.Dapper.Linq.MySql.Extension.ProviderOption.IfNull">
+            <summary>
+            if null 函數
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Comman.Dapper.Linq.MySql.Extension.QueryExtension.UpdateSelect``1(Comman.Dapper.Linq.Extension.Core.Interfaces.ICommandSet{``0},System.Linq.Expressions.Expression{System.Func{``0,``0}})">
+            <summary>
+            
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="query"></param>
+            <param name="updator"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Comman.Dapper.Linq.MySql.Extension.QueryExtension.UpdateSelect``1(Comman.Dapper.Linq.Extension.Core.SetC.CommandSet{``0},System.Linq.Expressions.Expression{System.Func{``0,``0}})">
+            <summary>
+            
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="query"></param>
+            <param name="updator"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Comman.Dapper.Linq.MySql.Extension.QueryExtension.UpdateSelectAsync``1(Comman.Dapper.Linq.Extension.Core.Interfaces.ICommandSet{``0},System.Linq.Expressions.Expression{System.Func{``0,``0}})">
+            <summary>
+            
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="query"></param>
+            <param name="updator"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Comman.Dapper.Linq.MySql.Extension.QueryExtension.UpdateSelectAsync``1(Comman.Dapper.Linq.Extension.Core.SetC.CommandSet{``0},System.Linq.Expressions.Expression{System.Func{``0,``0}})">
+            <summary>
+            
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="query"></param>
+            <param name="updator"></param>
+            <returns></returns>
+        </member>
+    </members>
+</doc>
