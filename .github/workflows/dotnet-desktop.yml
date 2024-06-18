@@ -18,6 +18,10 @@ jobs:
       with:
         dotnet-version: '6.0.x'
 
+    - name: Restore dependencies for Extension
+      working-directory: Comman.Dapper.Linq.Extension/Comman.Dapper.Linq.Extension
+      run: dotnet restore
+
     - name: Restore dependencies for MySql
       working-directory: Comman.Dapper.Linq.Extension/Comman.Dapper.Linq.MySql
       run: dotnet restore
@@ -25,6 +29,10 @@ jobs:
     - name: Restore dependencies for MSSql
       working-directory: Comman.Dapper.Linq.Extension/Comman.Dapper.Linq.MSSql
       run: dotnet restore
+
+    - name: Build Extension
+      working-directory: Comman.Dapper.Linq.Extension/Comman.Dapper.Linq.Extension
+      run: dotnet build --configuration Release --no-restore
 
     - name: Build MySql
       working-directory: Comman.Dapper.Linq.Extension/Comman.Dapper.Linq.MySql
@@ -34,6 +42,10 @@ jobs:
       working-directory: Comman.Dapper.Linq.Extension/Comman.Dapper.Linq.MSSql
       run: dotnet build --configuration Release --no-restore
 
+    - name: Pack Extension
+      working-directory: Comman.Dapper.Linq.Extension/Comman.Dapper.Linq.Extension
+      run: dotnet pack --configuration Release --no-build --output ./nupkgs
+
     - name: Pack MySql
       working-directory: Comman.Dapper.Linq.Extension/Comman.Dapper.Linq.MySql
       run: dotnet pack --configuration Release --no-build --output ./nupkgs
@@ -41,6 +53,12 @@ jobs:
     - name: Pack MSSql
       working-directory: Comman.Dapper.Linq.Extension/Comman.Dapper.Linq.MSSql
       run: dotnet pack --configuration Release --no-build --output ./nupkgs
+
+    - name: Get Extension package version
+      working-directory: Comman.Dapper.Linq.Extension/Comman.Dapper.Linq.Extension
+      run: |
+        PACKAGE_VERSION=$(grep -oP '(?<=<Version>)[^<]+' Comman.Dapper.Linq.Extension.csproj)
+        echo "PACKAGE_VERSION=$PACKAGE_VERSION" >> $GITHUB_ENV
 
     - name: Get MySql package version
       working-directory: Comman.Dapper.Linq.Extension/Comman.Dapper.Linq.MySql
@@ -56,6 +74,10 @@ jobs:
 
     - name: Configure NuGet source
       run: dotnet nuget add source https://nuget.godrinkshop.com/v3/index.json -n baget
+
+    - name: Push Extension to NuGet server
+      working-directory: Comman.Dapper.Linq.Extension/Comman.Dapper.Linq.Extension
+      run: dotnet nuget push ./nupkgs/*.nupkg --source https://nuget.godrinkshop.com/v3/index.json --api-key ${{ secrets.NUGET_API_KEY }}
 
     - name: Push MySql to NuGet server
       working-directory: Comman.Dapper.Linq.Extension/Comman.Dapper.Linq.MySql
