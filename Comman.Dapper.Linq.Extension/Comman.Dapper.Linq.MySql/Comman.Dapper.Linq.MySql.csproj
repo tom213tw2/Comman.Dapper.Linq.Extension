@@ -1,13 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>net6.0</TargetFrameworks>
+        <TargetFrameworks>net46;net461;net462;net47;net471;net472;net48;netcoreapp3.1;net6.0</TargetFrameworks>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <DocumentationFile>$(OutputPath)$(AssemblyName).xml</DocumentationFile>
         <AssemblyTitle>Comman.Dapper.Linq.MySql</AssemblyTitle>
         <PackageId>Comman.Dapper.Linq.MySql</PackageId>
-        <Version>1.0.1</Version>
+        <Version>1.0.2</Version>
         <Authors>TomKao</Authors>
         <Description>內部共用</Description>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -26,23 +26,13 @@
     </ItemGroup>
 
     <ItemGroup>
-        <None Update="Comman.Dapper.Linq.Extension.dll">
-            <Pack>true</Pack>
-            <PackagePath>lib/net6.0/</PackagePath>
-        </None>
-
-        <None Update="Comman.Dapper.Linq.Extension.xml">
-            <Pack>true</Pack>
-            <PackagePath>lib/net6.0/</PackagePath>
-        </None>
-
         <None Update="Comman.Dapper.Linq.MySql.dll">
             <Pack>true</Pack>
-            <PackagePath>lib/net6.0/</PackagePath>
+            <PackagePath>lib/$(TargetFramework)/</PackagePath>
         </None>
         <None Update="Comman.Dapper.Linq.MySql.xml">
             <Pack>true</Pack>
-            <PackagePath>lib/net6.0/</PackagePath>
+            <PackagePath>lib/$(TargetFramework)/</PackagePath>
         </None>
     </ItemGroup>
 
