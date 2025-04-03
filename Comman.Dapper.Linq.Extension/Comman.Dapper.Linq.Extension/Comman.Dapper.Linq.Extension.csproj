@@ -14,7 +14,7 @@
         <PackageProjectUrl>https://github.com/tom213tw2/Comman.Dapper.Linq.Extension</PackageProjectUrl>
         <RepositoryUrl>https://github.com/tom213tw2/Comman.Dapper.Linq.Extension</RepositoryUrl>
         <ReleaseNotes>This is the release note for version 1.0.0</ReleaseNotes>
-        <Copyright>Copyright © TomKao 2024</Copyright>
+        <Copyright>Copyright © TomKao 2025</Copyright>
     </PropertyGroup>
     <ItemGroup>
         <PackageReference Include="System.Data.SqlClient" Version="4.8.5"/>
